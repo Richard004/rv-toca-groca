@@ -1,0 +1,19 @@
+{
+  "name": "Toca Groca — Our Family World",
+  "short_name": "Toca Groca",
+  "description": "Play, explore and create stories with our whole family!",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FF8FAB",
+  "theme_color": "#FF8FAB",
+  "icons": [
+    {
+      "src": "icons/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -19,15 +19,21 @@ See `processed/round-1/MANIFEST.md` and in-app **✨ Co je nového**.
 
 ---
 
+### Round 2 — v1.2.0 (2026-06-20) ✅
+
+See `processed/round-2/MANIFEST.md` — mobile fullscreen (⛶ button + Add to Home Screen).
+
+---
+
 ## Next update
 
-### Round 2 — v1.2.0 ⏳
+### Round 3 — v1.3.0 ⏳
 
 **Status:** Waiting for new feedback in `inbox/`
 
-Track items in `pending/round-2.md` and `js/updates.js` → `PENDING_FEEDBACK`.
+Track items in `pending/round-3.md` and `js/updates.js` → `PENDING_FEEDBACK`.
 
-**Do not mix** round 2 items into round 1 / `SHIPPED_UPDATES` until implemented and shipped.
+**Do not mix** new items into `SHIPPED_UPDATES` until implemented and shipped.
 
 ---
 

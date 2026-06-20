@@ -114,6 +114,13 @@ function setupResizeObserver() {
     updateWorldRect();
   });
   resizeObserver.observe(world);
+  window.addEventListener('toca-layout-change', () => {
+    ensureWorldHeight();
+    buildWorldStrip();
+    scrollToRoom(currentRoom, false);
+    renderAllEntities();
+    updateWorldRect();
+  });
 }
 
 function buildWorldStrip() {

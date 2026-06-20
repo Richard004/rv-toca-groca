@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Toca Groca">
+  <rect width="192" height="192" rx="42" fill="#FF8FAB"/>
+  <rect x="48" y="88" width="96" height="72" rx="8" fill="#FFF8F0"/>
+  <path d="M36 92 L96 44 L156 92 Z" fill="#FB6F92"/>
+  <rect x="82" y="108" width="28" height="28" rx="6" fill="#8ECAE6"/>
+  <circle cx="132" cy="72" r="10" fill="#FFD166"/>
+</svg>

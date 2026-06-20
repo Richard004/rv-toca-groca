@@ -14,10 +14,12 @@ import {
   maybeShowUpdatesOnLaunch,
   markUpdatesSeen
 } from './updates.js';
+import { initFullscreen, onGameStarted } from './fullscreen.js';
 
 window.__tocaGroca = { toggleDrawer, showToast };
 
 document.addEventListener('DOMContentLoaded', () => {
+  initFullscreen();
   buildUpdatesPanel();
   showUpdatesBadge();
   setupSplash();
@@ -33,6 +35,7 @@ function setupSplash() {
       initGame();
       document.getElementById('game').dataset.inited = '1';
     }
+    onGameStarted();
     openUpdatesDrawer();
   });
 }
@@ -43,6 +46,7 @@ function startGame() {
   initGame();
   document.getElementById('game').dataset.inited = '1';
   showToast('Vítej v Toca Groca! 🏠❤️');
+  onGameStarted();
   maybeShowUpdatesOnLaunch();
 }
 

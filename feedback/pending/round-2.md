@@ -1,16 +1,14 @@
-# Round 2 — Pending (not shipped)
+# Round 2 — Shipped in v1.2.0 ✅
 
-**Target version:** 1.2.0  
-**Status:** Waiting for new voice notes
+**Shipped:** 2026-06-20  
+**App version:** 1.2.0
 
 | # | Feedback (raw / transcribed) | Source file | Status |
 |---|------------------------------|-------------|--------|
-| — | _No new feedback yet — inbox is empty_ | — | ⏳ pending |
+| 1 | On mobile, browser UI clutter — need fullscreen mode; handy gestures for Samsung/iPhone | `inbox/feedfs.txt` | ✅ shipped |
 
 ---
 
-When new feedback arrives:
+## Next round
 
-1. Transcribe and add a row above (status: `⏳ pending`)
-2. Mirror in `js/updates.js` → `PENDING_FEEDBACK` (kid-friendly Czech)
-3. Do **not** edit `SHIPPED_UPDATES` or `processed/` until fixes are done
+New feedback → `inbox/` only → track in `pending/round-3.md` + `PENDING_FEEDBACK`.

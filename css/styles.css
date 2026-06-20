@@ -68,7 +68,7 @@ html, body {
 .splash-content {
   text-align: center;
   z-index: 2;
-  padding: 2rem;
+  padding: max(2rem, env(safe-area-inset-top)) max(2rem, env(safe-area-inset-right)) max(2rem, env(safe-area-inset-bottom)) max(2rem, env(safe-area-inset-left));
   animation: fadeInUp 0.8s ease;
 }
 
@@ -181,7 +181,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 1rem;
+  padding: max(0.5rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 0.5rem max(1rem, env(safe-area-inset-left));
   background: white;
   box-shadow: 0 2px 12px var(--shadow);
   z-index: 100;
@@ -220,6 +220,26 @@ html, body {
 
 .icon-btn:active {
   transform: scale(0.95);
+}
+
+.icon-btn-fullscreen {
+  background: var(--mint);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.icon-btn-fullscreen.is-active {
+  background: var(--green);
+}
+
+body.is-fullscreen .game-hint,
+body.standalone-mode .game-hint {
+  bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+body.is-fullscreen .toast,
+body.standalone-mode .toast {
+  bottom: max(2rem, calc(env(safe-area-inset-bottom) + 1rem));
 }
 
 /* Building Navigation */
@@ -828,7 +848,7 @@ html, body {
 
 .game-hint {
   position: fixed;
-  bottom: 0.5rem;
+  bottom: max(0.5rem, env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   font-size: 0.7rem;

@@ -6,8 +6,8 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.1.0';
-export const NEXT_VERSION = '1.2.0';
+export const APP_VERSION = '1.2.0';
+export const NEXT_VERSION = '1.3.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
 /** Shipped — Round 1 (v1.1.0) */
@@ -35,6 +35,17 @@ export const SHIPPED_UPDATES = [
       { feedback: 'Málo věcí a interiérů', fix: 'Víc hraček, robot, kostky, koruna a víc nábytku', status: 'done' },
       { feedback: 'Pořád to není jako Toca Boca', fix: 'Pracujeme na tom! Brzy přidáme vaše vlastní kresby 🎨', status: 'ongoing' }
     ]
+  },
+  {
+    id: 'round-2',
+    version: '1.2.0',
+    date: '20. 6. 2026',
+    title: 'Lepší hra na mobilu! 📱',
+    intro: 'Hrajete na telefonu — tak jsme udělali celou obrazovku, aby vám nepřekážela lišta prohlížeče.',
+    from: 'Táta (testování na mobilu)',
+    items: [
+      { feedback: 'Na mobilu překáží lišta prohlížeče — chceme celou obrazovku', fix: 'Tlačítko ⛶ nahoře = celá obrazovka. Na iPhonu: Sdílet → Přidat na plochu 📲', status: 'done' }
+    ]
   }
 ];
 
@@ -47,7 +58,7 @@ export const PENDING_FEEDBACK = [];
 export const PENDING_META = {
   version: NEXT_VERSION,
   title: 'Připravujeme další update 🔄',
-  intro: 'Táta čeká na vaše nové hlasy! Až něco pošlete, objeví se to tady — ještě před tím, než to opravíme.',
+  intro: 'Pošlete Tátovi další hlasovou zprávu — nová přání se objeví tady, než je opravíme.',
   emptyMessage: 'Zatím žádné nové přání. Pošlete Tátovi hlasovou zprávu! 🎤'
 };
 
