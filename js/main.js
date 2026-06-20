@@ -7,21 +7,43 @@ import {
   restoreGameState
 } from './game.js';
 import { downloadBackup, importBackup } from './storage.js';
+import {
+  buildUpdatesPanel,
+  openUpdatesDrawer,
+  showUpdatesBadge,
+  maybeShowUpdatesOnLaunch,
+  markUpdatesSeen
+} from './updates.js';
+
+window.__tocaGroca = { toggleDrawer, showToast };
 
 document.addEventListener('DOMContentLoaded', () => {
+  buildUpdatesPanel();
+  showUpdatesBadge();
   setupSplash();
   setupGameControls();
 });
 
 function setupSplash() {
   document.getElementById('btn-play').addEventListener('click', startGame);
+  document.getElementById('btn-updates-splash').addEventListener('click', () => {
+    document.getElementById('splash').classList.remove('active');
+    document.getElementById('game').classList.add('active');
+    if (!document.getElementById('game').dataset.inited) {
+      initGame();
+      document.getElementById('game').dataset.inited = '1';
+    }
+    openUpdatesDrawer();
+  });
 }
 
 function startGame() {
   document.getElementById('splash').classList.remove('active');
   document.getElementById('game').classList.add('active');
   initGame();
+  document.getElementById('game').dataset.inited = '1';
   showToast('Vítej v Toca Groca! 🏠❤️');
+  maybeShowUpdatesOnLaunch();
 }
 
 function setupGameControls() {
@@ -29,6 +51,10 @@ function setupGameControls() {
     document.getElementById('game').classList.remove('active');
     document.getElementById('splash').classList.add('active');
     closeDrawers();
+  });
+
+  document.getElementById('btn-updates').addEventListener('click', () => {
+    openUpdatesDrawer();
   });
 
   document.getElementById('btn-wallpaper').addEventListener('click', () => {
@@ -46,6 +72,7 @@ function setupGameControls() {
   document.querySelectorAll('.drawer-close').forEach(btn => {
     btn.addEventListener('click', () => {
       document.getElementById(btn.dataset.close).classList.remove('open');
+      if (btn.dataset.close === 'updates-drawer') markUpdatesSeen();
     });
   });
 

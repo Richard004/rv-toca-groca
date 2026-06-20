@@ -27,6 +27,9 @@
           <span class="btn-play-icon">▶</span>
           Let's Play!
         </button>
+        <button class="btn-updates-splash" id="btn-updates-splash" type="button">
+          ✨ Co je nového<span class="updates-badge-dot" hidden></span>
+        </button>
         <p class="splash-credit">Made with ❤️ by Tata Richard for Klarka, Anetka, Tanicka &amp; Risa</p>
       </div>
       <div class="splash-sparkles"></div>
@@ -39,6 +42,9 @@
         <button class="icon-btn" id="btn-home" title="Home screen">🏠</button>
         <h2 class="room-title" id="room-title">Living Room</h2>
         <div class="top-actions">
+          <button class="icon-btn icon-btn-updates" id="btn-updates" title="Co je nového — vaše přání">
+            ✨<span class="updates-badge-dot" hidden></span>
+          </button>
           <button class="icon-btn" id="btn-wallpaper" title="Tapety">🎨</button>
           <button class="icon-btn" id="btn-characters" title="Family &amp; pets">👨‍👩‍👧‍👦</button>
           <button class="icon-btn" id="btn-items" title="Items &amp; toys">🎁</button>
@@ -82,6 +88,16 @@
           <button class="drawer-close" data-close="items-drawer">✕</button>
         </div>
         <div class="drawer-content" id="items-list"></div>
+      </aside>
+
+      <!-- Updates / Feedback changelog -->
+      <aside class="drawer drawer-updates" id="updates-drawer">
+        <div class="drawer-header">
+          <h3>✨ Co je nového</h3>
+          <button class="drawer-close" data-close="updates-drawer">✕</button>
+        </div>
+        <div class="updates-body" id="updates-list"></div>
+        <p class="updates-footer">Máte další nápady? Pošlete Tátovi hlasovou zprávu! 🎤</p>
       </aside>
 
       <!-- Wallpaper Drawer -->

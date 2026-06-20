@@ -2,6 +2,9 @@
 
 Processed from WhatsApp voice notes (2026-06-20). Add new items at the bottom.
 
+> **In-app display:** Kid-facing copy lives in `js/updates.js` (`UPDATE_ROUNDS`).
+> When adding a new round, update that file and bump `APP_VERSION` so the ✨ Novinky panel shows a badge.
+
 ## Round 1 — 2026-06-20
 
 | # | Feedback (Czech) | Status |
