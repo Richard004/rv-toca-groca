@@ -4,7 +4,7 @@
  */
 (function () {
   const BOOT_VERSION = '1.6.3';
-  const BOOT_BUILD = '0e04f14';
+  const BOOT_BUILD = '7d351d8';
   const RELOAD_KEY = 'toca-groca-reload-attempt';
 
   const JS_MODULES = [
