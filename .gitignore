@@ -1,0 +1,10 @@
+node_modules/
+example-drawings/
+*.zip
+.DS_Store
+Thumbs.db
+.githubtoken
+terminals/
+mcps/
+prompt.md
+ExampleDrawingsFromAnetka.zip

@@ -1,0 +1,12 @@
+{
+  "name": "toca-groca",
+  "version": "1.0.0",
+  "description": "A free family play world inspired by Toca Boca — made with love by Tata Richard",
+  "scripts": {
+    "start": "npx --yes serve . -p 3000",
+    "dev": "npx --yes serve . -p 3000"
+  },
+  "keywords": ["toca", "family", "kids", "game"],
+  "author": "Richard",
+  "license": "MIT"
+}
