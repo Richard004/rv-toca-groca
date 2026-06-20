@@ -4,6 +4,7 @@ import {
   getRoomById, getBuildingById, getThemedRoom,
   createRoomSVG, ROOM_VIEW_W, ROOM_VIEW_H, ROOM_ASPECT
 } from './rooms.js';
+import { createPortraitRoomSVG } from './room-art.js';
 import { initWorldMap, playTravelAnimation, updateWorldMapActive } from './world-map.js';
 import { createCharacterSprite, createItemSVG, ITEMS, OUTFIT_COLORS, EMOTIONS } from './sprites.js';
 import { FOOD_ITEMS, getFoodItem, createFoodSVG } from './food-catalog.js';
@@ -144,10 +145,12 @@ function applyRoomDimensions() {
     const vpH = vp.clientHeight;
     const vpW = vp.clientWidth;
     if (vpH < 50) return;
-    let innerW = Math.round(vpH * ROOM_ASPECT);
-    if (innerW < vpW) innerW = vpW;
+    const portraitPhone = vpW < vpH * 0.85;
+    let innerW = portraitPhone ? vpW : Math.round(vpH * ROOM_ASPECT);
+    if (!portraitPhone && innerW < vpW) innerW = vpW;
     inner.style.width = `${innerW}px`;
     inner.style.height = `${vpH}px`;
+    inner.dataset.portraitFit = portraitPhone ? '1' : '0';
   });
 }
 
@@ -164,8 +167,9 @@ function getRoomInnerSize(panelW, panelH, roomId = currentRoom) {
   }
 
   const innerH = panelH;
-  let innerW = Math.round(innerH * ROOM_ASPECT);
-  if (innerW < panelW) innerW = panelW;
+  const portraitPhone = panelW < panelH * 0.85;
+  let innerW = portraitPhone ? panelW : Math.round(innerH * ROOM_ASPECT);
+  if (!portraitPhone && innerW < panelW) innerW = panelW;
   return { innerW, innerH, maxPan: Math.max(0, innerW - panelW) };
 }
 
@@ -272,6 +276,12 @@ function onLayoutChange() {
   updateWorldRect();
 }
 
+function roomSceneSVG(room) {
+  const { w, h } = getWorldSize();
+  if (w < h * 0.85) return createPortraitRoomSVG(room);
+  return createRoomSVG(room, ROOM_VIEW_W, ROOM_VIEW_H);
+}
+
 function buildWorldStrip() {
   const strip = document.getElementById('rooms-strip');
   const { w, h } = getWorldSize();
@@ -279,10 +289,11 @@ function buildWorldStrip() {
 
   strip.innerHTML = rooms.map(roomId => {
     const room = getThemedRoom(getRoomById(roomId), 'default', roomThemes);
+    const sceneSvg = roomSceneSVG(room);
     return `<div class="room-panel" data-room="${roomId}" style="width:${w}px">
       <div class="room-pan-viewport">
         <div class="room-pan-inner">
-          <div class="room-scene">${createRoomSVG(room, ROOM_VIEW_W, ROOM_VIEW_H)}</div>
+          <div class="room-scene">${sceneSvg}</div>
           <div class="entities-layer" data-room="${roomId}"></div>
         </div>
       </div>
@@ -683,7 +694,8 @@ function renderAllEntities() {
     layer.innerHTML = roomEntities.map(entity => {
       const def = resolveEntityDef(entity);
       if (!def) return '';
-      const size = scaleSize(def.size, innerH);
+      const vp = panel.querySelector('.room-pan-viewport');
+      const size = scaleSize(def.size, innerH, innerW, vp?.clientWidth || innerW);
       const svg = entitySvg(entity, def);
       const pos = entityToPixels(entity, innerW, innerH);
       const z = Math.round(pos.y + size.h);

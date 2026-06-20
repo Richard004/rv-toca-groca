@@ -14,16 +14,18 @@ export const EMOTIONS = [
   { id: 'love', icon: '😍', label: 'Zamilovaná' }
 ];
 
-function humanFaceSVG(emotion, headR, cx) {
-  const y = headR + 6;
+function humanFaceSVG(emotion, headR, cx, faceCy) {
+  const y = faceCy ?? (headR + 6);
   const eating = emotion === 'eating';
   const mood = eating ? 'happy' : (emotion || 'happy');
 
+  const ex = cx - 8;
+  const ex2 = cx + 8;
   let eyes = `
-    <ellipse cx="22" cy="${y}" rx="4" ry="5" fill="#333"/>
-    <ellipse cx="34" cy="${y}" rx="4" ry="5" fill="#333"/>
-    <circle cx="23" cy="${y - 2}" r="1.8" fill="white"/>
-    <circle cx="35" cy="${y - 2}" r="1.8" fill="white"/>
+    <ellipse cx="${ex}" cy="${y}" rx="5.5" ry="7" fill="#333"/>
+    <ellipse cx="${ex2}" cy="${y}" rx="5.5" ry="7" fill="#333"/>
+    <circle cx="${ex + 2}" cy="${y - 3}" r="2.5" fill="white"/>
+    <circle cx="${ex2 + 2}" cy="${y - 3}" r="2.5" fill="white"/>
   `;
   let mouth = `<path d="M 24 ${y + 8} Q ${cx} ${y + 11} 32 ${y + 8}" fill="none" stroke="#E07A7A" stroke-width="2" stroke-linecap="round"/>`;
   let extra = `
@@ -84,12 +86,13 @@ export function createHumanSVG(char, overrides = {}) {
   const { colors, features, size } = char;
   const shirt = overrides.shirt || colors.shirt;
   const pants = overrides.pants || colors.pants;
-  const h = features.height === 'small' ? 0.82 : features.height === 'tall' ? 1.12 : 1;
-  const headR = 16 * h;
-  const bodyW = 24;
-  const bodyH = 26 * h;
-  const legH = 20 * h;
-  const cx = 28;
+  const h = features.height === 'small' ? 0.88 : features.height === 'tall' ? 1.05 : 0.95;
+  const headR = 20 * h;
+  const bodyW = 22;
+  const bodyH = 18 * h;
+  const legH = 14 * h;
+  const cx = 30;
+  const outline = 'stroke="#3D3D3D" stroke-width="2.2" stroke-linejoin="round"';
 
   let extras = '';
   if (features.glasses) {
@@ -109,16 +112,18 @@ export function createHumanSVG(char, overrides = {}) {
       <rect x="45" y="54" width="8" height="2" rx="1" fill="#333"/>`;
   }
 
-  return `<svg viewBox="0 0 56 ${size.h}" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="${cx}" cy="${size.h - 4}" rx="18" ry="4" fill="rgba(0,0,0,0.1)"/>
-    <rect x="${cx - bodyW/2}" y="${headR * 2 + 4}" width="${bodyW}" height="${bodyH}" rx="8" fill="${shirt}" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
-    <rect x="${cx - bodyW/2 + 4}" y="${headR * 2 + bodyH + 6}" width="8" height="${legH}" rx="4" fill="${pants}"/>
-    <rect x="${cx + bodyW/2 - 12}" y="${headR * 2 + bodyH + 6}" width="8" height="${legH}" rx="4" fill="${pants}"/>
-    <ellipse cx="${cx - 6}" cy="${headR * 2 + bodyH + legH + 8}" rx="6" ry="3.5" fill="#333"/>
-    <ellipse cx="${cx + 6}" cy="${headR * 2 + bodyH + legH + 8}" rx="6" ry="3.5" fill="#333"/>
-    <circle cx="${cx}" cy="${headR + 6}" r="${headR}" fill="${colors.skin}" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
-    <ellipse cx="${cx}" cy="${headR}" rx="${headR - 1}" ry="10" fill="${colors.hair}"/>
-    ${humanFaceSVG(overrides.emotion, headR, cx)}
+  const topY = headR + 8;
+  const bodyY = topY + headR * 1.65;
+  return `<svg viewBox="0 0 60 ${size.h}" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="${cx}" cy="${size.h - 5}" rx="20" ry="5" fill="rgba(0,0,0,0.14)"/>
+    <rect x="${cx - bodyW/2}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="9" fill="${shirt}" ${outline}/>
+    <rect x="${cx - bodyW/2 + 3}" y="${bodyY + bodyH + 2}" width="9" height="${legH}" rx="5" fill="${pants}" ${outline}/>
+    <rect x="${cx + bodyW/2 - 12}" y="${bodyY + bodyH + 2}" width="9" height="${legH}" rx="5" fill="${pants}" ${outline}/>
+    <ellipse cx="${cx - 7}" cy="${bodyY + bodyH + legH + 9}" rx="7" ry="4" fill="#333"/>
+    <ellipse cx="${cx + 7}" cy="${bodyY + bodyH + legH + 9}" rx="7" ry="4" fill="#333"/>
+    <circle cx="${cx}" cy="${topY + headR}" r="${headR}" fill="${colors.skin}" ${outline}/>
+    <ellipse cx="${cx}" cy="${topY + headR - 4}" rx="${headR + 2}" ry="${headR * 0.55}" fill="${colors.hair}"/>
+    ${humanFaceSVG(overrides.emotion, headR, cx, topY + headR + 2)}
     ${extras}
   </svg>`;
 }

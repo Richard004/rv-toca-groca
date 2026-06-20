@@ -6,8 +6,8 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.8.0';
-export const NEXT_VERSION = '1.9.0';
+export const APP_VERSION = '1.9.0';
+export const NEXT_VERSION = '2.0.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
 /** Shipped — Round 1 (v1.1.0) */
@@ -177,12 +177,25 @@ export const SHIPPED_UPDATES = [
     version: '1.8.0',
     date: '20. 6. 2026',
     title: 'Vizuální revoluce! 🎨',
-    intro: 'Výchozí dům teď vypadá velký, plný a krásný — jako z obrázku, ne z prázdné místnosti.',
+    intro: 'Větší věci a lepší layout — první krok k Toca stylu.',
     from: 'Rodina',
     items: [
-      { feedback: 'Věci jsou titěrné, místnosti prázdné', fix: 'Větší nábytek a postavy + škálování podle výšky místnosti (2× větší)', status: 'done' },
-      { feedback: 'Na telefonu nevidím zařízení', fix: 'Hlavní kompozice přímo ve viditelném výřezu — plná obrazovka zajímavostí', status: 'done' },
-      { feedback: 'Chceme krásnou koláž', fix: 'Bohatší SVG (gauče, postele), stíny, hloubka — automatický vizuální audit', status: 'done' }
+      { feedback: 'Věci jsou titěrné, místnosti prázdné', fix: 'Škálování podle výšky místnosti', status: 'done' },
+      { feedback: 'Na telefonu nevidím zařízení', fix: 'Hero kompozice ve výřezu', status: 'done' },
+      { feedback: 'Chceme krásnou koláž', fix: 'Bohatší SVG + vizuální audit', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-9',
+    version: '1.9.0',
+    date: '20. 6. 2026',
+    title: 'Toca scéna — celý dům na obrazovce! 🏠',
+    intro: 'Design smyčka: portrait místnost, ilustrované pozadí, Toca postavy, design-loop test.',
+    from: 'Táta + design smyčka',
+    items: [
+      { feedback: 'Pořád to není wow jako Toca', fix: 'Celá místnost viditelná na telefonu (žádné prázdné panorama)', status: 'done' },
+      { feedback: 'Chybí ilustrace a vrstvy', fix: 'Nové portrait pozadí — okno, závěsy, police, tečkovaná zeď, podlaha', status: 'done' },
+      { feedback: 'Agent musí vidět co já', fix: 'npm run design:loop → screenshot + DESIGN-APPROVED-living.png', status: 'done' }
     ]
   }
 ];

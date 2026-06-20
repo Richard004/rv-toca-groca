@@ -181,9 +181,12 @@ function renderTv(item) {
   const h = size.h;
   return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     ${shadow(w, h)}
-    <rect x="6" y="8" width="${w - 12}" height="${h - 20}" rx="5" fill="${color}"/>
-    <rect x="12" y="14" width="${w - 24}" height="${h - 30}" rx="3" fill="#4FC3F7"/>
-    <rect x="${w * 0.35}" y="${h - 10}" width="${w * 0.3}" height="6" rx="2" fill="#555"/>
+    <rect x="4" y="6" width="${w - 8}" height="${h - 18}" rx="6" fill="${color}" stroke="#222" stroke-width="2"/>
+    <rect x="10" y="12" width="${w - 20}" height="${h - 28}" rx="4" fill="#1A1A2E"/>
+    <rect x="14" y="16" width="${w - 28}" height="${h - 36}" rx="3" fill="#4FC3F7"/>
+    <circle cx="${w * 0.35}" cy="${h * 0.45}" r="6" fill="#FFD166"/>
+    <rect x="${w * 0.5}" y="${h * 0.35}" width="${w * 0.25}" height="4" rx="2" fill="#FF8FAB"/>
+    <rect x="${w * 0.32}" y="${h - 8}" width="${w * 0.36}" height="5" rx="2" fill="#555"/>
   </svg>`;
 }
 
@@ -515,10 +518,15 @@ function renderPlant(item) {
   const { size, color } = item;
   const w = size.w;
   const h = size.h;
+  const pot = darken(color);
   return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     ${shadow(w, h)}
-    <rect x="${w * 0.3}" y="${h * 0.62}" width="${w * 0.4}" height="${h * 0.3}" rx="4" fill="#8B4513"/>
-    <ellipse cx="${w / 2}" cy="${h * 0.42}" rx="${w * 0.38}" ry="${h * 0.28}" fill="${color}"/>
+    <path d="M ${w * 0.28} ${h * 0.65} L ${w * 0.72} ${h * 0.65} L ${w * 0.66} ${h * 0.9} L ${w * 0.34} ${h * 0.9} Z" fill="${pot}" stroke="#5D4037" stroke-width="1.5"/>
+    <ellipse cx="${w * 0.5}" cy="${h * 0.62}" rx="${w * 0.22}" ry="5" fill="#A1887F"/>
+    <ellipse cx="${w * 0.5}" cy="${h * 0.38}" rx="${w * 0.32}" ry="${h * 0.22}" fill="${color}"/>
+    <ellipse cx="${w * 0.35}" cy="${h * 0.32}" rx="${w * 0.18}" ry="${h * 0.14}" fill="${lighten(color)}"/>
+    <ellipse cx="${w * 0.62}" cy="${h * 0.30}" rx="${w * 0.16}" ry="${h * 0.12}" fill="${lighten(color)}"/>
+    <ellipse cx="${w * 0.48}" cy="${h * 0.22}" rx="${w * 0.14}" ry="${h * 0.1}" fill="#40916C"/>
   </svg>`;
 }
 

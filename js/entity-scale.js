@@ -8,13 +8,17 @@ import { ROOM_VIEW_H } from './rooms.js';
 /** Multiplier on top of room-height ratio — tuned for portrait phones. */
 export const ENTITY_ART_BOOST = 2.35;
 
-export function getRoomEntityScale(innerH) {
+export function getRoomEntityScale(innerH, innerW = 0, vpW = 0) {
   const h = innerH > 0 ? innerH : ROOM_VIEW_H;
-  return (h / ROOM_VIEW_H) * ENTITY_ART_BOOST;
+  let s = (h / ROOM_VIEW_H) * ENTITY_ART_BOOST;
+  if (vpW > 0 && innerW > 0 && innerW <= vpW * 1.08) {
+    s *= 0.74;
+  }
+  return s;
 }
 
-export function scaleSize(size, innerH) {
-  const s = getRoomEntityScale(innerH);
+export function scaleSize(size, innerH, innerW = 0, vpW = 0) {
+  const s = getRoomEntityScale(innerH, innerW, vpW);
   return {
     w: Math.round(size.w * s),
     h: Math.round(size.h * s)

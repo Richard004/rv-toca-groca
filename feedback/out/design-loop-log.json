@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "log": [
+    {
+      "round": 1,
+      "metrics": {
+        "entityCount": 19,
+        "coverage": 0.515625,
+        "maxHeightRatio": 0.3613744075829384,
+        "portraitFit": true,
+        "hasPortraitArt": true,
+        "innerW": 390,
+        "vpW": 390
+      },
+      "shot": "D:\\GitHub\\rv-toca-groca\\feedback\\out\\design-loop-r1-living.png",
+      "ok": true,
+      "thresholds": {
+        "minEntities": 16,
+        "minCoverage": 0.48,
+        "minMaxHeight": 0.3,
+        "portraitFit": true
+      }
+    }
+  ]
+}
