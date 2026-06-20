@@ -25,7 +25,7 @@ export const FAMILY = [
     type: 'human',
     size: { w: 62, h: 108 },
     colors: { skin: '#F5C9A8', hair: '#D4A574', shirt: '#FF6B9D', pants: '#2C3E50' },
-    features: { glasses: false, beard: false, height: 'tall' }
+    features: { glasses: false, beard: false, height: 'tall', robotics: true }
   },
   {
     id: 'anetka',
@@ -60,35 +60,35 @@ export const FAMILY = [
     role: 'Shiba Inu',
     type: 'dog',
     size: { w: 60, h: 55 },
-    colors: { fur: '#E8A87C', belly: '#FFF5E6', accent: '#C97B3D' },
-    features: { breed: 'shiba' }
+    colors: { fur: '#E8652A', belly: '#FFF0E0', accent: '#B84A1A' },
+    features: { breed: 'shiba', ginger: true }
   },
   {
     id: 'dart',
     name: 'Dart',
     role: 'Royal Poodle',
     type: 'dog',
-    size: { w: 65, h: 70 },
-    colors: { fur: '#F5F0EB', accent: '#D4C5B5' },
-    features: { breed: 'poodle', fluffy: true }
+    size: { w: 72, h: 78 },
+    colors: { fur: '#FFFFFF', belly: '#FAFAFA', accent: '#E8E8E8' },
+    features: { breed: 'poodle', fluffy: true, white: true }
   },
   {
     id: 'liza',
     name: 'Líza',
     role: 'Kočka',
     type: 'cat',
-    size: { w: 45, h: 50 },
-    colors: { fur: '#9E9E9E', belly: '#E0E0E0', accent: '#757575' },
-    features: { size: 'small' }
+    size: { w: 42, h: 46 },
+    colors: { fur: '#9E9E9E', belly: '#EEEEEE', accent: '#616161' },
+    features: { size: 'small', gray: true }
   },
   {
     id: 'cookie',
     name: 'Cookie',
     role: 'Kočka',
     type: 'cat',
-    size: { w: 58, h: 55 },
-    colors: { fur: '#FFFFFF', belly: '#F5F5F5', accent: '#E0E0E0' },
-    features: { size: 'large' }
+    size: { w: 68, h: 62 },
+    colors: { fur: '#FFFFFF', belly: '#FAFAFA', accent: '#BDBDBD' },
+    features: { size: 'large', white: true }
   },
   {
     id: 'berta',

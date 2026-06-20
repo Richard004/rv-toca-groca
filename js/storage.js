@@ -1,10 +1,12 @@
 const STORAGE_KEY = 'toca-groca-save';
-const VERSION = 1;
+const VERSION = 2;
 
 export function getDefaultState() {
   return {
     version: VERSION,
+    currentBuilding: 'home',
     currentRoom: 'living',
+    roomThemes: {},
     entities: [],
     savedAt: Date.now()
   };

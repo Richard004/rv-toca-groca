@@ -1,17 +1,26 @@
 import { FAMILY, getCharacterById } from './characters.js';
-import { ROOMS, getRoomById, createRoomSVG, ROOM_VIEW_W, ROOM_VIEW_H } from './rooms.js';
-import { createCharacterSprite, createItemSVG, ITEMS } from './sprites.js';
+import {
+  ROOMS, BUILDINGS, WALLPAPERS,
+  getRoomById, getBuildingById, getThemedRoom,
+  createRoomSVG, ROOM_VIEW_W, ROOM_VIEW_H
+} from './rooms.js';
+import { createCharacterSprite, createItemSVG, ITEMS, OUTFIT_COLORS } from './sprites.js';
 import { loadState, saveState } from './storage.js';
 
 let state = loadState();
+let currentBuilding = state.currentBuilding || 'home';
 let currentRoom = state.currentRoom || 'living';
+let roomThemes = { ...(state.roomThemes || {}) };
 let entities = [...(state.entities || [])];
 let selectedEntity = null;
 let dragEntity = null;
 let dragOffset = { x: 0, y: 0 };
+let dragStartPos = { x: 0, y: 0 };
+let hasDragMoved = false;
 let worldRect = null;
 let autoSaveTimer = null;
 let resizeObserver = null;
+let scrollSyncTimer = null;
 
 const FURNITURE_REACTIONS = {
   sofa: ['*si sedne na gauč* 😊', '*odpočívá* 💤', '*skáče na gauči* 🎉'],
@@ -20,7 +29,7 @@ const FURNITURE_REACTIONS = {
   stove: ['*vaří něco dobrého* 👨‍🍳', '*voní to!* 😋'],
   table: ['*sedí u stolu* 🍽️', '*jí oběd* 😋'],
   bed: ['*spí* 💤💤', '*spí jako andílek* 😴'],
-  desk: ['*kreslí* 🎨', '*dělá domácí úkoly* 📝'],
+  desk: ['*kreslí* 🎨', '*dělá domácí úkoly* 📝', '*staví robota* 🤖'],
   toybox: ['*hraje si s hračkami* 🧸', '*staví z kostek* 🏗️'],
   swing: ['*houpe se* 🎪', '*wheee!* 🎉'],
   sandbox: ['*staví hrad z písku* 🏰', '*hraje si v písku* ⛱️'],
@@ -28,31 +37,45 @@ const FURNITURE_REACTIONS = {
   plant: ['*zalévá květinu* 💧', '*květina roste!* 🌱'],
   lamp: ['*zapíná světlo* 💡', '*svítí!* ✨'],
   poster: ['*objímá rodinu* ❤️', '*rodina je nejlepší!* 💕'],
-  fruitbowl: ['*bere ovoce* 🍎', '*jablíčko!* 🍏']
+  fruitbowl: ['*bere ovoce* 🍎', '*jablíčko!* 🍏'],
+  fireplace: ['*topí v kamnech* 🔥', '*je tu teplo!* ☺️']
 };
 
+let lastTapTime = 0;
+let lastTapUid = null;
+
 export function initGame() {
+  buildBuildingNav();
   buildRoomNav();
   buildCharacterDrawer();
   buildItemsDrawer();
+  buildWallpaperDrawer();
+  buildOutfitBar();
   buildSplashCharacters();
   seedFirstPlay();
   setupInteractions();
   setupResizeObserver();
   scheduleAutoSave();
-  waitForLayout(() => switchRoom(currentRoom));
+  waitForLayout(() => {
+    buildWorldStrip();
+    switchRoom(currentRoom, false);
+  });
+}
+
+function getBuildingRooms() {
+  return getBuildingById(currentBuilding).rooms;
 }
 
 function getChromeHeight() {
   const topBar = document.querySelector('.top-bar');
+  const buildingNav = document.querySelector('.building-nav');
   const roomNav = document.querySelector('.room-nav');
-  return (topBar?.offsetHeight || 58) + (roomNav?.offsetHeight || 52);
+  return (topBar?.offsetHeight || 58) + (buildingNav?.offsetHeight || 44) + (roomNav?.offsetHeight || 48);
 }
 
 function ensureWorldHeight() {
   const world = document.getElementById('game-world');
   if (world.clientHeight >= 100) return;
-
   const chrome = getChromeHeight();
   world.style.height = `calc(100dvh - ${chrome}px)`;
   world.style.flex = 'none';
@@ -66,20 +89,17 @@ function waitForLayout(callback, attempts = 20) {
       callback();
       return;
     }
-    if (remaining > 0) {
-      requestAnimationFrame(() => tick(remaining - 1));
-    } else {
-      callback();
-    }
+    if (remaining > 0) requestAnimationFrame(() => tick(remaining - 1));
+    else callback();
   };
   requestAnimationFrame(() => tick(attempts));
 }
 
 function getWorldSize() {
-  const world = document.getElementById('game-world');
+  const scroll = document.getElementById('world-scroll');
   ensureWorldHeight();
-  const w = world.clientWidth || window.innerWidth;
-  const h = world.clientHeight || (window.innerHeight - getChromeHeight());
+  const w = scroll?.clientWidth || document.getElementById('game-world').clientWidth || window.innerWidth;
+  const h = document.getElementById('game-world').clientHeight || (window.innerHeight - getChromeHeight());
   return { w: Math.max(w, 320), h: Math.max(h, 240) };
 }
 
@@ -88,108 +108,154 @@ function setupResizeObserver() {
   if (resizeObserver) resizeObserver.disconnect();
   resizeObserver = new ResizeObserver(() => {
     ensureWorldHeight();
-    renderRoomScene();
-    renderEntities();
+    buildWorldStrip();
+    scrollToRoom(currentRoom, false);
+    renderAllEntities();
     updateWorldRect();
   });
   resizeObserver.observe(world);
 }
 
-function renderRoomScene() {
-  const room = getRoomById(currentRoom);
-  if (!room) return;
-  const scene = document.getElementById('room-scene');
-  scene.innerHTML = createRoomSVG(room, ROOM_VIEW_W, ROOM_VIEW_H);
+function buildWorldStrip() {
+  const strip = document.getElementById('rooms-strip');
+  const { w, h } = getWorldSize();
+  const rooms = getBuildingRooms();
 
-  scene.querySelectorAll('.furniture.interactive').forEach(el => {
+  strip.innerHTML = rooms.map(roomId => {
+    const room = getThemedRoom(getRoomById(roomId), 'default', roomThemes);
+    return `<div class="room-panel" data-room="${roomId}" style="width:${w}px">
+      <div class="room-scene">${createRoomSVG(room, ROOM_VIEW_W, ROOM_VIEW_H)}</div>
+      <div class="entities-layer" data-room="${roomId}"></div>
+    </div>`;
+  }).join('');
+
+  strip.style.width = `${w * rooms.length}px`;
+
+  strip.querySelectorAll('.furniture.interactive').forEach(el => {
     el.addEventListener('click', (e) => {
+      const panel = el.closest('.room-panel');
+      const roomId = panel?.dataset.room;
       const type = el.closest('[data-furniture]')?.dataset.furniture;
-      if (type && selectedEntity) {
-        reactToFurniture(selectedEntity, type);
-      } else if (type) {
-        showToast(getRandomReaction(type));
-      }
+      if (roomId) currentRoom = roomId;
+      if (type && selectedEntity) reactToFurniture(selectedEntity, type);
+      else if (type) showToast(getRandomReaction(type));
       e.stopPropagation();
     });
   });
+
+  renderAllEntities();
+}
+
+function scrollToRoom(roomId, smooth = true) {
+  const rooms = getBuildingRooms();
+  const index = rooms.indexOf(roomId);
+  if (index < 0) return;
+  const scroll = document.getElementById('world-scroll');
+  const { w } = getWorldSize();
+  scroll.scrollTo({ left: index * w, behavior: smooth ? 'smooth' : 'auto' });
 }
 
 function seedFirstPlay() {
   if (entities.length > 0) return;
   const placements = [
-    { kind: 'character', id: 'risa', room: 'living', x: 0.15, y: 0.55 },
-    { kind: 'character', id: 'anetka', room: 'living', x: 0.28, y: 0.52 },
-    { kind: 'character', id: 'puffy', room: 'garden', x: 0.2, y: 0.6 },
-    { kind: 'character', id: 'zuzana', room: 'kitchen', x: 0.45, y: 0.5 },
-    { kind: 'item', id: 'teddy', room: 'bedroom', x: 0.3, y: 0.6 },
-    { kind: 'item', id: 'ball', room: 'garden', x: 0.55, y: 0.65 }
+    { kind: 'character', id: 'risa', room: 'living', xRel: 0.15, yRel: 0.55 },
+    { kind: 'character', id: 'anetka', room: 'living', xRel: 0.28, yRel: 0.52 },
+    { kind: 'character', id: 'liza', room: 'living', xRel: 0.42, yRel: 0.62 },
+    { kind: 'character', id: 'cookie', room: 'bedroom', xRel: 0.55, yRel: 0.58 },
+    { kind: 'character', id: 'puffy', room: 'garden', xRel: 0.2, yRel: 0.6 },
+    { kind: 'character', id: 'dart', room: 'garden', xRel: 0.35, yRel: 0.55 },
+    { kind: 'character', id: 'zuzana', room: 'kitchen', xRel: 0.45, yRel: 0.5 },
+    { kind: 'character', id: 'klarka', room: 'bedroom', xRel: 0.2, yRel: 0.5 },
+    { kind: 'item', id: 'robot', room: 'bedroom', xRel: 0.65, yRel: 0.55 },
+    { kind: 'item', id: 'teddy', room: 'bedroom', xRel: 0.3, yRel: 0.65 },
+    { kind: 'item', id: 'ball', room: 'garden', xRel: 0.55, yRel: 0.65 }
   ];
   entities = placements.map((p, i) => ({
     uid: `seed-${p.id}-${i}`,
     kind: p.kind,
     id: p.id,
     room: p.room,
-    x: p.x,
-    y: p.y,
-    xRel: p.x,
-    yRel: p.y
+    xRel: p.xRel,
+    yRel: p.yRel
   }));
   persist();
 }
 
 function entityToPixels(entity, worldW, worldH) {
-  const def = entity.kind === 'character'
-    ? getCharacterById(entity.id)
-    : ITEMS.find(i => i.id === entity.id);
-  if (!def) return { x: 0, y: 0 };
-
-  let xRel = entity.xRel;
-  let yRel = entity.yRel;
-  if (xRel == null) {
-    xRel = entity.x / ROOM_VIEW_W;
-    yRel = entity.y / ROOM_VIEW_H;
-    entity.xRel = xRel;
-    entity.yRel = yRel;
-  }
-
-  return {
-    x: xRel * worldW,
-    y: yRel * worldH
-  };
+  return { x: entity.xRel * worldW, y: entity.yRel * worldH };
 }
 
 function pixelsToRelative(x, y) {
   const { w, h } = getWorldSize();
-  return { xRel: x / w, yRel: y / h };
+  return { xRel: Math.max(0, Math.min(1, x / w)), yRel: Math.max(0, Math.min(1, y / h)) };
+}
+
+function getEntityOverrides(entity) {
+  if (entity.kind !== 'character' || !entity.outfit) return {};
+  return { shirt: entity.outfit.shirt, pants: entity.outfit.pants };
 }
 
 function buildSplashCharacters() {
   const el = document.getElementById('splash-chars');
   if (!el) return;
-  const chars = ['risa', 'anetka', 'puffy', 'tanicka', 'cookie'];
-  el.innerHTML = chars.map(id => {
+  el.innerHTML = ['risa', 'anetka', 'liza', 'puffy', 'cookie'].map((id, i) => {
     const char = getCharacterById(id);
-    return `<div class="splash-char">${createCharacterSprite(char)}</div>`;
+    return `<div class="splash-char" style="animation-delay:${i * 0.3}s">${createCharacterSprite(char)}</div>`;
   }).join('');
+}
+
+function buildBuildingNav() {
+  const nav = document.getElementById('building-nav');
+  nav.innerHTML = BUILDINGS.map(b => `
+    <button class="building-tab ${b.id === currentBuilding ? 'active' : ''}" data-building="${b.id}">
+      ${b.icon} ${b.name}
+    </button>
+  `).join('');
+  nav.querySelectorAll('.building-tab').forEach(btn => {
+    btn.addEventListener('click', () => switchBuilding(btn.dataset.building));
+  });
 }
 
 function buildRoomNav() {
   const nav = document.getElementById('room-nav');
-  nav.innerHTML = ROOMS.map(room => `
-    <button class="room-tab ${room.id === currentRoom ? 'active' : ''}" data-room="${room.id}">
-      ${room.icon} ${room.name}
-    </button>
-  `).join('');
-
+  const rooms = getBuildingRooms();
+  nav.innerHTML = rooms.map(roomId => {
+    const room = getRoomById(roomId);
+    return `<button class="room-tab ${roomId === currentRoom ? 'active' : ''}" data-room="${roomId}">
+      ${room.icon} ${room.name.split('—').pop().trim()}
+    </button>`;
+  }).join('');
   nav.querySelectorAll('.room-tab').forEach(btn => {
     btn.addEventListener('click', () => switchRoom(btn.dataset.room));
   });
 }
 
+function buildWallpaperDrawer() {
+  const list = document.getElementById('wallpaper-list');
+  list.innerHTML = WALLPAPERS.map(wp => `
+    <button class="wallpaper-swatch" data-wallpaper="${wp.id}" title="${wp.name}">
+      <span class="swatch-preview" style="background:linear-gradient(180deg, ${wp.wall || '#fff'} 30%, ${wp.floor || wp.bg || '#eee'} 70%)"></span>
+      <span>${wp.name}</span>
+    </button>
+  `).join('');
+  list.querySelectorAll('.wallpaper-swatch').forEach(btn => {
+    btn.addEventListener('click', () => applyWallpaper(btn.dataset.wallpaper));
+  });
+}
+
+function buildOutfitBar() {
+  const bar = document.getElementById('outfit-colors');
+  bar.innerHTML = OUTFIT_COLORS.map(color =>
+    `<button class="outfit-swatch" data-color="${color}" style="background:${color}" title="Změnit tričko"></button>`
+  ).join('');
+  bar.querySelectorAll('.outfit-swatch').forEach(btn => {
+    btn.addEventListener('click', () => applyOutfitColor(btn.dataset.color));
+  });
+}
+
 function buildCharacterDrawer() {
-  const list = document.getElementById('char-list');
-  list.innerHTML = FAMILY.map(char => `
-    <div class="drawer-item" data-spawn="character" data-id="${char.id}" title="${char.name} — ${char.role}">
+  document.getElementById('char-list').innerHTML = FAMILY.map(char => `
+    <div class="drawer-item" data-spawn="character" data-id="${char.id}">
       ${createCharacterSprite(char)}
       <span>${char.name}</span>
     </div>
@@ -197,89 +263,138 @@ function buildCharacterDrawer() {
 }
 
 function buildItemsDrawer() {
-  const list = document.getElementById('items-list');
-  list.innerHTML = ITEMS.map(item => `
-    <div class="drawer-item" data-spawn="item" data-id="${item.id}" title="${item.name}">
+  document.getElementById('items-list').innerHTML = ITEMS.map(item => `
+    <div class="drawer-item" data-spawn="item" data-id="${item.id}">
       ${createItemSVG(item)}
       <span>${item.name}</span>
     </div>
   `).join('');
 }
 
-export function switchRoom(roomId) {
+export function switchBuilding(buildingId) {
+  currentBuilding = buildingId;
+  const rooms = getBuildingRooms();
+  if (!rooms.includes(currentRoom)) currentRoom = rooms[0];
+  buildRoomNav();
+  document.querySelectorAll('.building-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.building === buildingId));
+  buildWorldStrip();
+  switchRoom(currentRoom, false);
+  showToast(`${getBuildingById(buildingId).name} — pojďme exploreovat! 🏠`);
+  persist();
+}
+
+export function switchRoom(roomId, smooth = true) {
+  const rooms = getBuildingRooms();
+  if (!rooms.includes(roomId)) return;
   currentRoom = roomId;
   state.currentRoom = roomId;
 
   const room = getRoomById(roomId);
-  document.getElementById('room-title').textContent = room.name;
+  const title = room.name.includes('—') ? room.name.split('—')[1].trim() : room.name;
+  document.getElementById('room-title').textContent = title;
 
-  document.querySelectorAll('.room-tab').forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.room === roomId);
-  });
+  document.querySelectorAll('.room-tab').forEach(tab =>
+    tab.classList.toggle('active', tab.dataset.room === roomId));
 
-  renderRoomScene();
-  renderEntities();
+  scrollToRoom(roomId, smooth);
+  updateArrowVisibility();
   persist();
 }
 
-function renderEntities() {
-  const layer = document.getElementById('entities-layer');
-  const roomEntities = entities.filter(e => e.room === currentRoom);
+function updateArrowVisibility() {
+  const rooms = getBuildingRooms();
+  const idx = rooms.indexOf(currentRoom);
+  document.getElementById('arrow-left').style.visibility = idx > 0 ? 'visible' : 'hidden';
+  document.getElementById('arrow-right').style.visibility = idx < rooms.length - 1 ? 'visible' : 'hidden';
+}
+
+function applyWallpaper(presetId) {
+  const preset = WALLPAPERS.find(w => w.id === presetId);
+  if (!preset) return;
+  if (preset.id === 'default') delete roomThemes[currentRoom];
+  else roomThemes[currentRoom] = { bg: preset.bg, wall: preset.wall, floor: preset.floor };
+  buildWorldStrip();
+  scrollToRoom(currentRoom, false);
+  showToast(`Tapeta změněna! ${preset.name} 🎨`);
+  closeDrawers();
+  persist();
+}
+
+function applyOutfitColor(color) {
+  const entity = entities.find(e => e.uid === selectedEntity);
+  if (!entity || entity.kind !== 'character') return;
+  entity.outfit = { ...(entity.outfit || {}), shirt: color };
+  renderAllEntities();
+  const char = getCharacterById(entity.id);
+  showToast(`${char.name} má nové tričko! 👕`);
+  persist();
+}
+
+function renderAllEntities() {
   const { w: worldW, h: worldH } = getWorldSize();
+  document.querySelectorAll('.room-panel').forEach(panel => {
+    const roomId = panel.dataset.room;
+    const layer = panel.querySelector('.entities-layer');
+    const roomEntities = entities.filter(e => e.room === roomId);
 
-  layer.innerHTML = roomEntities.map(entity => {
-    const isChar = entity.kind === 'character';
-    const def = isChar ? getCharacterById(entity.id) : ITEMS.find(i => i.id === entity.id);
-    if (!def) return '';
-
-    const size = def.size;
-    const svg = isChar ? createCharacterSprite(def) : createItemSVG(def);
-    const pos = entityToPixels(entity, worldW, worldH);
-
-    return `<div class="entity ${entity.uid === selectedEntity ? 'selected' : ''}"
-      data-uid="${entity.uid}"
-      style="left:${pos.x}px;top:${pos.y}px;width:${size.w}px;height:${size.h}px">
-      ${svg}
-      <span class="entity-label">${def.name}</span>
-    </div>`;
-  }).join('');
-
+    layer.innerHTML = roomEntities.map(entity => {
+      const isChar = entity.kind === 'character';
+      const def = isChar ? getCharacterById(entity.id) : ITEMS.find(i => i.id === entity.id);
+      if (!def) return '';
+      const size = def.size;
+      const svg = isChar
+        ? createCharacterSprite(def, getEntityOverrides(entity))
+        : createItemSVG(def);
+      const pos = entityToPixels(entity, worldW, worldH);
+      return `<div class="entity ${entity.uid === selectedEntity ? 'selected' : ''}"
+        data-uid="${entity.uid}"
+        style="left:${pos.x}px;top:${pos.y}px;width:${size.w}px;height:${size.h}px">
+        ${svg}<span class="entity-label">${def.name}</span></div>`;
+    }).join('');
+  });
   updateWorldRect();
   attachEntityListeners();
+  updateOutfitBar();
+}
+
+function updateOutfitBar() {
+  const bar = document.getElementById('outfit-bar');
+  const entity = entities.find(e => e.uid === selectedEntity);
+  bar.hidden = !(entity && entity.kind === 'character');
 }
 
 function attachEntityListeners() {
   document.querySelectorAll('.entity').forEach(el => {
-    el.addEventListener('pointerdown', onEntityPointerDown);
+    el.addEventListener('pointerdown', onEntityPointerDown, { passive: false });
   });
 }
 
 function updateWorldRect() {
-  const world = document.getElementById('game-world');
-  worldRect = world.getBoundingClientRect();
+  const panel = document.querySelector(`.room-panel[data-room="${currentRoom}"]`);
+  worldRect = panel ? panel.getBoundingClientRect() : document.getElementById('game-world').getBoundingClientRect();
 }
 
-let lastTapTime = 0;
-let lastTapUid = null;
-
 function onEntityPointerDown(e) {
+  if (e.button !== 0 && e.pointerType === 'mouse') return;
   e.preventDefault();
+  e.stopPropagation();
+
   const el = e.currentTarget;
   const uid = el.dataset.uid;
-  const now = Date.now();
-
-  if (uid === lastTapUid && now - lastTapTime < 350) {
-    removeEntity(uid);
-    lastTapTime = 0;
-    lastTapUid = null;
-    return;
+  const panel = el.closest('.room-panel');
+  if (panel) {
+    currentRoom = panel.dataset.room;
+    worldRect = panel.getBoundingClientRect();
   }
-  lastTapTime = now;
-  lastTapUid = uid;
 
   selectedEntity = uid;
-  document.querySelectorAll('.entity').forEach(e => e.classList.remove('selected'));
-  el.classList.add('selected', 'dragging');
+  hasDragMoved = false;
+  dragStartPos = { x: e.clientX, y: e.clientY };
+
+  document.querySelectorAll('.entity').forEach(n => n.classList.remove('selected'));
+  el.classList.add('selected');
+  updateOutfitBar();
 
   dragEntity = el;
   const rect = el.getBoundingClientRect();
@@ -287,53 +402,53 @@ function onEntityPointerDown(e) {
   dragOffset.y = e.clientY - rect.top;
 
   el.setPointerCapture(e.pointerId);
-  el.addEventListener('pointermove', onEntityPointerMove);
+  el.addEventListener('pointermove', onEntityPointerMove, { passive: false });
   el.addEventListener('pointerup', onEntityPointerUp);
   el.addEventListener('pointercancel', onEntityPointerUp);
 }
 
-function removeEntity(uid) {
-  const entity = entities.find(e => e.uid === uid);
-  if (!entity) return;
-  const def = entity.kind === 'character'
-    ? getCharacterById(entity.id)
-    : ITEMS.find(i => i.id === entity.id);
-  entities = entities.filter(e => e.uid !== uid);
-  selectedEntity = null;
-  renderEntities();
-  showToast(`${def?.name || 'Postava'} šel/a domů 👋`);
-  persist();
-}
-
 function onEntityPointerMove(e) {
   if (!dragEntity || !worldRect) return;
+  const dx = Math.abs(e.clientX - dragStartPos.x);
+  const dy = Math.abs(e.clientY - dragStartPos.y);
+  if (dx > 6 || dy > 6) {
+    hasDragMoved = true;
+    dragEntity.classList.add('dragging');
+  }
+  if (!hasDragMoved) return;
+
+  e.preventDefault();
   const x = e.clientX - worldRect.left - dragOffset.x;
   const y = e.clientY - worldRect.top - dragOffset.y;
-
   const maxX = worldRect.width - dragEntity.offsetWidth;
   const maxY = worldRect.height - dragEntity.offsetHeight;
-
-  const clampedX = Math.max(0, Math.min(x, maxX));
-  const clampedY = Math.max(0, Math.min(y, maxY));
-
-  dragEntity.style.left = clampedX + 'px';
-  dragEntity.style.top = clampedY + 'px';
+  dragEntity.style.left = Math.max(0, Math.min(x, maxX)) + 'px';
+  dragEntity.style.top = Math.max(0, Math.min(y, maxY)) + 'px';
 }
 
 function onEntityPointerUp(e) {
   if (!dragEntity) return;
-
   const uid = dragEntity.dataset.uid;
-  const entity = entities.find(ent => ent.uid === uid);
-  if (entity) {
-    const x = parseFloat(dragEntity.style.left);
-    const y = parseFloat(dragEntity.style.top);
-    const rel = pixelsToRelative(x, y);
-    entity.x = x;
-    entity.y = y;
-    entity.xRel = rel.xRel;
-    entity.yRel = rel.yRel;
-    persist();
+  const now = Date.now();
+
+  if (!hasDragMoved && uid === lastTapUid && now - lastTapTime < 400) {
+    removeEntity(uid);
+    lastTapTime = 0;
+    lastTapUid = null;
+  } else if (!hasDragMoved) {
+    lastTapTime = now;
+    lastTapUid = uid;
+  } else {
+    const entity = entities.find(ent => ent.uid === uid);
+    if (entity) {
+      const rel = pixelsToRelative(parseFloat(dragEntity.style.left), parseFloat(dragEntity.style.top));
+      entity.xRel = rel.xRel;
+      entity.yRel = rel.yRel;
+      entity.room = currentRoom;
+      persist();
+    }
+    lastTapTime = 0;
+    lastTapUid = null;
   }
 
   dragEntity.classList.remove('dragging');
@@ -342,6 +457,18 @@ function onEntityPointerUp(e) {
   dragEntity.removeEventListener('pointerup', onEntityPointerUp);
   dragEntity.removeEventListener('pointercancel', onEntityPointerUp);
   dragEntity = null;
+  hasDragMoved = false;
+}
+
+function removeEntity(uid) {
+  const entity = entities.find(e => e.uid === uid);
+  if (!entity) return;
+  const def = entity.kind === 'character' ? getCharacterById(entity.id) : ITEMS.find(i => i.id === entity.id);
+  entities = entities.filter(e => e.uid !== uid);
+  selectedEntity = null;
+  renderAllEntities();
+  showToast(`${def?.name || 'Postava'} šel/a domů 👋`);
+  persist();
 }
 
 function spawnEntity(kind, id) {
@@ -349,48 +476,29 @@ function spawnEntity(kind, id) {
   const def = kind === 'character' ? getCharacterById(id) : ITEMS.find(i => i.id === id);
   if (!def) return;
 
-  const xRel = 0.4 + Math.random() * 0.15;
-  const yRel = 0.5 + Math.random() * 0.1;
-  const x = xRel * worldW;
-  const y = yRel * worldH;
+  const xRel = 0.38 + Math.random() * 0.15;
+  const yRel = 0.48 + Math.random() * 0.12;
 
-  const existing = kind === 'character'
-    ? entities.find(e => e.kind === 'character' && e.id === id)
-    : null;
-
+  const existing = kind === 'character' ? entities.find(e => e.kind === 'character' && e.id === id) : null;
   if (existing) {
     existing.room = currentRoom;
-    existing.x = x;
-    existing.y = y;
     existing.xRel = xRel;
     existing.yRel = yRel;
     selectedEntity = existing.uid;
-    renderEntities();
+    renderAllEntities();
+    switchRoom(currentRoom);
     showToast(`${def.name} jde do ${getRoomById(currentRoom).name}! 👋`);
     persist();
     closeDrawers();
     return;
   }
 
-  const entity = {
-    uid: `${kind}-${id}-${Date.now()}`,
-    kind,
-    id,
-    room: currentRoom,
-    x,
-    y,
-    xRel,
-    yRel
-  };
-
+  const entity = { uid: `${kind}-${id}-${Date.now()}`, kind, id, room: currentRoom, xRel, yRel };
   entities.push(entity);
   selectedEntity = entity.uid;
-  renderEntities();
-
-  const el = document.querySelector(`[data-uid="${entity.uid}"]`);
-  if (el) el.classList.add('spawn');
-
-  showToast(`${def.name} přišel/a do ${getRoomById(currentRoom).name}! 🎉`);
+  renderAllEntities();
+  document.querySelector(`[data-uid="${entity.uid}"]`)?.classList.add('spawn');
+  showToast(`${def.name} přišel/a! 🎉`);
   persist();
   closeDrawers();
 }
@@ -398,9 +506,11 @@ function spawnEntity(kind, id) {
 function reactToFurniture(uid, furnitureType) {
   const entity = entities.find(e => e.uid === uid);
   if (!entity || entity.kind !== 'character') return;
-
   const char = getCharacterById(entity.id);
-  const reaction = getRandomReaction(furnitureType);
+  let reaction = getRandomReaction(furnitureType);
+  if (furnitureType === 'desk' && char.features?.robotics) {
+    reaction = '*staví robota* 🤖';
+  }
   showToast(`${char.name} ${reaction}`);
 }
 
@@ -409,27 +519,62 @@ function getRandomReaction(type) {
   return reactions[Math.floor(Math.random() * reactions.length)];
 }
 
+function onWorldScroll() {
+  if (scrollSyncTimer) clearTimeout(scrollSyncTimer);
+  scrollSyncTimer = setTimeout(() => {
+    const scroll = document.getElementById('world-scroll');
+    const { w } = getWorldSize();
+    const index = Math.round(scroll.scrollLeft / w);
+    const rooms = getBuildingRooms();
+    const roomId = rooms[index];
+    if (roomId && roomId !== currentRoom) {
+      currentRoom = roomId;
+      state.currentRoom = roomId;
+      const room = getRoomById(roomId);
+      const title = room.name.includes('—') ? room.name.split('—')[1].trim() : room.name;
+      document.getElementById('room-title').textContent = title;
+      document.querySelectorAll('.room-tab').forEach(t =>
+        t.classList.toggle('active', t.dataset.room === roomId));
+      updateArrowVisibility();
+      updateWorldRect();
+      persist();
+    }
+  }, 80);
+}
+
 function setupInteractions() {
   document.getElementById('char-list').addEventListener('click', e => {
     const item = e.target.closest('[data-spawn="character"]');
     if (item) spawnEntity('character', item.dataset.id);
   });
-
   document.getElementById('items-list').addEventListener('click', e => {
     const item = e.target.closest('[data-spawn="item"]');
     if (item) spawnEntity('item', item.dataset.id);
   });
+  document.getElementById('world-scroll').addEventListener('scroll', onWorldScroll, { passive: true });
+
+  document.getElementById('arrow-left').addEventListener('click', () => {
+    const rooms = getBuildingRooms();
+    const idx = rooms.indexOf(currentRoom);
+    if (idx > 0) switchRoom(rooms[idx - 1]);
+  });
+  document.getElementById('arrow-right').addEventListener('click', () => {
+    const rooms = getBuildingRooms();
+    const idx = rooms.indexOf(currentRoom);
+    if (idx < rooms.length - 1) switchRoom(rooms[idx + 1]);
+  });
 
   document.getElementById('game-world').addEventListener('click', e => {
-    if (e.target.closest('.entity')) return;
+    if (e.target.closest('.entity') || e.target.closest('.room-arrow')) return;
     selectedEntity = null;
     document.querySelectorAll('.entity').forEach(el => el.classList.remove('selected'));
+    updateOutfitBar();
   });
 
   window.addEventListener('resize', () => {
-    renderRoomScene();
-    renderEntities();
-    updateWorldRect();
+    buildWorldStrip();
+    scrollToRoom(currentRoom, false);
+    renderAllEntities();
   });
 }
 
@@ -446,6 +591,8 @@ export function closeDrawers() {
 
 function persist() {
   state.currentRoom = currentRoom;
+  state.currentBuilding = currentBuilding;
+  state.roomThemes = roomThemes;
   state.entities = entities;
   saveState(state);
 }
@@ -456,14 +603,19 @@ function scheduleAutoSave() {
 }
 
 export function getGameState() {
-  return { ...state, currentRoom, entities };
+  return { ...state, currentRoom, currentBuilding, roomThemes, entities };
 }
 
 export function restoreGameState(newState) {
   state = { ...newState };
   currentRoom = state.currentRoom || 'living';
+  currentBuilding = state.currentBuilding || 'home';
+  roomThemes = { ...(state.roomThemes || {}) };
   entities = [...(state.entities || [])];
-  switchRoom(currentRoom);
+  buildBuildingNav();
+  buildRoomNav();
+  buildWorldStrip();
+  switchRoom(currentRoom, false);
   showToast('Hra načtena! Vítej zpět! 🎉');
 }
 
@@ -476,7 +628,6 @@ export function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
 }
 
-/** Placeholder for future custom drawing integration */
 export function registerCustomAsset(id, imageUrl, meta = {}) {
   const custom = JSON.parse(localStorage.getItem('toca-groca-custom-assets') || '{}');
   custom[id] = { imageUrl, ...meta, addedAt: Date.now() };

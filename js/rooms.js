@@ -61,11 +61,72 @@ export const ROOMS = [
       { id: 'doghouse', type: 'doghouse', x: 0.65, y: 0.6, w: 0.2, h: 0.2, interactive: true },
       { id: 'flowers', type: 'flowers', x: 0.45, y: 0.7, w: 0.3, h: 0.12, interactive: true }
     ]
+  },
+  {
+    id: 'cottage-living',
+    name: 'Chalupa — Obývák',
+    icon: '🏡',
+    building: 'cottage',
+    bg: '#FFF3E0',
+    floor: '#D7CCC8',
+    wall: '#FFE0B2',
+    furniture: [
+      { id: 'c-sofa', type: 'sofa', x: 0.1, y: 0.55, w: 0.32, h: 0.22, interactive: true },
+      { id: 'c-fire', type: 'fireplace', x: 0.55, y: 0.35, w: 0.22, h: 0.28, interactive: true },
+      { id: 'c-rug', type: 'rug', x: 0.28, y: 0.72, w: 0.4, h: 0.12, interactive: false },
+      { id: 'c-plant', type: 'plant', x: 0.03, y: 0.38, w: 0.08, h: 0.18, interactive: true }
+    ]
+  },
+  {
+    id: 'cottage-garden',
+    name: 'Chalupa — Zahrádka',
+    icon: '🌻',
+    building: 'cottage',
+    bg: '#C8E6C9',
+    floor: '#81C784',
+    wall: '#B3E5FC',
+    furniture: [
+      { id: 'c-tree', type: 'tree', x: 0.08, y: 0.12, w: 0.18, h: 0.4, interactive: false },
+      { id: 'c-flowers', type: 'flowers', x: 0.35, y: 0.68, w: 0.35, h: 0.14, interactive: true },
+      { id: 'c-sandbox', type: 'sandbox', x: 0.65, y: 0.62, w: 0.22, h: 0.16, interactive: true },
+      { id: 'c-swing', type: 'swing', x: 0.4, y: 0.18, w: 0.22, h: 0.32, interactive: true }
+    ]
   }
 ];
 
+export const BUILDINGS = [
+  { id: 'home', name: 'Náš dům', icon: '🏠', rooms: ['living', 'kitchen', 'bedroom', 'garden'] },
+  { id: 'cottage', name: 'Chalupa', icon: '🏡', rooms: ['cottage-living', 'cottage-garden'] }
+];
+
+export const WALLPAPERS = [
+  { id: 'default', name: 'Původní', bg: null, wall: null, floor: null },
+  { id: 'pink', name: 'Růžová', bg: '#FFE4EC', wall: '#FFB4C8', floor: '#FF8FAB' },
+  { id: 'mint', name: 'Mátová', bg: '#E0F7FA', wall: '#B2EBF2', floor: '#80DEEA' },
+  { id: 'lavender', name: 'Fialová', bg: '#EDE7F6', wall: '#D1C4E9', floor: '#B39DDB' },
+  { id: 'sunset', name: 'Západ slunce', bg: '#FFF3E0', wall: '#FFE0B2', floor: '#FFCC80' },
+  { id: 'night', name: 'Noční', bg: '#37474F', wall: '#546E7A', floor: '#455A64' }
+];
+
+export function getBuildingById(id) {
+  return BUILDINGS.find(b => b.id === id) || BUILDINGS[0];
+}
+
 export function getRoomById(id) {
   return ROOMS.find(r => r.id === id);
+}
+
+export function getThemedRoom(room, themeId, roomThemes = {}) {
+  const custom = roomThemes[room.id];
+  if (custom) return { ...room, bg: custom.bg, wall: custom.wall, floor: custom.floor };
+  const preset = WALLPAPERS.find(w => w.id === themeId);
+  if (!preset || preset.id === 'default') return room;
+  return {
+    ...room,
+    bg: preset.bg || room.bg,
+    wall: preset.wall || room.wall,
+    floor: preset.floor || room.floor
+  };
 }
 
 export const ROOM_VIEW_W = 1000;
@@ -192,6 +253,13 @@ function createFurnitureSVG(f, w, h) {
       <rect x="${x + fw * 0.1}" y="${y + fh * 0.4}" width="${fw * 0.8}" height="${fh * 0.6}" fill="#E8A87C"/>
       <path d="M ${x} ${y + fh * 0.4} L ${x + fw/2} ${y} L ${x + fw} ${y + fh * 0.4}" fill="#C97B3D"/>
       <rect x="${x + fw * 0.35}" y="${y + fh * 0.6}" width="${fw * 0.3}" height="${fh * 0.35}" rx="10" fill="#5C4033"/>
+    </g>`,
+    fireplace: `<g class="${cls}" data-furniture="fireplace">
+      <rect x="${x}" y="${y + fh * 0.2}" width="${fw}" height="${fh * 0.8}" rx="4" fill="#8B6F47"/>
+      <rect x="${x + fw * 0.15}" y="${y + fh * 0.35}" width="${fw * 0.7}" height="${fh * 0.45}" rx="6" fill="#333"/>
+      <ellipse cx="${x + fw * 0.35}" cy="${y + fh * 0.6}" rx="8" ry="12" fill="#FF6B35" opacity="0.8"/>
+      <ellipse cx="${x + fw * 0.55}" cy="${y + fh * 0.55}" rx="10" ry="14" fill="#FFD166" opacity="0.7"/>
+      <ellipse cx="${x + fw * 0.7}" cy="${y + fh * 0.62}" rx="7" ry="10" fill="#FF6B35" opacity="0.6"/>
     </g>`,
     flowers: `<g class="${cls}" data-furniture="flowers">
       <line x1="${x + fw * 0.2}" y1="${y + fh}" x2="${x + fw * 0.2}" y2="${y + fh * 0.3}" stroke="#52B788" stroke-width="2"/>

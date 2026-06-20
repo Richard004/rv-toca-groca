@@ -31,6 +31,10 @@ function setupGameControls() {
     closeDrawers();
   });
 
+  document.getElementById('btn-wallpaper').addEventListener('click', () => {
+    toggleDrawer('wallpaper-drawer');
+  });
+
   document.getElementById('btn-characters').addEventListener('click', () => {
     toggleDrawer('char-drawer');
   });

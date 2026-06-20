@@ -39,6 +39,7 @@
         <button class="icon-btn" id="btn-home" title="Home screen">🏠</button>
         <h2 class="room-title" id="room-title">Living Room</h2>
         <div class="top-actions">
+          <button class="icon-btn" id="btn-wallpaper" title="Tapety">🎨</button>
           <button class="icon-btn" id="btn-characters" title="Family &amp; pets">👨‍👩‍👧‍👦</button>
           <button class="icon-btn" id="btn-items" title="Items &amp; toys">🎁</button>
           <button class="icon-btn" id="btn-save" title="Save backup">💾</button>
@@ -46,14 +47,24 @@
         </div>
       </header>
 
-      <!-- Room Navigation -->
+      <!-- Building + Room Navigation -->
+      <nav class="building-nav" id="building-nav"></nav>
       <nav class="room-nav" id="room-nav"></nav>
 
-      <!-- Game World -->
+      <!-- Game World — swipe between connected rooms -->
       <main class="game-world" id="game-world">
-        <div class="room-scene" id="room-scene"></div>
-        <div class="entities-layer" id="entities-layer"></div>
+        <button class="room-arrow room-arrow-left" id="arrow-left" aria-label="Předchozí místnost">‹</button>
+        <div class="world-scroll" id="world-scroll">
+          <div class="rooms-strip" id="rooms-strip"></div>
+        </div>
+        <button class="room-arrow room-arrow-right" id="arrow-right" aria-label="Další místnost">›</button>
       </main>
+
+      <!-- Character outfit picker (when character selected) -->
+      <div class="outfit-bar" id="outfit-bar" hidden>
+        <span class="outfit-label">Oblečení:</span>
+        <div class="outfit-colors" id="outfit-colors"></div>
+      </div>
 
       <!-- Character Drawer -->
       <aside class="drawer" id="char-drawer">
@@ -73,8 +84,17 @@
         <div class="drawer-content" id="items-list"></div>
       </aside>
 
+      <!-- Wallpaper Drawer -->
+      <aside class="drawer" id="wallpaper-drawer">
+        <div class="drawer-header">
+          <h3>Tapety místnosti</h3>
+          <button class="drawer-close" data-close="wallpaper-drawer">✕</button>
+        </div>
+        <div class="drawer-content wallpaper-grid" id="wallpaper-list"></div>
+      </aside>
+
       <!-- Hint -->
-      <p class="game-hint">Přetáhni postavy • Klepni 2× = jde domů • Klepni na nábytek = interakce</p>
+      <p class="game-hint">Přetáhni postavy • Posouvej místnosti doleva/doprava • 2× klepnutí = jde domů</p>
 
       <!-- Toast -->
       <div class="toast" id="toast"></div>
