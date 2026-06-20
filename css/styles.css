@@ -170,36 +170,203 @@ html, body {
   animation: sparkle 4s ease infinite;
 }
 
-/* ===== GAME LAYOUT ===== */
+/* ===== GAME LAYOUT — immersive full-screen ===== */
 #game {
   background: var(--cream);
   min-height: 0;
   flex: 1;
 }
 
-.top-bar {
-  display: flex;
+.game-immersive {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.game-overlay > * {
+  pointer-events: auto;
+}
+
+.overlay-pill {
+  position: absolute;
+  top: max(0.5rem, env(safe-area-inset-top));
+  left: max(0.5rem, env(safe-area-inset-left));
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  padding: max(0.5rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 0.5rem max(1rem, env(safe-area-inset-left));
-  background: white;
-  box-shadow: 0 2px 12px var(--shadow);
-  z-index: 100;
-  gap: 0.5rem;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem 0.45rem 0.65rem;
+  border: none;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--pink-dark);
+  cursor: pointer;
+  max-width: calc(100vw - 5.5rem);
+}
+
+.overlay-pill-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.overlay-pill-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overlay-pill-chevron {
+  font-size: 0.65rem;
+  opacity: 0.55;
+}
+
+.overlay-home {
+  position: absolute;
+  top: max(0.5rem, env(safe-area-inset-top));
+  right: max(0.5rem, env(safe-area-inset-right));
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--pink-dark);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.overlay-fab {
+  position: absolute;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  right: max(0.75rem, env(safe-area-inset-right));
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--pink) 0%, var(--pink-dark) 100%);
+  color: white;
+  font-size: 2rem;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 6px 22px rgba(251, 111, 146, 0.55);
+  transition: transform 0.2s;
+  z-index: 45;
+}
+
+.overlay-fab:active {
+  transform: scale(0.94);
+}
+
+.overlay-dots {
+  position: absolute;
+  bottom: max(1.15rem, calc(env(safe-area-inset-bottom) + 0.5rem));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(8px);
+}
+
+.overlay-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.18);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.overlay-dot.active {
+  background: var(--pink);
+  transform: scale(1.25);
+}
+
+.game-immersive:has(.character-bars:not([hidden])) .overlay-fab {
+  bottom: max(7.5rem, calc(env(safe-area-inset-bottom) + 6.5rem));
+}
+
+.game-immersive .character-bars {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 55;
+}
+
+.drawer-picker .building-nav-picker,
+.drawer-picker .room-nav-picker {
   flex-shrink: 0;
 }
 
-.room-title {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--pink-dark);
-  flex: 1;
-  text-align: center;
+.drawer-picker .room-nav-picker {
+  flex-wrap: wrap;
+  max-height: none;
 }
 
-.top-actions {
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.65rem;
+  padding: 1rem 1.25rem 1.5rem;
+}
+
+.tool-btn {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 0.25rem;
+  padding: 0.75rem 0.35rem;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: var(--cream);
+  font-family: var(--font);
+  font-size: 1.45rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.tool-btn span:not(.updates-badge-dot) {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #666;
+}
+
+.tool-btn:hover {
+  border-color: var(--pink);
+  background: white;
+  transform: scale(1.04);
+}
+
+.tool-btn .updates-badge-dot {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+}
+
+.drawer-tools {
+  max-height: 50vh;
 }
 
 .icon-btn {
@@ -311,13 +478,17 @@ body.standalone-mode .toast {
 
 /* Game World */
 .game-world {
-  flex: 0 0 auto;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: calc(100dvh - 9.5rem);
+  height: 100%;
   min-height: 240px;
-  position: relative;
   overflow: hidden;
   background: #FFE8D6;
+}
+
+.game-immersive .game-world {
+  height: 100dvh;
 }
 
 .world-scroll {
@@ -973,16 +1144,19 @@ body.standalone-mode .toast {
 }
 
 .game-hint {
-  position: fixed;
-  bottom: max(0.5rem, env(safe-area-inset-bottom));
+  position: absolute;
+  bottom: max(4.5rem, calc(env(safe-area-inset-bottom) + 3.5rem));
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 600;
-  color: rgba(0,0,0,0.35);
-  z-index: 50;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  z-index: 35;
   pointer-events: none;
   white-space: nowrap;
+  max-width: 92vw;
+  text-align: center;
 }
 
 .drawer.open ~ .game-hint {

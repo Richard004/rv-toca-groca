@@ -8,13 +8,7 @@ export const ROOMS = [
     bg: '#FFE8D6',
     floor: '#DEB887',
     wall: '#FFF0E6',
-    furniture: [
-      { id: 'sofa', type: 'sofa', x: 0.08, y: 0.55, w: 0.35, h: 0.25, interactive: true },
-      { id: 'tv', type: 'tv', x: 0.55, y: 0.25, w: 0.3, h: 0.2, interactive: true },
-      { id: 'rug', type: 'rug', x: 0.25, y: 0.7, w: 0.45, h: 0.15, interactive: false },
-      { id: 'plant', type: 'plant', x: 0.02, y: 0.35, w: 0.08, h: 0.2, interactive: true },
-      { id: 'lamp', type: 'lamp', x: 0.88, y: 0.4, w: 0.08, h: 0.25, interactive: true }
-    ]
+    furniture: []
   },
   {
     id: 'kitchen',
@@ -23,13 +17,7 @@ export const ROOMS = [
     bg: '#E8F5E9',
     floor: '#C8E6C9',
     wall: '#F1F8E9',
-    furniture: [
-      { id: 'fridge', type: 'fridge', x: 0.02, y: 0.2, w: 0.15, h: 0.45, interactive: true },
-      { id: 'stove', type: 'stove', x: 0.2, y: 0.35, w: 0.2, h: 0.25, interactive: true },
-      { id: 'table', type: 'table', x: 0.45, y: 0.5, w: 0.35, h: 0.2, interactive: true },
-      { id: 'cabinet', type: 'cabinet', x: 0.7, y: 0.15, w: 0.28, h: 0.3, interactive: false },
-      { id: 'fruit-bowl', type: 'fruitbowl', x: 0.55, y: 0.48, w: 0.1, h: 0.08, interactive: true }
-    ]
+    furniture: []
   },
   {
     id: 'bedroom',
@@ -38,13 +26,7 @@ export const ROOMS = [
     bg: '#E8EAF6',
     floor: '#C5CAE9',
     wall: '#EDE7F6',
-    furniture: [
-      { id: 'bed1', type: 'bed', x: 0.05, y: 0.45, w: 0.35, h: 0.3, interactive: true },
-      { id: 'bed2', type: 'bed', x: 0.55, y: 0.45, w: 0.35, h: 0.3, interactive: true },
-      { id: 'desk', type: 'desk', x: 0.35, y: 0.2, w: 0.3, h: 0.18, interactive: true },
-      { id: 'toybox', type: 'toybox', x: 0.02, y: 0.75, w: 0.15, h: 0.12, interactive: true },
-      { id: 'poster', type: 'poster', x: 0.4, y: 0.05, w: 0.2, h: 0.12, interactive: true }
-    ]
+    furniture: []
   },
   {
     id: 'bathroom',
@@ -53,13 +35,7 @@ export const ROOMS = [
     bg: '#E3F2FD',
     floor: '#BBDEFB',
     wall: '#E1F5FE',
-    furniture: [
-      { id: 'bath-tub', type: 'bathtub', x: 0.06, y: 0.52, w: 0.32, h: 0.22, interactive: true },
-      { id: 'bath-sink', type: 'sink', x: 0.52, y: 0.32, w: 0.18, h: 0.14, interactive: true },
-      { id: 'bath-toilet', type: 'toilet', x: 0.78, y: 0.55, w: 0.12, h: 0.18, interactive: true },
-      { id: 'bath-mirror', type: 'mirror', x: 0.48, y: 0.12, w: 0.12, h: 0.16, interactive: true },
-      { id: 'bath-towel', type: 'towelrack', x: 0.72, y: 0.28, w: 0.14, h: 0.1, interactive: true }
-    ]
+    furniture: []
   },
   {
     id: 'garden',
@@ -68,16 +44,7 @@ export const ROOMS = [
     bg: '#A8E6CF',
     floor: '#52B788',
     wall: '#87CEEB',
-    furniture: [
-      { id: 'tree1', type: 'tree', x: 0.05, y: 0.1, w: 0.2, h: 0.45, interactive: false },
-      { id: 'tree2', type: 'tree', x: 0.75, y: 0.15, w: 0.2, h: 0.4, interactive: false },
-      { id: 'swing', type: 'swing', x: 0.35, y: 0.15, w: 0.25, h: 0.35, interactive: true },
-      { id: 'sandbox', type: 'sandbox', x: 0.1, y: 0.65, w: 0.25, h: 0.15, interactive: true },
-      { id: 'doghouse', type: 'doghouse', x: 0.65, y: 0.6, w: 0.2, h: 0.2, interactive: true },
-      { id: 'flowers', type: 'flowers', x: 0.45, y: 0.7, w: 0.3, h: 0.12, interactive: true },
-      { id: 'pool-fixed', type: 'pool', x: 0.55, y: 0.55, w: 0.28, h: 0.18, interactive: true },
-      { id: 'climb-fixed', type: 'climbing', x: 0.2, y: 0.12, w: 0.22, h: 0.28, interactive: true }
-    ]
+    furniture: []
   },
   {
     id: 'cottage-living',
@@ -87,12 +54,7 @@ export const ROOMS = [
     bg: '#FFF3E0',
     floor: '#D7CCC8',
     wall: '#FFE0B2',
-    furniture: [
-      { id: 'c-sofa', type: 'sofa', x: 0.1, y: 0.55, w: 0.32, h: 0.22, interactive: true },
-      { id: 'c-fire', type: 'fireplace', x: 0.55, y: 0.35, w: 0.22, h: 0.28, interactive: true },
-      { id: 'c-rug', type: 'rug', x: 0.28, y: 0.72, w: 0.4, h: 0.12, interactive: false },
-      { id: 'c-plant', type: 'plant', x: 0.03, y: 0.38, w: 0.08, h: 0.18, interactive: true }
-    ]
+    furniture: []
   },
   {
     id: 'cottage-garden',
@@ -102,12 +64,7 @@ export const ROOMS = [
     bg: '#C8E6C9',
     floor: '#81C784',
     wall: '#B3E5FC',
-    furniture: [
-      { id: 'c-tree', type: 'tree', x: 0.08, y: 0.12, w: 0.18, h: 0.4, interactive: false },
-      { id: 'c-flowers', type: 'flowers', x: 0.35, y: 0.68, w: 0.35, h: 0.14, interactive: true },
-      { id: 'c-sandbox', type: 'sandbox', x: 0.65, y: 0.62, w: 0.22, h: 0.16, interactive: true },
-      { id: 'c-swing', type: 'swing', x: 0.4, y: 0.18, w: 0.22, h: 0.32, interactive: true }
-    ]
+    furniture: []
   }
 ];
 

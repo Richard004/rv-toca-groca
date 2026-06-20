@@ -50,6 +50,12 @@ function startGame() {
   maybeShowUpdatesOnLaunch();
 }
 
+function openFromTools(drawerId) {
+  closeDrawers();
+  if (drawerId === 'updates-drawer') openUpdatesDrawer();
+  else toggleDrawer(drawerId);
+}
+
 function setupGameControls() {
   document.getElementById('btn-home').addEventListener('click', () => {
     document.getElementById('game').classList.remove('active');
@@ -57,24 +63,32 @@ function setupGameControls() {
     closeDrawers();
   });
 
+  document.getElementById('btn-tools').addEventListener('click', () => {
+    toggleDrawer('tools-drawer');
+  });
+
+  document.getElementById('btn-room-picker').addEventListener('click', () => {
+    toggleDrawer('room-picker-drawer');
+  });
+
   document.getElementById('btn-updates').addEventListener('click', () => {
-    openUpdatesDrawer();
+    openFromTools('updates-drawer');
   });
 
   document.getElementById('btn-wallpaper').addEventListener('click', () => {
-    toggleDrawer('wallpaper-drawer');
+    openFromTools('wallpaper-drawer');
   });
 
   document.getElementById('btn-characters').addEventListener('click', () => {
-    toggleDrawer('char-drawer');
+    openFromTools('char-drawer');
   });
 
   document.getElementById('btn-items').addEventListener('click', () => {
-    toggleDrawer('items-drawer');
+    openFromTools('items-drawer');
   });
 
   document.getElementById('btn-food').addEventListener('click', () => {
-    toggleDrawer('food-drawer');
+    openFromTools('food-drawer');
   });
 
   document.querySelectorAll('.drawer-close').forEach(btn => {

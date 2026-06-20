@@ -40,31 +40,8 @@
       <div class="splash-sparkles"></div>
     </div>
 
-    <!-- Main Game -->
-    <div id="game" class="screen">
-      <!-- Top Bar -->
-      <header class="top-bar">
-        <button class="icon-btn" id="btn-home" title="Home screen">🏠</button>
-        <h2 class="room-title" id="room-title">Living Room</h2>
-        <div class="top-actions">
-          <button class="icon-btn icon-btn-fullscreen" id="btn-fullscreen" type="button" title="Celá obrazovka" aria-label="Celá obrazovka" hidden>⛶</button>
-          <button class="icon-btn icon-btn-updates" id="btn-updates" title="Co je nového — vaše přání">
-            ✨<span class="updates-badge-dot" hidden></span>
-          </button>
-          <button class="icon-btn" id="btn-wallpaper" title="Tapety">🎨</button>
-          <button class="icon-btn" id="btn-characters" title="Family &amp; pets">👨‍👩‍👧‍👦</button>
-          <button class="icon-btn" id="btn-items" title="Přidat nábytek a věci">🎁</button>
-          <button class="icon-btn" id="btn-food" title="Jídlo a pití">🍎</button>
-          <button class="icon-btn" id="btn-save" title="Save backup">💾</button>
-          <button class="icon-btn" id="btn-load" title="Load backup">📂</button>
-        </div>
-      </header>
-
-      <!-- Building + Room Navigation -->
-      <nav class="building-nav" id="building-nav"></nav>
-      <nav class="room-nav" id="room-nav"></nav>
-
-      <!-- Game World — swipe between connected rooms -->
+    <!-- Main Game — full-screen scene, controls as overlay -->
+    <div id="game" class="screen game-immersive">
       <main class="game-world" id="game-world">
         <button class="room-arrow room-arrow-left" id="arrow-left" aria-label="Předchozí místnost">‹</button>
         <div class="world-scroll" id="world-scroll">
@@ -72,6 +49,17 @@
         </div>
         <button class="room-arrow room-arrow-right" id="arrow-right" aria-label="Další místnost">›</button>
       </main>
+
+      <div class="game-overlay" id="game-overlay">
+        <button type="button" class="overlay-pill" id="btn-room-picker" aria-label="Vybrat místnost">
+          <span class="overlay-pill-icon" id="overlay-room-icon">🛋️</span>
+          <span class="overlay-pill-text" id="overlay-room-name">Obývák</span>
+          <span class="overlay-pill-chevron">▾</span>
+        </button>
+        <button type="button" class="overlay-home" id="btn-home" title="Úvodní obrazovka" aria-label="Domů">⌂</button>
+        <div class="overlay-dots" id="room-dots" aria-hidden="true"></div>
+        <button type="button" class="overlay-fab" id="btn-tools" title="Nástroje" aria-label="Nástroje">＋</button>
+      </div>
 
       <!-- Character outfit + emotion (when character selected) -->
       <div class="character-bars" id="character-bars" hidden>
@@ -84,6 +72,36 @@
           <div class="emotion-buttons" id="emotion-buttons"></div>
         </div>
       </div>
+
+      <!-- Room picker -->
+      <aside class="drawer drawer-picker" id="room-picker-drawer">
+        <div class="drawer-header">
+          <h3>Kam jít?</h3>
+          <button class="drawer-close" data-close="room-picker-drawer">✕</button>
+        </div>
+        <nav class="building-nav building-nav-picker" id="building-nav"></nav>
+        <nav class="room-nav room-nav-picker" id="room-nav"></nav>
+      </aside>
+
+      <!-- Tools menu -->
+      <aside class="drawer drawer-tools" id="tools-drawer">
+        <div class="drawer-header">
+          <h3>Nástroje</h3>
+          <button class="drawer-close" data-close="tools-drawer">✕</button>
+        </div>
+        <div class="tools-grid">
+          <button type="button" class="tool-btn" id="btn-updates" title="Co je nového">
+            ✨<span>Novinky</span><span class="updates-badge-dot" hidden></span>
+          </button>
+          <button type="button" class="tool-btn" id="btn-characters" title="Rodina">👨‍👩‍👧‍👦<span>Rodina</span></button>
+          <button type="button" class="tool-btn" id="btn-items" title="Nábytek">🎁<span>Nábytek</span></button>
+          <button type="button" class="tool-btn" id="btn-food" title="Jídlo">🍎<span>Jídlo</span></button>
+          <button type="button" class="tool-btn" id="btn-wallpaper" title="Tapety">🎨<span>Tapety</span></button>
+          <button type="button" class="tool-btn icon-btn-fullscreen" id="btn-fullscreen" title="Celá obrazovka" hidden>⛶<span>Obrazovka</span></button>
+          <button type="button" class="tool-btn" id="btn-save" title="Uložit">💾<span>Uložit</span></button>
+          <button type="button" class="tool-btn" id="btn-load" title="Načíst">📂<span>Načíst</span></button>
+        </div>
+      </aside>
 
       <!-- Character Drawer -->
       <aside class="drawer" id="char-drawer">
@@ -135,7 +153,7 @@
       </aside>
 
       <!-- Hint -->
-      <p class="game-hint">🍎 Jídlo • 😊 Emoce u postavy • Přetáhni k puse = sní 🥕</p>
+      <p class="game-hint">Posouvej místnosti • ＋ nástroje • 🎁 zařiď prázdný dům</p>
 
       <!-- Toast -->
       <div class="toast" id="toast"></div>

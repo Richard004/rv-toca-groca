@@ -6,8 +6,8 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.4.0';
-export const NEXT_VERSION = '1.5.0';
+export const APP_VERSION = '1.5.0';
+export const NEXT_VERSION = '1.6.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
 /** Shipped — Round 1 (v1.1.0) */
@@ -74,6 +74,20 @@ export const SHIPPED_UPDATES = [
       { feedback: 'Postavičky mají umět jíst a pít', fix: '🍎 Jídlo → přetáhni k puse — „Anetka snědla mrkev!“', status: 'done' },
       { feedback: 'Jídlo dát do ledničky', fix: 'Přetáhni jídlo k lednici v kuchyni 🧊 — uloží se tam', status: 'done' },
       { feedback: 'Hezká animace jedení', fix: 'Pusa se hýbe při jídle + veselá zpráva nahoře 😋', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-5',
+    version: '1.5.0',
+    date: '20. 6. 2026',
+    title: 'Prázdný dům + celá obrazovka! 🏠',
+    intro: 'Jako v Toca Boca — prázdné místnosti a celá obrazovka na mobilu. Žádné lišty navrchu!',
+    from: 'Rodina',
+    items: [
+      { feedback: 'Místnosti mají být prázdné jako v Toca Boca', fix: 'Všechny pokoje začínají prázdné — zařiď si je sám!', status: 'done' },
+      { feedback: 'Nábytek a stromy musí jít přesouvat a odstraňovat', fix: 'Vše přidáš z 🎁 — táhni, 2× klepnutí = pryč. Nic není natvrdo', status: 'done' },
+      { feedback: 'Na mobilu je polovina obrazovky panely — chceme scénu', fix: 'Celá obrazovka = hra! Ovládání jen jako overlay', status: 'done' },
+      { feedback: 'Nový elegantní mobilní layout', fix: '＋ tlačítko dole • místnost nahoře • tečky pro přepínání', status: 'done' }
     ]
   }
 ];

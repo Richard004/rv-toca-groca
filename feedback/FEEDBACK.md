@@ -37,13 +37,19 @@ See `processed/round-4/MANIFEST.md` — emotions bar, food drawer, feeding, frid
 
 ---
 
+### Round 5 — v1.5.0 (2026-06-20) ✅
+
+See `processed/round-5/MANIFEST.md` — empty rooms, full-screen overlay UI.
+
+---
+
 ## Next update
 
-### Round 5 — v1.5.0 ⏳
+### Round 6 — v1.6.0 ⏳
 
 **Status:** Waiting for new feedback in `inbox/`
 
-Track items in `pending/round-5.md` and `js/updates.js` → `PENDING_FEEDBACK`.
+Track items in `pending/round-6.md` and `js/updates.js` → `PENDING_FEEDBACK`.
 
 ---
 

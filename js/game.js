@@ -84,10 +84,7 @@ function getBuildingRooms() {
 }
 
 function getChromeHeight() {
-  const topBar = document.querySelector('.top-bar');
-  const buildingNav = document.querySelector('.building-nav');
-  const roomNav = document.querySelector('.room-nav');
-  return (topBar?.offsetHeight || 58) + (buildingNav?.offsetHeight || 44) + (roomNav?.offsetHeight || 48);
+  return 0;
 }
 
 function ensureWorldHeight() {
@@ -180,29 +177,10 @@ function scrollToRoom(roomId, smooth = true) {
 }
 
 function seedFirstPlay() {
-  if (entities.length > 0) return;
-  const placements = [
-    { kind: 'character', id: 'risa', room: 'living', xRel: 0.15, yRel: 0.55 },
-    { kind: 'character', id: 'anetka', room: 'living', xRel: 0.28, yRel: 0.52 },
-    { kind: 'character', id: 'liza', room: 'living', xRel: 0.42, yRel: 0.62 },
-    { kind: 'character', id: 'cookie', room: 'bedroom', xRel: 0.55, yRel: 0.58 },
-    { kind: 'character', id: 'puffy', room: 'garden', xRel: 0.2, yRel: 0.6 },
-    { kind: 'character', id: 'dart', room: 'garden', xRel: 0.35, yRel: 0.55 },
-    { kind: 'character', id: 'zuzana', room: 'kitchen', xRel: 0.45, yRel: 0.5 },
-    { kind: 'character', id: 'klarka', room: 'bedroom', xRel: 0.2, yRel: 0.5 },
-    { kind: 'item', id: 'robot', room: 'bedroom', xRel: 0.65, yRel: 0.55 },
-    { kind: 'item', id: 'teddy', room: 'bedroom', xRel: 0.3, yRel: 0.65 },
-    { kind: 'item', id: 'ball', room: 'garden', xRel: 0.55, yRel: 0.65 }
-  ];
-  entities = placements.map((p, i) => ({
-    uid: `seed-${p.id}-${i}`,
-    kind: p.kind,
-    id: p.id,
-    room: p.room,
-    xRel: p.xRel,
-    yRel: p.yRel
-  }));
+  if (entities.length > 0 || state.emptyWorldSeeded) return;
+  state.emptyWorldSeeded = true;
   persist();
+  setTimeout(() => showToast('Prázdné místnosti! ＋ rodina a 🎁 nábytek — vše přesouváš'), 900);
 }
 
 function entityToPixels(entity, worldW, worldH) {
@@ -260,7 +238,38 @@ function buildRoomNav() {
     </button>`;
   }).join('');
   nav.querySelectorAll('.room-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchRoom(btn.dataset.room);
+      closeDrawers();
+    });
+  });
+  buildRoomDots();
+}
+
+function buildRoomDots() {
+  const dots = document.getElementById('room-dots');
+  if (!dots) return;
+  const rooms = getBuildingRooms();
+  dots.innerHTML = rooms.map((roomId, i) => {
+    const room = getRoomById(roomId);
+    const active = roomId === currentRoom;
+    return `<button type="button" class="overlay-dot ${active ? 'active' : ''}" data-room="${roomId}" aria-label="${room.name}" title="${room.name}"></button>`;
+  }).join('');
+  dots.querySelectorAll('.overlay-dot').forEach(btn => {
     btn.addEventListener('click', () => switchRoom(btn.dataset.room));
+  });
+}
+
+function updateOverlayChrome() {
+  const room = getRoomById(currentRoom);
+  if (!room) return;
+  const title = room.name.includes('—') ? room.name.split('—')[1].trim() : room.name;
+  const iconEl = document.getElementById('overlay-room-icon');
+  const nameEl = document.getElementById('overlay-room-name');
+  if (iconEl) iconEl.textContent = room.icon;
+  if (nameEl) nameEl.textContent = title;
+  document.querySelectorAll('.overlay-dot').forEach(dot => {
+    dot.classList.toggle('active', dot.dataset.room === currentRoom);
   });
 }
 
@@ -409,6 +418,7 @@ export function switchBuilding(buildingId) {
   buildRoomNav();
   document.querySelectorAll('.building-tab').forEach(t =>
     t.classList.toggle('active', t.dataset.building === buildingId));
+  updateOverlayChrome();
   buildWorldStrip();
   switchRoom(currentRoom, false);
   showToast(`${getBuildingById(buildingId).name} — pojďme exploreovat! 🏠`);
@@ -422,8 +432,7 @@ export function switchRoom(roomId, smooth = true) {
   state.currentRoom = roomId;
 
   const room = getRoomById(roomId);
-  const title = room.name.includes('—') ? room.name.split('—')[1].trim() : room.name;
-  document.getElementById('room-title').textContent = title;
+  updateOverlayChrome();
 
   document.querySelectorAll('.room-tab').forEach(tab =>
     tab.classList.toggle('active', tab.dataset.room === roomId));
@@ -511,8 +520,15 @@ function updateOutfitBar() {
 }
 
 function isNearFridge(xRel, yRel, roomId) {
-  if (roomId !== 'kitchen') return false;
-  return xRel < 0.22 && yRel > 0.15 && yRel < 0.72;
+  const fridge = entities.find(e => {
+    if (e.kind !== 'furniture' || e.room !== roomId) return false;
+    const def = getCatalogItem(e.id);
+    return def?.type === 'fridge';
+  });
+  if (fridge) {
+    return Math.hypot(fridge.xRel - xRel, fridge.yRel - yRel) < 0.14;
+  }
+  return roomId === 'kitchen' && xRel < 0.25 && yRel > 0.12 && yRel < 0.75;
 }
 
 function czechEatVerb(char, drink) {
@@ -646,15 +662,26 @@ function onEntityPointerUp(e) {
   const uid = dragEntity.dataset.uid;
   const now = Date.now();
 
+  const entity = entities.find(ent => ent.uid === uid);
+
   if (!hasDragMoved && uid === lastTapUid && now - lastTapTime < 400) {
     removeEntity(uid);
     lastTapTime = 0;
     lastTapUid = null;
-  } else if (!hasDragMoved) {
-    lastTapTime = now;
-    lastTapUid = uid;
+  } else if (!hasDragMoved && entity) {
+    if (entity.kind === 'furniture') {
+      const def = getCatalogItem(entity.id);
+      const charEntity = entities.find(e => e.uid === selectedEntity && e.kind === 'character');
+      if (charEntity && def) {
+        reactToFurniture(charEntity.uid, def.type);
+      } else if (def) {
+        showToast(getRandomReaction(def.type));
+      }
+    } else {
+      lastTapTime = now;
+      lastTapUid = uid;
+    }
   } else {
-    const entity = entities.find(ent => ent.uid === uid);
     if (entity) {
       const consumed = tryFoodInteraction(entity, dragEntity);
       if (!consumed) {
@@ -778,9 +805,7 @@ function onWorldScroll() {
     if (roomId && roomId !== currentRoom) {
       currentRoom = roomId;
       state.currentRoom = roomId;
-      const room = getRoomById(roomId);
-      const title = room.name.includes('—') ? room.name.split('—')[1].trim() : room.name;
-      document.getElementById('room-title').textContent = title;
+      updateOverlayChrome();
       document.querySelectorAll('.room-tab').forEach(t =>
         t.classList.toggle('active', t.dataset.room === roomId));
       updateArrowVisibility();
