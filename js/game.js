@@ -11,6 +11,7 @@ import { CATALOG_GROUPS, getCatalogGroup, getSubgroupsForGroup, getCatalogItem }
 import { createPlaceableSVG } from './furniture-sprites.js';
 import { loadState, saveState } from './storage.js';
 import { buildFurnishedDefaultWorld, buildEmptyWorld } from './default-world.js';
+import { scaleSize } from './entity-scale.js';
 
 let catalogNav = { level: 'groups', groupId: null, subgroupId: null };
 
@@ -330,7 +331,7 @@ export function startNewWorld(mode = 'furnished') {
 
   entities = [...built.entities];
   roomThemes = { ...(built.roomThemes || {}) };
-  roomPans = {};
+  roomPans = { ...(built.roomPans || {}) };
   fridgeItems = { ...(built.fridgeItems || {}) };
   currentBuilding = built.currentBuilding || 'home';
   currentRoom = built.currentRoom || 'living';
@@ -682,12 +683,13 @@ function renderAllEntities() {
     layer.innerHTML = roomEntities.map(entity => {
       const def = resolveEntityDef(entity);
       if (!def) return '';
-      const size = def.size;
+      const size = scaleSize(def.size, innerH);
       const svg = entitySvg(entity, def);
       const pos = entityToPixels(entity, innerW, innerH);
+      const z = Math.round(pos.y + size.h);
       return `<div class="entity ${entity.uid === selectedEntity ? 'selected' : ''}"
         data-uid="${entity.uid}"
-        style="left:${pos.x}px;top:${pos.y}px;width:${size.w}px;height:${size.h}px">
+        style="left:${pos.x}px;top:${pos.y}px;width:${size.w}px;height:${size.h}px;z-index:${z}">
         ${svg}<span class="entity-label">${def.name}</span></div>`;
     }).join('');
   });
@@ -933,8 +935,8 @@ function spawnEntity(kind, id) {
       : resolveEntityDef({ kind, id });
   if (!def) return;
 
-  const xRel = 0.32 + Math.random() * 0.2;
-  const yRel = 0.42 + Math.random() * 0.18;
+  const xRel = 0.40 + Math.random() * 0.18;
+  const yRel = 0.52 + Math.random() * 0.14;
 
   const existing = kind === 'character' ? entities.find(e => e.kind === 'character' && e.id === id) : null;
   if (existing) {

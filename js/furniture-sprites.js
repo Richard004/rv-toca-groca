@@ -108,12 +108,17 @@ function renderSofa(item) {
   const { size, color } = item;
   const w = size.w;
   const h = size.h;
+  const cushion = lighten(color);
   return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     ${shadow(w, h)}
-    <rect x="6" y="20" width="${w - 12}" height="${h - 28}" rx="10" fill="${color}"/>
-    <rect x="8" y="8" width="${w - 16}" height="16" rx="8" fill="${lighten(color)}"/>
-    <rect x="6" y="22" width="10" height="${h - 32}" rx="4" fill="${lighten(color)}"/>
-    <rect x="${w - 16}" y="22" width="10" height="${h - 32}" rx="4" fill="${lighten(color)}"/>
+    <rect x="4" y="${h * 0.38}" width="${w - 8}" height="${h * 0.52}" rx="12" fill="${darken(color)}"/>
+    <rect x="8" y="${h * 0.32}" width="${w - 16}" height="${h * 0.22}" rx="10" fill="${cushion}"/>
+    <rect x="10" y="${h * 0.54}" width="${(w - 24) / 2}" height="${h * 0.28}" rx="8" fill="${color}"/>
+    <rect x="${w / 2 + 2}" y="${h * 0.54}" width="${(w - 24) / 2}" height="${h * 0.28}" rx="8" fill="${color}"/>
+    <rect x="6" y="${h * 0.34}" width="12" height="${h * 0.42}" rx="6" fill="${cushion}"/>
+    <rect x="${w - 18}" y="${h * 0.34}" width="12" height="${h * 0.42}" rx="6" fill="${cushion}"/>
+    <ellipse cx="${w * 0.28}" cy="${h * 0.44}" rx="8" ry="5" fill="white" opacity="0.55"/>
+    <ellipse cx="${w * 0.72}" cy="${h * 0.44}" rx="8" ry="5" fill="white" opacity="0.55"/>
   </svg>`;
 }
 
@@ -133,11 +138,14 @@ function renderBed(item) {
   }
   return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     ${shadow(w, h)}
-    <rect x="6" y="18" width="${w - 12}" height="${h - 24}" rx="8" fill="#8B6F47"/>
-    <rect x="10" y="8" width="${w - 20}" height="14" rx="8" fill="${color}"/>
-    <rect x="12" y="24" width="${w - 24}" height="${h - 32}" rx="5" fill="${lighten(color)}"/>
-    <ellipse cx="20" cy="14" rx="8" ry="5" fill="white"/>
-    <ellipse cx="${w - 20}" cy="14" rx="8" ry="5" fill="white"/>
+    <rect x="4" y="${h * 0.28}" width="${w - 8}" height="${h * 0.66}" rx="10" fill="#8B6F47"/>
+    <rect x="8" y="${h * 0.12}" width="${w - 16}" height="${h * 0.22}" rx="10" fill="${color}"/>
+    <rect x="10" y="${h * 0.34}" width="${w - 20}" height="${h * 0.52}" rx="6" fill="${lighten(color)}"/>
+    <ellipse cx="${w * 0.22}" cy="${h * 0.2}" rx="10" ry="7" fill="white"/>
+    <ellipse cx="${w * 0.78}" cy="${h * 0.2}" rx="10" ry="7" fill="white"/>
+    <rect x="${w * 0.18}" y="${h * 0.38}" width="${w * 0.64}" height="${h * 0.12}" rx="4" fill="${color}" opacity="0.45"/>
+    <circle cx="${w * 0.35}" cy="${h * 0.44}" r="4" fill="#FF8FAB" opacity="0.7"/>
+    <circle cx="${w * 0.65}" cy="${h * 0.44}" r="4" fill="#8ECAE6" opacity="0.7"/>
   </svg>`;
 }
 

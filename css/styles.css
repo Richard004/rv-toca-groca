@@ -1057,9 +1057,9 @@ body.standalone-mode .toast {
   position: absolute;
   cursor: grab;
   transition: filter 0.15s;
-  z-index: 20;
   touch-action: none;
   will-change: transform, left, top;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
 }
 
 .entity:hover {

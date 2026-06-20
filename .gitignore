@@ -16,3 +16,4 @@ feedback/**/*.txt
 !feedback/pending/**
 !feedback/processed/**/MANIFEST.md
 agent-tools/
+audit/screenshots/

@@ -6,8 +6,8 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.7.0';
-export const NEXT_VERSION = '1.8.0';
+export const APP_VERSION = '1.8.0';
+export const NEXT_VERSION = '1.9.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
 /** Shipped — Round 1 (v1.1.0) */
@@ -168,8 +168,21 @@ export const SHIPPED_UPDATES = [
     intro: 'Můžeš začít s prázdným domem — nebo s krásně zařízeným světem od Táty.',
     from: 'Rodina',
     items: [
-      { feedback: 'Prázdný svět je fajn, ale chceme i hotový krásný výchozí dům', fix: '✨ Nový svět → Krásně zařízený dům — rodina, nábytek, zahrada, chalupa', status: 'done' },
+      { feedback: 'Prázdný svět je fajn, ale chceme i hotový výchozí dům', fix: '✨ Nový svět → Krásně zařízený dům — rodina, nábytek, zahrada, chalupa', status: 'done' },
       { feedback: 'Všechno má jít přesouvat', fix: 'I výchozí svět — každou věc a postavu táhneš, 2× klepnutí = pryč', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-8',
+    version: '1.8.0',
+    date: '20. 6. 2026',
+    title: 'Vizuální revoluce! 🎨',
+    intro: 'Výchozí dům teď vypadá velký, plný a krásný — jako z obrázku, ne z prázdné místnosti.',
+    from: 'Rodina',
+    items: [
+      { feedback: 'Věci jsou titěrné, místnosti prázdné', fix: 'Větší nábytek a postavy + škálování podle výšky místnosti (2× větší)', status: 'done' },
+      { feedback: 'Na telefonu nevidím zařízení', fix: 'Hlavní kompozice přímo ve viditelném výřezu — plná obrazovka zajímavostí', status: 'done' },
+      { feedback: 'Chceme krásnou koláž', fix: 'Bohatší SVG (gauče, postele), stíny, hloubka — automatický vizuální audit', status: 'done' }
     ]
   }
 ];

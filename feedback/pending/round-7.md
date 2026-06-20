@@ -1,10 +1,10 @@
-# Round 7 — Pending (not shipped)
+# Round 7 — Shipped in v1.7.0
 
 **Target version:** 1.7.0  
-**Status:** Waiting for new feedback
+**Status:** Shipped 2026-06-20
 
 | # | Feedback (raw / transcribed) | Source file | Status |
 |---|------------------------------|-------------|--------|
-| — | _No new feedback yet — inbox is empty_ | — | ⏳ pending |
+| 1 | Prázdný svět je fajn, ale chceme i hotový krásný výchozí dům | conversation | ✅ done |
 
-**Note:** v1.6.1 shipped programmer feedback (cache busting) as round-6b in `js/updates.js`.
+**Shipped:** ✨ Nový svět → Krásně zařízený dům (rodina, nábytek, tapety, zahrada, chalupa) nebo Prázdný dům.

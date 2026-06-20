@@ -112,9 +112,11 @@ export const ROOM_ASPECT = ROOM_VIEW_W / ROOM_VIEW_H;
 export function createRoomSVG(room, w = ROOM_VIEW_W, h = ROOM_VIEW_H) {
   const furnitureSVG = room.furniture.map(f => createFurnitureSVG(f, w, h)).join('');
   const windowSVG = room.id !== 'garden' ? `
-    <rect x="${w * 0.35}" y="${h * 0.08}" width="${w * 0.3}" height="${h * 0.15}" rx="8" fill="#A2D2FF" stroke="#8ECAE6" stroke-width="3"/>
-    <line x1="${w * 0.5}" y1="${h * 0.08}" x2="${w * 0.5}" y2="${h * 0.23}" stroke="#8ECAE6" stroke-width="2"/>
-    <line x1="${w * 0.35}" y1="${h * 0.155}" x2="${w * 0.65}" y2="${h * 0.155}" stroke="#8ECAE6" stroke-width="2"/>
+    <rect x="${w * 0.32}" y="${h * 0.04}" width="${w * 0.36}" height="${h * 0.20}" rx="10" fill="#A2D2FF" stroke="#8ECAE6" stroke-width="4"/>
+    <rect x="${w * 0.34}" y="${h * 0.06}" width="${w * 0.32}" height="${h * 0.16}" rx="6" fill="#C8E7FF" opacity="0.6"/>
+    <line x1="${w * 0.5}" y1="${h * 0.04}" x2="${w * 0.5}" y2="${h * 0.24}" stroke="#8ECAE6" stroke-width="3"/>
+    <line x1="${w * 0.32}" y1="${h * 0.14}" x2="${w * 0.68}" y2="${h * 0.14}" stroke="#8ECAE6" stroke-width="3"/>
+    <circle cx="${w * 0.58}" cy="${h * 0.10}" r="14" fill="#FFD166" opacity="0.85"/>
   ` : `
     <circle cx="${w * 0.85}" cy="${h * 0.1}" r="35" fill="#FFD166" opacity="0.9"/>
     <ellipse cx="${w * 0.15}" cy="${h * 0.12}" rx="60" ry="25" fill="white" opacity="0.7"/>
@@ -123,9 +125,11 @@ export function createRoomSVG(room, w = ROOM_VIEW_W, h = ROOM_VIEW_H) {
 
   return `<svg class="room-bg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
     <rect width="${w}" height="${h}" fill="${room.bg}"/>
-    <rect x="0" y="0" width="${w}" height="${h * 0.3}" fill="${room.wall}"/>
-    <rect x="0" y="${h * 0.7}" width="${w}" height="${h * 0.3}" fill="${room.floor}"/>
-    <line x1="0" y1="${h * 0.7}" x2="${w}" y2="${h * 0.7}" stroke="rgba(0,0,0,0.08)" stroke-width="2"/>
+    <rect x="0" y="0" width="${w}" height="${h * 0.24}" fill="${room.wall}"/>
+    <rect x="0" y="${h * 0.24}" width="${w}" height="${h * 0.08}" fill="${room.wall}" opacity="0.35"/>
+    <rect x="0" y="${h * 0.62}" width="${w}" height="${h * 0.38}" fill="${room.floor}"/>
+    <line x1="0" y1="${h * 0.62}" x2="${w}" y2="${h * 0.62}" stroke="rgba(0,0,0,0.1)" stroke-width="3"/>
+    <line x1="0" y1="${h * 0.64}" x2="${w}" y2="${h * 0.64}" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
     ${windowSVG}
     ${furnitureSVG}
   </svg>`;

@@ -80,10 +80,30 @@ async function run() {
     await page.click('[data-world="furnished"]');
     await sleep(1500);
     const collected = await collectPage(page, 'furnished');
-    const entityCount = await page.evaluate(() =>
-      document.querySelectorAll('.entity').length
-    );
-    return { ...collected, entityCount, furnishedOk: entityCount >= 40 };
+    const visual = await page.evaluate(() => {
+      const vp = document.querySelector('.room-pan-viewport');
+      const inner = document.querySelector('.room-pan-inner');
+      const vpH = vp?.clientHeight || 1;
+      const innerW = inner?.offsetWidth || 1;
+      const entities = [...document.querySelectorAll('.entity')].map((el) => ({
+        h: el.offsetHeight,
+        xRel: parseFloat(el.style.left) / innerW
+      }));
+      const heights = entities.map((e) => e.h).sort((a, b) => b - a);
+      const heroBand = entities.filter((e) => e.xRel >= 0.35 && e.xRel <= 0.65).length;
+      return {
+        entityCount: entities.length,
+        maxHeightRatio: heights[0] ? heights[0] / vpH : 0,
+        heroBandCount: heroBand
+      };
+    });
+    return {
+      ...collected,
+      ...visual,
+      furnishedOk: visual.entityCount >= 40
+        && visual.maxHeightRatio >= 0.18
+        && visual.heroBandCount >= 5
+    };
   }));
 
   results.push(await scenario(browser, 'stale-localStorage-1.6.0', async (page) => {
