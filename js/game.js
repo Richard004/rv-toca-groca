@@ -2,8 +2,10 @@ import { FAMILY, getCharacterById } from './characters.js';
 import {
   ROOMS, BUILDINGS, WALLPAPERS,
   getRoomById, getBuildingById, getThemedRoom,
-  createRoomSVG, ROOM_VIEW_W, ROOM_VIEW_H
+  createRoomSVG, ROOM_VIEW_W, ROOM_VIEW_H,
+  ROOM_PAN_RATIO, ROOM_PAN_RATIO_LANDSCAPE
 } from './rooms.js';
+import { initWorldMap, playTravelAnimation, updateWorldMapActive } from './world-map.js';
 import { createCharacterSprite, createItemSVG, ITEMS, OUTFIT_COLORS, EMOTIONS } from './sprites.js';
 import { FOOD_ITEMS, getFoodItem, createFoodSVG } from './food-catalog.js';
 import { CATALOG_GROUPS, getCatalogGroup, getSubgroupsForGroup, getCatalogItem } from './catalog.js';
@@ -31,6 +33,9 @@ let interactionsBound = false;
 let layoutChangeBound = false;
 let lastSpawnKey = '';
 let lastSpawnAt = 0;
+let roomPans = { ...(state.roomPans || {}) };
+let panDrag = null;
+let isTraveling = false;
 
 const FURNITURE_REACTIONS = {
   sofa: ['*si sedne na gauč* 😊', '*odpočívá* 💤', '*skáče na gauči* 🎉'],
@@ -75,6 +80,8 @@ export function initGame() {
   buildEmotionBar();
   buildFoodDrawer();
   buildSplashCharacters();
+  initWorldMap(travelToBuilding);
+  updateWorldMapActive(currentBuilding);
   seedFirstPlay();
   setupInteractions();
   setupResizeObserver();
@@ -123,6 +130,62 @@ function getWorldSize() {
   return { w: Math.max(w, 320), h: Math.max(h, 240) };
 }
 
+function getPanRatio() {
+  return window.innerWidth > window.innerHeight ? ROOM_PAN_RATIO_LANDSCAPE : ROOM_PAN_RATIO;
+}
+
+function getRoomInnerWidth(panelW) {
+  return Math.round(panelW * getPanRatio());
+}
+
+function getRoomPanMetrics(roomId) {
+  const { w: panelW, h } = getWorldSize();
+  const innerW = getRoomInnerWidth(panelW);
+  const maxPan = Math.max(0, innerW - panelW);
+  const panRel = roomPans[roomId] ?? 0.5;
+  return { panelW, innerW, h, maxPan, panOffset: panRel * maxPan };
+}
+
+function getRoomPanOffset(roomId) {
+  return getRoomPanMetrics(roomId).panOffset;
+}
+
+function applyRoomPan(roomId) {
+  const panel = document.querySelector(`.room-panel[data-room="${roomId}"]`);
+  const inner = panel?.querySelector('.room-pan-inner');
+  if (!inner) return;
+  const offset = getRoomPanOffset(roomId);
+  inner.style.transform = `translate3d(${-offset}px, 0, 0)`;
+}
+
+function applyAllRoomPans() {
+  getBuildingRooms().forEach(applyRoomPan);
+}
+
+function setRoomPanOffset(roomId, offsetPx, save = true) {
+  const { maxPan } = getRoomPanMetrics(roomId);
+  const clamped = Math.max(0, Math.min(maxPan, offsetPx));
+  roomPans[roomId] = maxPan > 0 ? clamped / maxPan : 0.5;
+  applyRoomPan(roomId);
+  if (save) persist();
+}
+
+function getRoomInnerElement(roomId = currentRoom) {
+  const panel = document.querySelector(`.room-panel[data-room="${roomId}"]`);
+  return panel?.querySelector('.room-pan-inner') || panel;
+}
+
+function getEntityDragBounds(roomId = currentRoom) {
+  const panel = document.querySelector(`.room-panel[data-room="${roomId}"]`);
+  const inner = panel?.querySelector('.room-pan-inner');
+  const viewport = panel?.querySelector('.room-pan-viewport');
+  const panOffset = getRoomPanOffset(roomId);
+  const innerW = inner?.offsetWidth || viewport?.clientWidth || panel?.clientWidth || 0;
+  const h = viewport?.clientHeight || panel?.clientHeight || 0;
+  const vpRect = viewport?.getBoundingClientRect() || panel?.getBoundingClientRect();
+  return { innerW, h, panOffset, vpRect };
+}
+
 function setupResizeObserver() {
   const world = document.getElementById('game-world');
   if (resizeObserver) resizeObserver.disconnect();
@@ -155,13 +218,20 @@ function buildWorldStrip() {
 
   strip.innerHTML = rooms.map(roomId => {
     const room = getThemedRoom(getRoomById(roomId), 'default', roomThemes);
+    const innerW = getRoomInnerWidth(w);
     return `<div class="room-panel" data-room="${roomId}" style="width:${w}px">
-      <div class="room-scene">${createRoomSVG(room, ROOM_VIEW_W, ROOM_VIEW_H)}</div>
-      <div class="entities-layer" data-room="${roomId}"></div>
+      <div class="room-pan-viewport">
+        <div class="room-pan-inner" style="width:${innerW}px">
+          <div class="room-scene">${createRoomSVG(room, ROOM_VIEW_W, ROOM_VIEW_H)}</div>
+          <div class="entities-layer" data-room="${roomId}"></div>
+        </div>
+      </div>
     </div>`;
   }).join('');
 
   strip.style.width = `${w * rooms.length}px`;
+  applyAllRoomPans();
+  setupPanListeners();
 
   strip.querySelectorAll('.furniture.interactive').forEach(el => {
     el.addEventListener('click', (e) => {
@@ -191,16 +261,16 @@ function seedFirstPlay() {
   if (entities.length > 0 || state.emptyWorldSeeded) return;
   state.emptyWorldSeeded = true;
   persist();
-  setTimeout(() => showToast('Prázdné místnosti! ＋ rodina a 🎁 nábytek — vše přesouváš'), 900);
+  setTimeout(() => showToast('Prázdné místnosti! Táhni doleva/doprava — objevíš víc prostoru 🏠'), 900);
 }
 
 function entityToPixels(entity, worldW, worldH) {
   return { x: entity.xRel * worldW, y: entity.yRel * worldH };
 }
 
-function pixelsToRelative(x, y) {
-  const { w, h } = getWorldSize();
-  return { xRel: Math.max(0, Math.min(1, x / w)), yRel: Math.max(0, Math.min(1, y / h)) };
+function pixelsToRelative(x, y, roomId = currentRoom) {
+  const { innerW, h } = getRoomPanMetrics(roomId);
+  return { xRel: Math.max(0, Math.min(1, x / innerW)), yRel: Math.max(0, Math.min(1, y / h)) };
 }
 
 function getEntityOverrides(entity) {
@@ -235,7 +305,7 @@ function buildBuildingNav() {
     </button>
   `).join('');
   nav.querySelectorAll('.building-tab').forEach(btn => {
-    btn.addEventListener('click', () => switchBuilding(btn.dataset.building));
+    btn.addEventListener('click', () => travelToBuilding(btn.dataset.building));
   });
 }
 
@@ -422,18 +492,36 @@ function entitySvg(entity, def) {
   return createItemSVG(def);
 }
 
-export function switchBuilding(buildingId) {
+export function switchBuilding(buildingId, { silent = false } = {}) {
   currentBuilding = buildingId;
   const rooms = getBuildingRooms();
   if (!rooms.includes(currentRoom)) currentRoom = rooms[0];
   buildRoomNav();
   document.querySelectorAll('.building-tab').forEach(t =>
     t.classList.toggle('active', t.dataset.building === buildingId));
+  updateWorldMapActive(buildingId);
   updateOverlayChrome();
   buildWorldStrip();
   switchRoom(currentRoom, false);
-  showToast(`${getBuildingById(buildingId).name} — pojďme exploreovat! 🏠`);
+  if (!silent) showToast(`${getBuildingById(buildingId).name} — pojďme exploreovat! 🏠`);
   persist();
+}
+
+export function travelToBuilding(buildingId) {
+  if (isTraveling) return;
+  if (buildingId === currentBuilding) {
+    closeDrawers();
+    showToast(`Už jsme v ${getBuildingById(buildingId).name}! 🏠`);
+    return;
+  }
+  isTraveling = true;
+  closeDrawers();
+  const from = currentBuilding;
+  playTravelAnimation(from, buildingId, () => {
+    switchBuilding(buildingId, { silent: true });
+    showToast(`Přiletěli jsme do ${getBuildingById(buildingId).name}! ✈️`);
+    isTraveling = false;
+  });
 }
 
 export function switchRoom(roomId, smooth = true) {
@@ -495,18 +583,19 @@ function applyEmotion(emotionId) {
 }
 
 function renderAllEntities() {
-  const { w: worldW, h: worldH } = getWorldSize();
+  const { w: panelW, h: worldH } = getWorldSize();
   document.querySelectorAll('.room-panel').forEach(panel => {
     const roomId = panel.dataset.room;
     const layer = panel.querySelector('.entities-layer');
     const roomEntities = entities.filter(e => e.room === roomId);
+    const innerW = getRoomInnerWidth(panelW);
 
     layer.innerHTML = roomEntities.map(entity => {
       const def = resolveEntityDef(entity);
       if (!def) return '';
       const size = def.size;
       const svg = entitySvg(entity, def);
-      const pos = entityToPixels(entity, worldW, worldH);
+      const pos = entityToPixels(entity, innerW, worldH);
       return `<div class="entity ${entity.uid === selectedEntity ? 'selected' : ''}"
         data-uid="${entity.uid}"
         style="left:${pos.x}px;top:${pos.y}px;width:${size.w}px;height:${size.h}px">
@@ -613,8 +702,10 @@ function attachEntityListeners() {
 }
 
 function updateWorldRect() {
-  const panel = document.querySelector(`.room-panel[data-room="${currentRoom}"]`);
-  worldRect = panel ? panel.getBoundingClientRect() : document.getElementById('game-world').getBoundingClientRect();
+  const inner = getRoomInnerElement(currentRoom);
+  worldRect = inner
+    ? inner.getBoundingClientRect()
+    : document.getElementById('game-world').getBoundingClientRect();
 }
 
 function onEntityPointerDown(e) {
@@ -627,7 +718,8 @@ function onEntityPointerDown(e) {
   const panel = el.closest('.room-panel');
   if (panel) {
     currentRoom = panel.dataset.room;
-    worldRect = panel.getBoundingClientRect();
+    const inner = getRoomInnerElement(currentRoom);
+    worldRect = inner ? inner.getBoundingClientRect() : panel.getBoundingClientRect();
   }
 
   selectedEntity = uid;
@@ -650,7 +742,7 @@ function onEntityPointerDown(e) {
 }
 
 function onEntityPointerMove(e) {
-  if (!dragEntity || !worldRect) return;
+  if (!dragEntity) return;
   const dx = Math.abs(e.clientX - dragStartPos.x);
   const dy = Math.abs(e.clientY - dragStartPos.y);
   if (dx > 6 || dy > 6) {
@@ -660,10 +752,11 @@ function onEntityPointerMove(e) {
   if (!hasDragMoved) return;
 
   e.preventDefault();
-  const x = e.clientX - worldRect.left - dragOffset.x;
-  const y = e.clientY - worldRect.top - dragOffset.y;
-  const maxX = worldRect.width - dragEntity.offsetWidth;
-  const maxY = worldRect.height - dragEntity.offsetHeight;
+  const { innerW, h, panOffset, vpRect } = getEntityDragBounds(currentRoom);
+  const x = e.clientX - vpRect.left + panOffset - dragOffset.x;
+  const y = e.clientY - vpRect.top - dragOffset.y;
+  const maxX = innerW - dragEntity.offsetWidth;
+  const maxY = h - dragEntity.offsetHeight;
   dragEntity.style.left = Math.max(0, Math.min(x, maxX)) + 'px';
   dragEntity.style.top = Math.max(0, Math.min(y, maxY)) + 'px';
 }
@@ -811,6 +904,84 @@ function getRandomReaction(type) {
   return reactions[Math.floor(Math.random() * reactions.length)];
 }
 
+function setupPanListeners() {
+  document.querySelectorAll('.room-pan-viewport').forEach(vp => {
+    if (vp.dataset.panBound) return;
+    vp.dataset.panBound = '1';
+    vp.addEventListener('pointerdown', onPanPointerDown, { passive: false });
+  });
+}
+
+function onPanPointerDown(e) {
+  if (e.target.closest('.entity') || e.target.closest('.furniture.interactive')) return;
+  if (e.button !== 0 && e.pointerType === 'mouse') return;
+
+  const panel = e.currentTarget.closest('.room-panel');
+  const roomId = panel?.dataset.room;
+  if (!roomId) return;
+
+  currentRoom = roomId;
+  updateWorldRect();
+
+  const { maxPan } = getRoomPanMetrics(roomId);
+  if (maxPan <= 0) return;
+
+  panDrag = {
+    roomId,
+    pointerId: e.pointerId,
+    startX: e.clientX,
+    startOffset: getRoomPanOffset(roomId),
+    maxPan,
+    moved: false,
+    target: e.currentTarget
+  };
+
+  e.currentTarget.setPointerCapture(e.pointerId);
+  e.currentTarget.addEventListener('pointermove', onPanPointerMove, { passive: false });
+  e.currentTarget.addEventListener('pointerup', onPanPointerUp);
+  e.currentTarget.addEventListener('pointercancel', onPanPointerUp);
+}
+
+function onPanPointerMove(e) {
+  if (!panDrag || e.pointerId !== panDrag.pointerId) return;
+
+  const dx = e.clientX - panDrag.startX;
+  if (Math.abs(dx) > 5) panDrag.moved = true;
+  if (!panDrag.moved) return;
+
+  const newOffset = panDrag.startOffset - dx;
+  const scroll = document.getElementById('world-scroll');
+
+  if (newOffset < 0 && dx > 0) {
+    setRoomPanOffset(panDrag.roomId, 0, false);
+    scroll.scrollLeft -= dx * 0.35;
+    return;
+  }
+  if (newOffset > panDrag.maxPan && dx < 0) {
+    setRoomPanOffset(panDrag.roomId, panDrag.maxPan, false);
+    scroll.scrollLeft -= dx * 0.35;
+    return;
+  }
+
+  e.preventDefault();
+  setRoomPanOffset(panDrag.roomId, newOffset, false);
+}
+
+function onPanPointerUp(e) {
+  if (!panDrag || e.pointerId !== panDrag.pointerId) return;
+
+  const target = panDrag.target;
+  if (panDrag.moved) persist();
+
+  target.removeEventListener('pointermove', onPanPointerMove);
+  target.removeEventListener('pointerup', onPanPointerUp);
+  target.removeEventListener('pointercancel', onPanPointerUp);
+  try { target.releasePointerCapture(e.pointerId); } catch { /* ok */ }
+
+  panDrag = null;
+  updateWorldRect();
+}
+
 function onWorldScroll() {
   if (scrollSyncTimer) clearTimeout(scrollSyncTimer);
   scrollSyncTimer = setTimeout(() => {
@@ -909,6 +1080,7 @@ function persist() {
   state.currentRoom = currentRoom;
   state.currentBuilding = currentBuilding;
   state.roomThemes = roomThemes;
+  state.roomPans = roomPans;
   state.entities = entities;
   state.fridgeItems = fridgeItems;
   saveState(state);
@@ -920,7 +1092,7 @@ function scheduleAutoSave() {
 }
 
 export function getGameState() {
-  return { ...state, currentRoom, currentBuilding, roomThemes, entities, fridgeItems };
+  return { ...state, currentRoom, currentBuilding, roomThemes, roomPans, entities, fridgeItems };
 }
 
 export function restoreGameState(newState) {
@@ -928,10 +1100,12 @@ export function restoreGameState(newState) {
   currentRoom = state.currentRoom || 'living';
   currentBuilding = state.currentBuilding || 'home';
   roomThemes = { ...(state.roomThemes || {}) };
+  roomPans = { ...(state.roomPans || {}) };
   entities = [...(state.entities || [])];
   fridgeItems = { ...(state.fridgeItems || {}) };
   buildBuildingNav();
   buildRoomNav();
+  updateWorldMapActive(currentBuilding);
   buildWorldStrip();
   switchRoom(currentRoom, false);
   showToast('Hra načtena! Vítej zpět! 🎉');

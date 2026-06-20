@@ -74,6 +74,14 @@ function setupGameControls() {
     toggleDrawer('room-picker-drawer');
   });
 
+  document.getElementById('btn-world-map').addEventListener('click', () => {
+    openFromTools('world-map-drawer');
+  });
+
+  document.getElementById('btn-world-map-tools')?.addEventListener('click', () => {
+    openFromTools('world-map-drawer');
+  });
+
   document.getElementById('btn-updates').addEventListener('click', () => {
     openFromTools('updates-drawer');
   });

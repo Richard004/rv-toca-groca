@@ -6,8 +6,8 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.5.0';
-export const NEXT_VERSION = '1.6.0';
+export const APP_VERSION = '1.6.0';
+export const NEXT_VERSION = '1.7.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
 /** Shipped — Round 1 (v1.1.0) */
@@ -88,6 +88,19 @@ export const SHIPPED_UPDATES = [
       { feedback: 'Nábytek a stromy musí jít přesouvat a odstraňovat', fix: 'Vše přidáš z 🎁 — táhni, 2× klepnutí = pryč. Nic není natvrdo', status: 'done' },
       { feedback: 'Na mobilu je polovina obrazovky panely — chceme scénu', fix: 'Celá obrazovka = hra! Ovládání jen jako overlay', status: 'done' },
       { feedback: 'Nový elegantní mobilní layout', fix: '＋ tlačítko dole • místnost nahoře • tečky pro přepínání', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-6',
+    version: '1.6.0',
+    date: '20. 6. 2026',
+    title: 'Pan v místnosti + mapa světa! 🌍',
+    intro: 'Teď je to víc jako Toca Boca — širší místnosti na prozkoumání a letadlo na cestu do Chalupy!',
+    from: 'Táta (srovnání s Toca Boca)',
+    items: [
+      { feedback: 'V Toca Boca se dá posouvat uvnitř místnosti doleva/doprava', fix: 'Táhni prstem po prázdné podlaze — místnost je širší, objevíš víc prostoru!', status: 'done' },
+      { feedback: 'V Toca Boca je mapa světa a cestování letadlem', fix: '🌍 Mapa světa nahoře — vyber dům nebo Chalupu, přiletí letadlo ✈️', status: 'done' },
+      { feedback: 'Na kraji místnosti chceme přejít do dalšího pokoje', fix: 'Na kraji panování swipe pokračuje do sousední místnosti ‹ ›', status: 'done' }
     ]
   }
 ];

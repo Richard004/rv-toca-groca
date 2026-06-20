@@ -56,6 +56,7 @@
           <span class="overlay-pill-text" id="overlay-room-name">Obývák</span>
           <span class="overlay-pill-chevron">▾</span>
         </button>
+        <button type="button" class="overlay-globe" id="btn-world-map" title="Mapa světa" aria-label="Mapa světa">🌍</button>
         <button type="button" class="overlay-home" id="btn-home" title="Úvodní obrazovka" aria-label="Domů">⌂</button>
         <div class="overlay-dots" id="room-dots" aria-hidden="true"></div>
         <button type="button" class="overlay-fab" id="btn-tools" title="Nástroje" aria-label="Nástroje">＋</button>
@@ -72,6 +73,19 @@
           <div class="emotion-buttons" id="emotion-buttons"></div>
         </div>
       </div>
+
+      <!-- World map -->
+      <aside class="drawer drawer-world-map" id="world-map-drawer">
+        <div class="drawer-header">
+          <h3>🌍 Kam cestujeme?</h3>
+          <button class="drawer-close" data-close="world-map-drawer">✕</button>
+        </div>
+        <p class="catalog-breadcrumb">Vyber destinaci — přiletíme letadlem ✈️</p>
+        <div class="world-map-grid" id="world-map-list"></div>
+      </aside>
+
+      <!-- Travel animation -->
+      <div class="travel-overlay" id="travel-overlay" hidden aria-hidden="true"></div>
 
       <!-- Room picker -->
       <aside class="drawer drawer-picker" id="room-picker-drawer">
@@ -96,6 +110,7 @@
           <button type="button" class="tool-btn" id="btn-characters" title="Rodina">👨‍👩‍👧‍👦<span>Rodina</span></button>
           <button type="button" class="tool-btn" id="btn-items" title="Nábytek">🎁<span>Nábytek</span></button>
           <button type="button" class="tool-btn" id="btn-food" title="Jídlo">🍎<span>Jídlo</span></button>
+          <button type="button" class="tool-btn" id="btn-world-map-tools" title="Mapa světa">🌍<span>Mapa</span></button>
           <button type="button" class="tool-btn" id="btn-wallpaper" title="Tapety">🎨<span>Tapety</span></button>
           <button type="button" class="tool-btn icon-btn-fullscreen" id="btn-fullscreen" title="Celá obrazovka" hidden>⛶<span>Obrazovka</span></button>
           <button type="button" class="tool-btn" id="btn-save" title="Uložit">💾<span>Uložit</span></button>
@@ -153,7 +168,7 @@
       </aside>
 
       <!-- Hint -->
-      <p class="game-hint">Posouvej místnosti • ＋ nástroje • 🎁 zařiď prázdný dům</p>
+      <p class="game-hint">Táhni v místnosti doleva/doprava • 🌍 mapa • ＋ nástroje</p>
 
       <!-- Toast -->
       <div class="toast" id="toast"></div>

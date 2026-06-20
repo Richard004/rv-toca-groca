@@ -232,6 +232,22 @@ html, body {
   opacity: 0.55;
 }
 
+.overlay-globe {
+  position: absolute;
+  top: max(0.5rem, env(safe-area-inset-top));
+  right: max(3.6rem, calc(env(safe-area-inset-right) + 3.1rem));
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  font-size: 1.15rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
 .overlay-home {
   position: absolute;
   top: max(0.5rem, env(safe-area-inset-top));
@@ -515,6 +531,24 @@ body.standalone-mode .toast {
   height: 100%;
   position: relative;
   scroll-snap-align: start;
+}
+
+.room-pan-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.room-pan-viewport:active {
+  cursor: grabbing;
+}
+
+.room-pan-inner {
+  position: relative;
+  height: 100%;
+  will-change: transform;
 }
 
 .room-scene {

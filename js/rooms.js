@@ -103,8 +103,10 @@ export function getThemedRoom(room, themeId, roomThemes = {}) {
   };
 }
 
-export const ROOM_VIEW_W = 1000;
+export const ROOM_VIEW_W = 1800;
 export const ROOM_VIEW_H = 625;
+export const ROOM_PAN_RATIO = 1.8;
+export const ROOM_PAN_RATIO_LANDSCAPE = 2.0;
 
 /** Generate room background SVG — uses fixed viewBox so it always renders */
 export function createRoomSVG(room, w = ROOM_VIEW_W, h = ROOM_VIEW_H) {
