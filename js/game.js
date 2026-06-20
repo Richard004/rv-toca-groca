@@ -4,7 +4,8 @@ import {
   getRoomById, getBuildingById, getThemedRoom,
   createRoomSVG, ROOM_VIEW_W, ROOM_VIEW_H
 } from './rooms.js';
-import { createCharacterSprite, createItemSVG, ITEMS, OUTFIT_COLORS } from './sprites.js';
+import { createCharacterSprite, createItemSVG, ITEMS, OUTFIT_COLORS, EMOTIONS } from './sprites.js';
+import { FOOD_ITEMS, getFoodItem, createFoodSVG } from './food-catalog.js';
 import { CATALOG_GROUPS, getCatalogGroup, getSubgroupsForGroup, getCatalogItem } from './catalog.js';
 import { createPlaceableSVG } from './furniture-sprites.js';
 import { loadState, saveState } from './storage.js';
@@ -16,6 +17,7 @@ let currentBuilding = state.currentBuilding || 'home';
 let currentRoom = state.currentRoom || 'living';
 let roomThemes = { ...(state.roomThemes || {}) };
 let entities = [...(state.entities || [])];
+let fridgeItems = { ...(state.fridgeItems || {}) };
 let selectedEntity = null;
 let dragEntity = null;
 let dragOffset = { x: 0, y: 0 };
@@ -64,6 +66,8 @@ export function initGame() {
   buildItemsDrawer();
   buildWallpaperDrawer();
   buildOutfitBar();
+  buildEmotionBar();
+  buildFoodDrawer();
   buildSplashCharacters();
   seedFirstPlay();
   setupInteractions();
@@ -211,8 +215,18 @@ function pixelsToRelative(x, y) {
 }
 
 function getEntityOverrides(entity) {
-  if (entity.kind !== 'character' || !entity.outfit) return {};
-  return { shirt: entity.outfit.shirt, pants: entity.outfit.pants };
+  if (entity.kind !== 'character') return {};
+  const overrides = {};
+  if (entity.outfit) {
+    overrides.shirt = entity.outfit.shirt;
+    overrides.pants = entity.outfit.pants;
+  }
+  if (entity.eatingUntil && entity.eatingUntil > Date.now()) {
+    overrides.emotion = 'eating';
+  } else if (entity.emotion) {
+    overrides.emotion = entity.emotion;
+  }
+  return overrides;
 }
 
 function buildSplashCharacters() {
@@ -271,6 +285,25 @@ function buildOutfitBar() {
   bar.querySelectorAll('.outfit-swatch').forEach(btn => {
     btn.addEventListener('click', () => applyOutfitColor(btn.dataset.color));
   });
+}
+
+function buildEmotionBar() {
+  const bar = document.getElementById('emotion-buttons');
+  bar.innerHTML = EMOTIONS.map(em => `
+    <button class="emotion-btn" data-emotion="${em.id}" title="${em.label}" type="button">
+      <span>${em.icon}</span>
+    </button>`).join('');
+  bar.querySelectorAll('.emotion-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyEmotion(btn.dataset.emotion));
+  });
+}
+
+function buildFoodDrawer() {
+  document.getElementById('food-list').innerHTML = FOOD_ITEMS.map(food => `
+    <div class="drawer-item" data-spawn="food" data-id="${food.id}">
+      ${createFoodSVG(food)}
+      <span>${food.name}</span>
+    </div>`).join('');
 }
 
 function buildCharacterDrawer() {
@@ -354,6 +387,7 @@ function renderCatalog() {
 
 function resolveEntityDef(entity) {
   if (entity.kind === 'character') return getCharacterById(entity.id);
+  if (entity.kind === 'food') return getFoodItem(entity.id);
   const catalog = getCatalogItem(entity.id);
   if (catalog) return catalog;
   return ITEMS.find(i => i.id === entity.id);
@@ -363,6 +397,7 @@ function entitySvg(entity, def) {
   if (entity.kind === 'character') {
     return createCharacterSprite(def, getEntityOverrides(entity));
   }
+  if (entity.kind === 'food') return createFoodSVG(def);
   if (getCatalogItem(entity.id)) return createPlaceableSVG(def);
   return createItemSVG(def);
 }
@@ -427,6 +462,18 @@ function applyOutfitColor(color) {
   persist();
 }
 
+function applyEmotion(emotionId) {
+  const entity = entities.find(e => e.uid === selectedEntity);
+  if (!entity || entity.kind !== 'character') return;
+  entity.emotion = emotionId;
+  entity.eatingUntil = null;
+  renderAllEntities();
+  const char = getCharacterById(entity.id);
+  const em = EMOTIONS.find(e => e.id === emotionId);
+  showToast(`${char.name} je ${em?.label?.toLowerCase() || 'šťastná'}! ${em?.icon || '😊'}`);
+  persist();
+}
+
 function renderAllEntities() {
   const { w: worldW, h: worldH } = getWorldSize();
   document.querySelectorAll('.room-panel').forEach(panel => {
@@ -452,9 +499,84 @@ function renderAllEntities() {
 }
 
 function updateOutfitBar() {
-  const bar = document.getElementById('outfit-bar');
+  const bars = document.getElementById('character-bars');
   const entity = entities.find(e => e.uid === selectedEntity);
-  bar.hidden = !(entity && entity.kind === 'character');
+  const show = entity && entity.kind === 'character';
+  bars.hidden = !show;
+  if (show) {
+    document.querySelectorAll('.emotion-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.emotion === entity.emotion);
+    });
+  }
+}
+
+function isNearFridge(xRel, yRel, roomId) {
+  if (roomId !== 'kitchen') return false;
+  return xRel < 0.22 && yRel > 0.15 && yRel < 0.72;
+}
+
+function czechEatVerb(char, drink) {
+  const masc = ['richard', 'risa', 'puffy', 'dart', 'mikie'].includes(char.id);
+  if (drink) return masc ? 'vypil' : 'vypila';
+  return masc ? 'snědl' : 'snědla';
+}
+
+function feedCharacter(charEntity, foodEntity, foodDef) {
+  const char = getCharacterById(charEntity.id);
+  const verb = czechEatVerb(char, foodDef.drink);
+  entities = entities.filter(e => e.uid !== foodEntity.uid);
+  charEntity.emotion = 'happy';
+  charEntity.eatingUntil = Date.now() + 2200;
+  selectedEntity = charEntity.uid;
+  renderAllEntities();
+  const el = document.querySelector(`[data-uid="${charEntity.uid}"]`);
+  el?.classList.add('entity-eating');
+  showToast(`${char.name} ${verb} ${foodDef.name}! ${foodDef.emoji}`);
+  setTimeout(() => {
+    if (charEntity.eatingUntil && charEntity.eatingUntil <= Date.now()) {
+      charEntity.eatingUntil = null;
+      renderAllEntities();
+    }
+  }, 2300);
+  persist();
+}
+
+function storeFoodInFridge(foodEntity, foodDef) {
+  if (!fridgeItems[currentRoom]) fridgeItems[currentRoom] = [];
+  fridgeItems[currentRoom].push({ id: foodEntity.id, at: Date.now() });
+  entities = entities.filter(e => e.uid !== foodEntity.uid);
+  const count = fridgeItems[currentRoom].length;
+  showToast(`${foodDef.name} v lednici! 🧊 (${count} věcí)`);
+  persist();
+}
+
+function tryFoodInteraction(entity, dragEl) {
+  if (entity.kind !== 'food') return false;
+  const foodDef = getFoodItem(entity.id);
+  if (!foodDef) return false;
+
+  const foodRect = dragEl.getBoundingClientRect();
+  const fcx = foodRect.left + foodRect.width / 2;
+  const fcy = foodRect.top + foodRect.height / 2;
+
+  for (const charEntity of entities.filter(e => e.kind === 'character' && e.room === currentRoom)) {
+    const charEl = document.querySelector(`[data-uid="${charEntity.uid}"]`);
+    if (!charEl) continue;
+    const cr = charEl.getBoundingClientRect();
+    const mouthX = cr.left + cr.width * 0.5;
+    const mouthY = cr.top + cr.height * 0.25;
+    if (Math.hypot(fcx - mouthX, fcy - mouthY) < 58) {
+      feedCharacter(charEntity, entity, foodDef);
+      return true;
+    }
+  }
+
+  const rel = pixelsToRelative(parseFloat(dragEl.style.left), parseFloat(dragEl.style.top));
+  if (isNearFridge(rel.xRel, rel.yRel, currentRoom)) {
+    storeFoodInFridge(entity, foodDef);
+    return true;
+  }
+  return false;
 }
 
 function attachEntityListeners() {
@@ -534,23 +656,30 @@ function onEntityPointerUp(e) {
   } else {
     const entity = entities.find(ent => ent.uid === uid);
     if (entity) {
-      const rel = pixelsToRelative(parseFloat(dragEntity.style.left), parseFloat(dragEntity.style.top));
-      entity.xRel = rel.xRel;
-      entity.yRel = rel.yRel;
-      entity.room = currentRoom;
-      persist();
+      const consumed = tryFoodInteraction(entity, dragEntity);
+      if (!consumed) {
+        const rel = pixelsToRelative(parseFloat(dragEntity.style.left), parseFloat(dragEntity.style.top));
+        entity.xRel = rel.xRel;
+        entity.yRel = rel.yRel;
+        entity.room = currentRoom;
+        persist();
+      }
     }
     lastTapTime = 0;
     lastTapUid = null;
   }
 
-  dragEntity.classList.remove('dragging');
-  dragEntity.releasePointerCapture(e.pointerId);
-  dragEntity.removeEventListener('pointermove', onEntityPointerMove);
-  dragEntity.removeEventListener('pointerup', onEntityPointerUp);
-  dragEntity.removeEventListener('pointercancel', onEntityPointerUp);
+  const el = dragEntity;
+  if (el) {
+    el.classList.remove('dragging');
+    try { el.releasePointerCapture(e.pointerId); } catch { /* consumed / re-rendered */ }
+    el.removeEventListener('pointermove', onEntityPointerMove);
+    el.removeEventListener('pointerup', onEntityPointerUp);
+    el.removeEventListener('pointercancel', onEntityPointerUp);
+  }
   dragEntity = null;
   hasDragMoved = false;
+  updateOutfitBar();
 }
 
 function removeEntity(uid) {
@@ -560,12 +689,22 @@ function removeEntity(uid) {
   entities = entities.filter(e => e.uid !== uid);
   selectedEntity = null;
   renderAllEntities();
-  showToast(`${def?.name || 'Postava'} šel/a domů 👋`);
+  if (entity.kind === 'character') {
+    showToast(`${def?.name || 'Postava'} šel/a domů 👋`);
+  } else if (entity.kind === 'food') {
+    showToast(`${def?.name || 'Jídlo'} zmizelo 🍽️`);
+  } else {
+    showToast(`${def?.name || 'Věc'} odstraněna ✨`);
+  }
   persist();
 }
 
 function spawnEntity(kind, id) {
-  const def = kind === 'character' ? getCharacterById(id) : resolveEntityDef({ kind, id });
+  const def = kind === 'character'
+    ? getCharacterById(id)
+    : kind === 'food'
+      ? getFoodItem(id)
+      : resolveEntityDef({ kind, id });
   if (!def) return;
 
   const xRel = 0.32 + Math.random() * 0.2;
@@ -585,14 +724,20 @@ function spawnEntity(kind, id) {
     return;
   }
 
-  const entityKind = kind === 'catalog' ? (def.type === 'toy' ? 'item' : 'furniture') : kind;
+  const entityKind = kind === 'catalog'
+    ? (def.type === 'toy' ? 'item' : 'furniture')
+    : kind;
   const entity = { uid: `${entityKind}-${id}-${Date.now()}`, kind: entityKind, id, room: currentRoom, xRel, yRel };
   entities.push(entity);
   selectedEntity = entity.uid;
   renderAllEntities();
   document.querySelector(`[data-uid="${entity.uid}"]`)?.classList.add('spawn');
-  const placed = entityKind === 'furniture' ? 'je v místnosti' : 'přišel/a';
-  showToast(`${def.name} ${placed}! 🎉`);
+  const placed = entityKind === 'furniture'
+    ? 'je v místnosti'
+    : entityKind === 'food'
+      ? 'je tady — nakrm někoho!'
+      : 'přišel/a';
+  showToast(`${def.name} ${placed}! ${entityKind === 'food' ? foodDefEmoji(def) : '🎉'}`);
   persist();
   closeDrawers();
   resetCatalogNav();
@@ -600,6 +745,10 @@ function spawnEntity(kind, id) {
 
 function spawnCatalogItem(id) {
   spawnEntity('catalog', id);
+}
+
+function foodDefEmoji(def) {
+  return def?.emoji || '🍎';
 }
 
 function reactToFurniture(uid, furnitureType) {
@@ -645,6 +794,10 @@ function setupInteractions() {
   document.getElementById('char-list').addEventListener('click', e => {
     const item = e.target.closest('[data-spawn="character"]');
     if (item) spawnEntity('character', item.dataset.id);
+  });
+  document.getElementById('food-list').addEventListener('click', e => {
+    const item = e.target.closest('[data-spawn="food"]');
+    if (item) spawnEntity('food', item.dataset.id);
   });
   document.getElementById('items-list').addEventListener('click', e => {
     const card = e.target.closest('[data-catalog-action]');
@@ -710,6 +863,7 @@ function persist() {
   state.currentBuilding = currentBuilding;
   state.roomThemes = roomThemes;
   state.entities = entities;
+  state.fridgeItems = fridgeItems;
   saveState(state);
 }
 
@@ -719,7 +873,7 @@ function scheduleAutoSave() {
 }
 
 export function getGameState() {
-  return { ...state, currentRoom, currentBuilding, roomThemes, entities };
+  return { ...state, currentRoom, currentBuilding, roomThemes, entities, fridgeItems };
 }
 
 export function restoreGameState(newState) {
@@ -728,6 +882,7 @@ export function restoreGameState(newState) {
   currentBuilding = state.currentBuilding || 'home';
   roomThemes = { ...(state.roomThemes || {}) };
   entities = [...(state.entities || [])];
+  fridgeItems = { ...(state.fridgeItems || {}) };
   buildBuildingNav();
   buildRoomNav();
   buildWorldStrip();

@@ -400,7 +400,74 @@ body.standalone-mode .toast {
   flex-shrink: 0;
 }
 
-.outfit-bar[hidden] { display: none !important; }
+.character-bars[hidden] { display: none !important; }
+
+.character-bars {
+  flex-shrink: 0;
+  background: white;
+  border-top: 2px solid #f0e6f0;
+}
+
+.emotion-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 1rem 0.5rem;
+  border-top: 1px dashed #f0e6f0;
+}
+
+.emotion-buttons {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+}
+
+.emotion-btn {
+  width: 40px;
+  height: 40px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: var(--cream);
+  font-size: 1.35rem;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+  padding: 0;
+}
+
+.emotion-btn:hover {
+  transform: scale(1.1);
+  border-color: var(--pink);
+}
+
+.emotion-btn.active {
+  border-color: var(--pink-dark);
+  background: white;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.entity-eating {
+  animation: eat-bounce 0.35s ease infinite alternate;
+}
+
+.entity-eating .mouth-eating {
+  animation: mouth-chew 0.25s ease infinite alternate;
+}
+
+@keyframes eat-bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-3px); }
+}
+
+@keyframes mouth-chew {
+  from { transform: scaleY(1); }
+  to { transform: scaleY(0.85); }
+}
+
+.drawer-food .catalog-breadcrumb {
+  padding-bottom: 0.5rem;
+}
 
 .outfit-label {
   font-size: 0.75rem;

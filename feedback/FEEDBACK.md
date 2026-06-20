@@ -31,13 +31,19 @@ See `processed/round-3/MANIFEST.md` — furniture catalog (130+ items), bathroom
 
 ---
 
+### Round 4 — v1.4.0 (2026-06-20) ✅
+
+See `processed/round-4/MANIFEST.md` — emotions bar, food drawer, feeding, fridge.
+
+---
+
 ## Next update
 
-### Round 4 — v1.4.0 ⏳
+### Round 5 — v1.5.0 ⏳
 
 **Status:** Waiting for new feedback in `inbox/`
 
-Track items in `pending/round-4.md` and `js/updates.js` → `PENDING_FEEDBACK`.
+Track items in `pending/round-5.md` and `js/updates.js` → `PENDING_FEEDBACK`.
 
 ---
 

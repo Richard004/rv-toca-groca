@@ -73,6 +73,10 @@ function setupGameControls() {
     toggleDrawer('items-drawer');
   });
 
+  document.getElementById('btn-food').addEventListener('click', () => {
+    toggleDrawer('food-drawer');
+  });
+
   document.querySelectorAll('.drawer-close').forEach(btn => {
     btn.addEventListener('click', () => {
       document.getElementById(btn.dataset.close).classList.remove('open');

@@ -5,6 +5,81 @@ export const OUTFIT_COLORS = [
   '#FF6B35', '#FB6F92', '#4A90D9', '#2C3E50', '#E07A9F'
 ];
 
+export const EMOTIONS = [
+  { id: 'happy', icon: '😊', label: 'Šťastná' },
+  { id: 'sad', icon: '😢', label: 'Smutná' },
+  { id: 'angry', icon: '😠', label: 'Naštvaná' },
+  { id: 'surprised', icon: '😲', label: 'Překvapená' },
+  { id: 'sleepy', icon: '😴', label: 'Unavená' },
+  { id: 'love', icon: '😍', label: 'Zamilovaná' }
+];
+
+function humanFaceSVG(emotion, headR, cx) {
+  const y = headR + 6;
+  const eating = emotion === 'eating';
+  const mood = eating ? 'happy' : (emotion || 'happy');
+
+  let eyes = `
+    <ellipse cx="22" cy="${y}" rx="4" ry="5" fill="#333"/>
+    <ellipse cx="34" cy="${y}" rx="4" ry="5" fill="#333"/>
+    <circle cx="23" cy="${y - 2}" r="1.8" fill="white"/>
+    <circle cx="35" cy="${y - 2}" r="1.8" fill="white"/>
+  `;
+  let mouth = `<path d="M 24 ${y + 8} Q ${cx} ${y + 11} 32 ${y + 8}" fill="none" stroke="#E07A7A" stroke-width="2" stroke-linecap="round"/>`;
+  let extra = `
+    <ellipse cx="18" cy="${y + 4}" rx="3" ry="2" fill="#FFB4C8" opacity="0.5"/>
+    <ellipse cx="38" cy="${y + 4}" rx="3" ry="2" fill="#FFB4C8" opacity="0.5"/>
+  `;
+
+  if (mood === 'sad') {
+    mouth = `<path d="M 24 ${y + 12} Q ${cx} ${y + 8} 32 ${y + 12}" fill="none" stroke="#6B8CAE" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="20" cy="${y + 10}" r="2" fill="#4FC3F7" opacity="0.8"/>
+      <circle cx="36" cy="${y + 10}" r="2" fill="#4FC3F7" opacity="0.8"/>`;
+  } else if (mood === 'angry') {
+    eyes = `
+      <line x1="18" y1="${y - 2}" x2="26" y2="${y + 1}" stroke="#333" stroke-width="2"/>
+      <line x1="38" y1="${y - 2}" x2="30" y2="${y + 1}" stroke="#333" stroke-width="2"/>
+      <ellipse cx="22" cy="${y + 2}" rx="3.5" ry="4" fill="#333"/>
+      <ellipse cx="34" cy="${y + 2}" rx="3.5" ry="4" fill="#333"/>
+    `;
+    mouth = `<path d="M 25 ${y + 10} L 28 ${y + 8} L 31 ${y + 10} L 34 ${y + 8}" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round"/>`;
+  } else if (mood === 'surprised') {
+    eyes = `
+      <circle cx="22" cy="${y}" r="5" fill="#333"/>
+      <circle cx="34" cy="${y}" r="5" fill="#333"/>
+      <circle cx="22" cy="${y}" r="2" fill="white"/>
+      <circle cx="34" cy="${y}" r="2" fill="white"/>
+    `;
+    mouth = `<ellipse cx="${cx}" cy="${y + 10}" rx="5" ry="6" fill="#E07A7A"/>`;
+  } else if (mood === 'sleepy') {
+    eyes = `
+      <path d="M 18 ${y} Q 22 ${y + 3} 26 ${y}" fill="none" stroke="#333" stroke-width="2"/>
+      <path d="M 30 ${y} Q 34 ${y + 3} 38 ${y}" fill="none" stroke="#333" stroke-width="2"/>
+      <text x="40" y="${y - 6}" font-size="10" fill="#9B5DE5">z</text>
+    `;
+    mouth = `<ellipse cx="${cx}" cy="${y + 9}" rx="4" ry="2" fill="#E07A7A"/>`;
+  } else if (mood === 'love') {
+    eyes = `
+      <text x="18" y="${y + 4}" font-size="11">❤</text>
+      <text x="30" y="${y + 4}" font-size="11">❤</text>
+    `;
+    mouth = `<path d="M 22 ${y + 8} Q ${cx} ${y + 14} 34 ${y + 8}" fill="none" stroke="#E07A7A" stroke-width="2.5" stroke-linecap="round"/>`;
+  }
+
+  if (eating) {
+    mouth = `<ellipse cx="${cx}" cy="${y + 10}" rx="6" ry="4" fill="#E07A7A" class="mouth-eating"/>
+      <ellipse cx="${cx - 3}" cy="${y + 9}" rx="2" ry="1.5" fill="#fff" opacity="0.5"/>`;
+  }
+
+  return eyes + mouth + extra;
+}
+
+function petEmotionBubble(emotion, w) {
+  if (!emotion || emotion === 'happy') return '';
+  const icon = EMOTIONS.find(e => e.id === emotion)?.icon || '😊';
+  return `<text x="${w / 2}" y="10" text-anchor="middle" font-size="14">${icon}</text>`;
+}
+
 export function createHumanSVG(char, overrides = {}) {
   const { colors, features, size } = char;
   const shirt = overrides.shirt || colors.shirt;
@@ -43,20 +118,12 @@ export function createHumanSVG(char, overrides = {}) {
     <ellipse cx="${cx + 6}" cy="${headR * 2 + bodyH + legH + 8}" rx="6" ry="3.5" fill="#333"/>
     <circle cx="${cx}" cy="${headR + 6}" r="${headR}" fill="${colors.skin}" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
     <ellipse cx="${cx}" cy="${headR}" rx="${headR - 1}" ry="10" fill="${colors.hair}"/>
-    <ellipse cx="22" cy="${headR + 6}" rx="4" ry="5" fill="#333"/>
-    <ellipse cx="34" cy="${headR + 6}" rx="4" ry="5" fill="#333"/>
-    <circle cx="23" cy="${headR + 4}" r="1.8" fill="white"/>
-    <circle cx="35" cy="${headR + 4}" r="1.8" fill="white"/>
-    <ellipse cx="22" cy="${headR + 8}" rx="1.2" ry="0.8" fill="rgba(255,255,255,0.4)"/>
-    <ellipse cx="34" cy="${headR + 8}" rx="1.2" ry="0.8" fill="rgba(255,255,255,0.4)"/>
-    <path d="M 24 ${headR + 14} Q ${cx} ${headR + 17} 32 ${headR + 14}" fill="none" stroke="#E07A7A" stroke-width="2" stroke-linecap="round"/>
-    <ellipse cx="18" cy="${headR + 10}" rx="3" ry="2" fill="#FFB4C8" opacity="0.5"/>
-    <ellipse cx="38" cy="${headR + 10}" rx="3" ry="2" fill="#FFB4C8" opacity="0.5"/>
+    ${humanFaceSVG(overrides.emotion, headR, cx)}
     ${extras}
   </svg>`;
 }
 
-export function createDogSVG(char) {
+export function createDogSVG(char, overrides = {}) {
   const { colors, features, size } = char;
   const isPoodle = features.breed === 'poodle';
   const stroke = features.white ? 'stroke="#BDBDBD" stroke-width="1.2"' : '';
@@ -77,6 +144,7 @@ export function createDogSVG(char) {
       <rect x="${size.w/2 - 20}" y="58" width="10" height="14" rx="4" fill="${colors.fur}" ${stroke}/>
       <rect x="${size.w/2 + 10}" y="58" width="10" height="14" rx="4" fill="${colors.fur}" ${stroke}/>
       <path d="M ${size.w/2 + 20} 42 Q ${size.w/2 + 32} 36 ${size.w/2 + 28} 50" fill="${colors.fur}" ${stroke}/>
+      ${petEmotionBubble(overrides.emotion, size.w)}
     </svg>`;
   }
 
@@ -97,10 +165,11 @@ export function createDogSVG(char) {
     <rect x="${size.w/2 + 7}" y="48" width="8" height="11" rx="3" fill="${colors.accent}"/>
     <path d="M ${size.w/2 + 17} 34 Q ${size.w/2 + 28} 28 ${size.w/2 + 24} 40" fill="${colors.fur}" stroke="${colors.accent}" stroke-width="0.8"/>
     <path d="M ${size.w/2 - 6} 13 Q ${size.w/2} 8 ${size.w/2 + 6} 13" fill="none" stroke="#333" stroke-width="1"/>
+    ${petEmotionBubble(overrides.emotion, size.w)}
   </svg>`;
 }
 
-export function createCatSVG(char) {
+export function createCatSVG(char, overrides = {}) {
   const { colors, features, size } = char;
   const isLarge = features.size === 'large';
   const isWhite = features.white;
@@ -123,10 +192,11 @@ export function createCatSVG(char) {
     <rect x="${size.w/2 - 11}" y="${size.h * 0.8}" width="6" height="9" rx="2" fill="${colors.fur}"/>
     <rect x="${size.w/2 + 5}" y="${size.h * 0.8}" width="6" height="9" rx="2" fill="${colors.fur}"/>
     <path d="M ${size.w/2 + 14} ${size.h * 0.62} Q ${size.w/2 + 22} ${size.h * 0.56} ${size.w/2 + 20} ${size.h * 0.7}" fill="${colors.fur}" ${stroke}/>
+    ${petEmotionBubble(overrides.emotion, size.w)}
   </svg>`;
 }
 
-export function createRabbitSVG(char) {
+export function createRabbitSVG(char, overrides = {}) {
   const { colors, size } = char;
   const isLarge = size.w > 45;
 
@@ -145,15 +215,16 @@ export function createRabbitSVG(char) {
     <rect x="${size.w/2 - 9}" y="${size.h * 0.82}" width="5" height="7" rx="2" fill="${colors.fur}"/>
     <rect x="${size.w/2 + 4}" y="${size.h * 0.82}" width="5" height="7" rx="2" fill="${colors.fur}"/>
     <circle cx="${size.w/2 + 14}" cy="${size.h * 0.65}" r="4" fill="${colors.fur}"/>
+    ${petEmotionBubble(overrides.emotion, size.w)}
   </svg>`;
 }
 
 export function createCharacterSprite(char, overrides = {}) {
   switch (char.type) {
     case 'human': return createHumanSVG(char, overrides);
-    case 'dog': return createDogSVG(char);
-    case 'cat': return createCatSVG(char);
-    case 'rabbit': return createRabbitSVG(char);
+    case 'dog': return createDogSVG(char, overrides);
+    case 'cat': return createCatSVG(char, overrides);
+    case 'rabbit': return createRabbitSVG(char, overrides);
     default: return createHumanSVG(char, overrides);
   }
 }

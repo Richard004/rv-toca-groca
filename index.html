@@ -54,6 +54,7 @@
           <button class="icon-btn" id="btn-wallpaper" title="Tapety">🎨</button>
           <button class="icon-btn" id="btn-characters" title="Family &amp; pets">👨‍👩‍👧‍👦</button>
           <button class="icon-btn" id="btn-items" title="Přidat nábytek a věci">🎁</button>
+          <button class="icon-btn" id="btn-food" title="Jídlo a pití">🍎</button>
           <button class="icon-btn" id="btn-save" title="Save backup">💾</button>
           <button class="icon-btn" id="btn-load" title="Load backup">📂</button>
         </div>
@@ -72,10 +73,16 @@
         <button class="room-arrow room-arrow-right" id="arrow-right" aria-label="Další místnost">›</button>
       </main>
 
-      <!-- Character outfit picker (when character selected) -->
-      <div class="outfit-bar" id="outfit-bar" hidden>
-        <span class="outfit-label">Oblečení:</span>
-        <div class="outfit-colors" id="outfit-colors"></div>
+      <!-- Character outfit + emotion (when character selected) -->
+      <div class="character-bars" id="character-bars" hidden>
+        <div class="outfit-bar" id="outfit-bar">
+          <span class="outfit-label">Oblečení:</span>
+          <div class="outfit-colors" id="outfit-colors"></div>
+        </div>
+        <div class="emotion-bar" id="emotion-bar">
+          <span class="outfit-label">Emoce:</span>
+          <div class="emotion-buttons" id="emotion-buttons"></div>
+        </div>
       </div>
 
       <!-- Character Drawer -->
@@ -85,6 +92,16 @@
           <button class="drawer-close" data-close="char-drawer">✕</button>
         </div>
         <div class="drawer-content" id="char-list"></div>
+      </aside>
+
+      <!-- Food drawer -->
+      <aside class="drawer drawer-food" id="food-drawer">
+        <div class="drawer-header">
+          <h3>🍎 Jídlo a pití</h3>
+          <button class="drawer-close" data-close="food-drawer">✕</button>
+        </div>
+        <p class="catalog-breadcrumb">Přetáhni k puse = nakrmíš • K lednici = uložíš 🧊</p>
+        <div class="drawer-content drawer-catalog-grid" id="food-list"></div>
       </aside>
 
       <!-- Items / Furniture catalog drawer -->
@@ -118,7 +135,7 @@
       </aside>
 
       <!-- Hint -->
-      <p class="game-hint">🎁 Přidat věci • Přetáhni postavy i nábytek • 2× klepnutí = jde pryč</p>
+      <p class="game-hint">🍎 Jídlo • 😊 Emoce u postavy • Přetáhni k puse = sní 🥕</p>
 
       <!-- Toast -->
       <div class="toast" id="toast"></div>

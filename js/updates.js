@@ -6,8 +6,8 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.3.0';
-export const NEXT_VERSION = '1.4.0';
+export const APP_VERSION = '1.4.0';
+export const NEXT_VERSION = '1.5.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
 /** Shipped — Round 1 (v1.1.0) */
@@ -60,6 +60,20 @@ export const SHIPPED_UPDATES = [
       { feedback: 'Chybí koupelna — vana, záchod, umyvadlo…', fix: 'Nová místnost 🛁 Koupelna + vše do katalogu', status: 'done' },
       { feedback: 'Ať si člověk vybere: koupelna → záchod → jaký záchod', fix: '3 kroky v katalogu — místnost, druh, barva/tvar', status: 'done' },
       { feedback: 'Různé barvy a tvary, ať to jde přesouvat', fix: 'Každá věc má varianty barev — táhni kam chceš!', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-4',
+    version: '1.4.0',
+    date: '20. 6. 2026',
+    title: 'Emoce a jídlo! 😊🍎',
+    intro: 'Postavičky teď umí být šťastné, smutné i zamilované — a taky jíst a pít!',
+    from: 'Rodina',
+    items: [
+      { feedback: 'Chceme zvolit emoce — šťastná, smutná…', fix: 'Klepni na postavu → dole 😊 Emoce — usměje se, zapláče…', status: 'done' },
+      { feedback: 'Postavičky mají umět jíst a pít', fix: '🍎 Jídlo → přetáhni k puse — „Anetka snědla mrkev!“', status: 'done' },
+      { feedback: 'Jídlo dát do ledničky', fix: 'Přetáhni jídlo k lednici v kuchyni 🧊 — uloží se tam', status: 'done' },
+      { feedback: 'Hezká animace jedení', fix: 'Pusa se hýbe při jídle + veselá zpráva nahoře 😋', status: 'done' }
     ]
   }
 ];
