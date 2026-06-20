@@ -5,7 +5,7 @@
       "round": 1,
       "metrics": {
         "entityCount": 16,
-        "coverage": 0.46875,
+        "coverage": 0.515625,
         "maxHeightRatio": 0.36018957345971564,
         "portraitFit": true,
         "hasBitmapArt": true,

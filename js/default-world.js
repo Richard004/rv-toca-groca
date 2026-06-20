@@ -1,6 +1,6 @@
 /**
  * Portrait-native curated scenes — whole room visible on phone (Toca-style).
- * Zones: wall y 0.04–0.22 | standing 0.30–0.48 | floor 0.52–0.72
+ * Bitmap mode: yRel = feet on floor (bottom anchor). Wall items: low yRel.
  */
 
 import { WALLPAPERS } from './rooms.js';
@@ -31,24 +31,24 @@ export function buildFurnishedDefaultWorld() {
   uidSeq = 0;
 
   const entities = [
-    // —— Obývák: ilustrované bitmap pozadí + postavy/nábytek navrch ——
-    furn('sofa-sofa-0', 'living', 0.58, 0.48),
-    furn('table-table-0', 'living', 0.30, 0.56),
-    furn('tv-tv-0', 'living', 0.72, 0.08),
-    furn('chair-chair-3', 'living', 0.14, 0.52),
-    furn('rug-rug-0', 'living', 0.24, 0.68),
-    furn('lamp-lamp-0', 'living', 0.04, 0.32),
-    furn('plants-plant-0', 'living', 0.86, 0.30),
-    furn('vases-vases-1', 'living', 0.34, 0.52),
-    furn('posters-poster-0', 'living', 0.48, 0.10),
-    toy('toy-teddy', 'living', 0.48, 0.50),
-    toy('toy-book', 'living', 0.38, 0.60),
-    toy('toy-paint', 'living', 0.42, 0.58),
-    meal('food-cookie', 'living', 0.32, 0.56),
-    chr('zuzana', 'living', 0.12, 0.38, { emotion: 'happy' }),
-    chr('anetka', 'living', 0.28, 0.40, { emotion: 'happy' }),
-    chr('liza', 'living', 0.44, 0.42),
-    chr('cookie', 'living', 0.66, 0.46),
+    // —— Obývák: bitmap pozadí — yRel = chodidla / úroveň povrchu ——
+    furn('rug-rug-0', 'living', 0.26, 0.88),
+    furn('sofa-sofa-0', 'living', 0.56, 0.76),
+    furn('table-table-0', 'living', 0.30, 0.72),
+    furn('chair-chair-3', 'living', 0.12, 0.78),
+    furn('lamp-lamp-0', 'living', 0.06, 0.86),
+    furn('plants-plant-0', 'living', 0.84, 0.84),
+    furn('tv-tv-0', 'living', 0.70, 0.16),
+    furn('vases-vases-1', 'living', 0.33, 0.54),
+    furn('posters-poster-0', 'living', 0.46, 0.12),
+    toy('toy-teddy', 'living', 0.54, 0.60),
+    toy('toy-book', 'living', 0.28, 0.55),
+    toy('toy-paint', 'living', 0.34, 0.56),
+    meal('food-cookie', 'living', 0.32, 0.54),
+    chr('zuzana', 'living', 0.10, 0.80, { emotion: 'happy' }),
+    chr('anetka', 'living', 0.24, 0.80, { emotion: 'happy' }),
+    chr('liza', 'living', 0.48, 0.82),
+    chr('cookie', 'living', 0.66, 0.83),
 
     // —— Kuchyně ——
     furn('fridge-fridge-0', 'kitchen', 0.02, 0.36),

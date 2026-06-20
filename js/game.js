@@ -11,7 +11,8 @@ import {
   resolveBitmap,
   createBitmapHTML,
   createRoomBitmapHTML,
-  bitmapEntitySize
+  bitmapEntitySize,
+  bitmapEntityZIndex
 } from './bitmap-assets.js';
 import { initWorldMap, playTravelAnimation, updateWorldMapActive } from './world-map.js';
 import { createCharacterSprite, createItemSVG, ITEMS, OUTFIT_COLORS, EMOTIONS } from './sprites.js';
@@ -156,12 +157,15 @@ function applyRoomDimensions() {
     const vpH = vp.clientHeight;
     const vpW = vp.clientWidth;
     if (vpH < 50) return;
+    const roomId = panel.dataset.room;
     const portraitPhone = vpW < vpH * 0.85;
-    let innerW = portraitPhone ? vpW : Math.round(vpH * ROOM_ASPECT);
-    if (!portraitPhone && innerW < vpW) innerW = vpW;
+    const bitmapRoom = !!getRoomBitmap(roomId);
+    const portraitFit = portraitPhone || bitmapRoom;
+    let innerW = portraitFit ? vpW : Math.round(vpH * ROOM_ASPECT);
+    if (!portraitFit && innerW < vpW) innerW = vpW;
     inner.style.width = `${innerW}px`;
     inner.style.height = `${vpH}px`;
-    inner.dataset.portraitFit = portraitPhone ? '1' : '0';
+    inner.dataset.portraitFit = portraitFit ? '1' : '0';
   });
 }
 
@@ -179,8 +183,10 @@ function getRoomInnerSize(panelW, panelH, roomId = currentRoom) {
 
   const innerH = panelH;
   const portraitPhone = panelW < panelH * 0.85;
-  let innerW = portraitPhone ? panelW : Math.round(innerH * ROOM_ASPECT);
-  if (!portraitPhone && innerW < panelW) innerW = panelW;
+  const bitmapRoom = !!getRoomBitmap(roomId);
+  const portraitFit = portraitPhone || bitmapRoom;
+  let innerW = portraitFit ? panelW : Math.round(innerH * ROOM_ASPECT);
+  if (!portraitFit && innerW < panelW) innerW = panelW;
   return { innerW, innerH, maxPan: Math.max(0, innerW - panelW) };
 }
 
@@ -376,15 +382,30 @@ export function startNewWorld(mode = 'furnished') {
   showToast(msg);
 }
 
-function entityToPixels(entity, worldW, worldH) {
-  return { x: entity.xRel * worldW, y: entity.yRel * worldH };
+function entityToPixels(entity, worldW, worldH, size = null) {
+  const x = entity.xRel * worldW;
+  const y = size?.anchorBottom
+    ? entity.yRel * worldH - size.h
+    : entity.yRel * worldH;
+  return { x, y };
 }
 
-function pixelsToRelative(x, y, roomId = currentRoom) {
+function pixelsToRelative(x, y, roomId = currentRoom, entity = null) {
   const { innerW, innerH } = getRoomLayout(roomId);
+  let yRel = y / Math.max(innerH, 1);
+  if (entity) {
+    const def = resolveEntityDef(entity);
+    const panel = document.querySelector(`.room-panel[data-room="${roomId}"]`);
+    const vpW = panel?.querySelector('.room-pan-viewport')?.clientWidth || innerW;
+    const bmpSrc = resolveBitmap(entity, def);
+    const size = bmpSrc
+      ? (bitmapEntitySize(entity, def, innerH, innerW, vpW) || scaleSize(def.size, innerH, innerW, vpW))
+      : null;
+    if (size?.anchorBottom) yRel = (y + size.h) / Math.max(innerH, 1);
+  }
   return {
     xRel: Math.max(0, Math.min(1, x / Math.max(innerW, 1))),
-    yRel: Math.max(0, Math.min(1, y / Math.max(innerH, 1)))
+    yRel: Math.max(0, Math.min(1, yRel))
   };
 }
 
@@ -716,8 +737,10 @@ function renderAllEntities() {
       const visual = bmpSrc
         ? createBitmapHTML(bmpSrc, def.name)
         : entitySvg(entity, def);
-      const pos = entityToPixels(entity, innerW, innerH);
-      const z = Math.round(pos.y + size.h);
+      const pos = entityToPixels(entity, innerW, innerH, size);
+      const z = bmpSrc
+        ? bitmapEntityZIndex(entity, def, pos, size)
+        : Math.round(pos.y + size.h);
       const bmpClass = bmpSrc ? ' entity--bitmap' : '';
       return `<div class="entity${bmpClass} ${entity.uid === selectedEntity ? 'selected' : ''}"
         data-uid="${entity.uid}"
@@ -912,7 +935,12 @@ function onEntityPointerUp(e) {
     if (entity) {
       const consumed = tryFoodInteraction(entity, dragEntity);
       if (!consumed) {
-        const rel = pixelsToRelative(parseFloat(dragEntity.style.left), parseFloat(dragEntity.style.top));
+        const rel = pixelsToRelative(
+          parseFloat(dragEntity.style.left),
+          parseFloat(dragEntity.style.top),
+          currentRoom,
+          entity
+        );
         entity.xRel = rel.xRel;
         entity.yRel = rel.yRel;
         entity.room = currentRoom;

@@ -9,7 +9,7 @@ let manifest = null;
 export async function loadBitmapManifest() {
   if (manifest) return manifest;
   try {
-    const res = await fetch(`${BASE}/manifest.json?v=2.0.0`);
+    const res = await fetch(`${BASE}/manifest.json?v=2.0.1`);
     if (!res.ok) return null;
     manifest = await res.json();
     return manifest;
@@ -79,20 +79,9 @@ export function createRoomBitmapHTML(src) {
   return `<img class="room-bg-bitmap" src="${src}" alt="" draggable="false"/>`;
 }
 
-/** Bitmap sprites are already high-res — gentler scale than SVG. */
-export function bitmapDisplayScale(innerH, innerW, vpW) {
-  const h = innerH > 0 ? innerH : 700;
-  const base = h / 700;
-  const portrait = vpW > 0 && innerW > 0 && innerW <= vpW * 1.08;
-  return base * (portrait ? 0.95 : 1.1);
-}
-
-export function scaleBitmapSize(size, innerH, innerW, vpW) {
-  const s = bitmapDisplayScale(innerH, innerW, vpW);
-  return {
-    w: Math.round(size.w * s),
-    h: Math.round(size.h * s)
-  };
+/** Portrait viewport — same scale as phone (user-approved). */
+export function isPortraitFit(innerW, vpW) {
+  return vpW > 0 && innerW > 0 && innerW <= vpW * 1.08;
 }
 
 const HEIGHT_REL = {
@@ -112,25 +101,76 @@ const HEIGHT_REL = {
   default: 0.18
 };
 
+/** Per-character height from catalog proportions (Zuzana = baseline). */
+const CHAR_HEIGHT_REL = {
+  zuzana: 0.36,
+  richard: 0.376,
+  klarka: 0.365,
+  anetka: 0.31,
+  tanicka: 0.304,
+  risa: 0.243,
+  liza: 0.13,
+  cookie: 0.15,
+  puffy: 0.17,
+  dart: 0.19,
+  mikie: 0.14
+};
+
+/** Depth layers — small props always above furniture/characters at similar Y. */
+const DEPTH_LAYER = {
+  wall: 0,
+  rug: 80,
+  floor: 120,
+  furniture: 200,
+  character: 400,
+  tabletop: 600
+};
+
+const WALL_TYPES = new Set(['tv', 'poster', 'picture', 'clock', 'mirror']);
+const FLOOR_TYPES = new Set(['lamp', 'plant']);
+
+export function bitmapDepthLayer(entity, def) {
+  if (entity.kind === 'food' || entity.kind === 'item') return DEPTH_LAYER.tabletop;
+  if (entity.kind === 'character') return DEPTH_LAYER.character;
+  const t = def?.type;
+  if (t === 'rug') return DEPTH_LAYER.rug;
+  if (t && WALL_TYPES.has(t)) return DEPTH_LAYER.wall;
+  if (t && FLOOR_TYPES.has(t)) return DEPTH_LAYER.floor;
+  return DEPTH_LAYER.furniture;
+}
+
+/** Feet-based z-index: higher Y = closer to camera. */
+export function bitmapEntityZIndex(entity, def, pos, size) {
+  const feetPx = pos.y + size.h;
+  return Math.round(bitmapDepthLayer(entity, def) + feetPx);
+}
+
 function metaForUrl(url) {
   if (!manifest?.meta || !url) return null;
   const rel = url.replace(`${BASE}/`, '');
   return manifest.meta[rel] || null;
 }
 
-/** Size from native bitmap aspect + room-relative height. */
+function heightRelFor(entity, def) {
+  if (entity.kind === 'character' && CHAR_HEIGHT_REL[entity.id]) {
+    return CHAR_HEIGHT_REL[entity.id];
+  }
+  if (entity.kind === 'character') return HEIGHT_REL.character;
+  if (entity.kind === 'food') return HEIGHT_REL.food;
+  if (entity.kind === 'item') return HEIGHT_REL.toy;
+  if (def?.type && HEIGHT_REL[def.type]) return HEIGHT_REL[def.type];
+  return HEIGHT_REL.default;
+}
+
+/** Size from native bitmap aspect + room-relative height (portrait-tuned). */
 export function bitmapEntitySize(entity, def, innerH, innerW, vpW) {
   const src = resolveBitmap(entity, def);
   const meta = metaForUrl(src);
   if (!meta) return null;
-  let hRel = HEIGHT_REL.default;
-  if (entity.kind === 'character') hRel = HEIGHT_REL.character;
-  else if (entity.kind === 'food') hRel = HEIGHT_REL.food;
-  else if (entity.kind === 'item') hRel = HEIGHT_REL.toy;
-  else if (def?.type && HEIGHT_REL[def.type]) hRel = HEIGHT_REL[def.type];
+  const hRel = heightRelFor(entity, def);
   const targetH = innerH * hRel;
   const aspect = meta.w / meta.h;
-  return { w: Math.round(targetH * aspect), h: Math.round(targetH) };
+  return { w: Math.round(targetH * aspect), h: Math.round(targetH), anchorBottom: true };
 }
 
 export function useBitmapRenderer() {

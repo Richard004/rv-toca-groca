@@ -6,7 +6,7 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '2.0.0';
+export const APP_VERSION = '2.0.1';
 export const NEXT_VERSION = '2.1.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
@@ -210,6 +210,20 @@ export const SHIPPED_UPDATES = [
       { feedback: 'Místnosti mají být malované, ne SVG', fix: 'Bitmap pozadí obýváku, kuchyně, pokoje i zahrady — vysoké rozlišení', status: 'done' },
       { feedback: 'Nábytek vypadá jako hračka z krabice', fix: 'Ilustrovaná pohovka, koberec, TV, lampa, stůl, květina + medvídek', status: 'done' },
       { feedback: 'Vykašlete se na procedurální', fix: 'Hra automaticky použije bitmapu když existuje — SVG jen jako záloha', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-10b',
+    version: '2.0.1',
+    date: '20. 6. 2026',
+    title: 'Správné měřítko a vrstvení! 📐',
+    intro: 'Opravili jsme škálu na široké obrazovce, hloubku objektů a čistší výřezy postav.',
+    from: 'Táta (po vašem feedbacku)',
+    items: [
+      { feedback: 'Na široké obrazovce špatné měřítko', fix: 'Bitmap místnosti = portrait výřez i na desktopu', status: 'done' },
+      { feedback: 'Postavy mají různou velikost', fix: 'Každá postava podle výšky z katalogu (Anetka menší, Richard větší)', status: 'done' },
+      { feedback: 'Knížky za stolem, pokožka za knížkama', fix: 'Z-order vrstvy: nábytek → postavy → drobnosti navrch', status: 'done' },
+      { feedback: 'Špatný alpha kanál u holčičky', fix: 'Nový flood-fill výřez pozadí z okrajů + trim', status: 'done' }
     ]
   }
 ];
