@@ -6,3 +6,5 @@
 | # | Feedback (raw / transcribed) | Source file | Status |
 |---|------------------------------|-------------|--------|
 | — | _No new feedback yet — inbox is empty_ | — | ⏳ pending |
+
+**Note:** v1.6.1 shipped programmer feedback (cache busting) as round-6b in `js/updates.js`.

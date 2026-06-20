@@ -6,7 +6,7 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.6.0';
+export const APP_VERSION = '1.6.1';
 export const NEXT_VERSION = '1.7.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
@@ -101,6 +101,17 @@ export const SHIPPED_UPDATES = [
       { feedback: 'V Toca Boca se dá posouvat uvnitř místnosti doleva/doprava', fix: 'Táhni prstem po prázdné podlaze — místnost je širší, objevíš víc prostoru!', status: 'done' },
       { feedback: 'V Toca Boca je mapa světa a cestování letadlem', fix: '🌍 Mapa světa nahoře — vyber dům nebo Chalupu, přiletí letadlo ✈️', status: 'done' },
       { feedback: 'Na kraji místnosti chceme přejít do dalšího pokoje', fix: 'Na kraji panování swipe pokračuje do sousední místnosti ‹ ›', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-6b',
+    version: '1.6.1',
+    date: '20. 6. 2026',
+    title: 'Vždy nová verze po reloadu! 🔄',
+    intro: 'Na mobilu už nemusíte dělat tvrdý reload — jedno obnovení stránky stáhne všechno nanovo.',
+    from: 'Táta (programátor)',
+    items: [
+      { feedback: 'Děti na telefonu nemůžou vynutit hard reload — míchají se staré CSS/JS', fix: 'Fingerprint verze: jeden reload = vždy celá nová verze. V nástrojích i 🔄 Aktualizovat', status: 'done' }
     ]
   }
 ];

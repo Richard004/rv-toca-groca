@@ -120,6 +120,16 @@ function setupGameControls() {
   });
 
   const fileInput = document.getElementById('file-input');
+  document.getElementById('btn-refresh-app')?.addEventListener('click', async () => {
+    closeDrawers();
+    showToast('Stahuju nejnovější verzi… 🔄');
+    if (typeof window.__tocaRefreshApp === 'function') {
+      await window.__tocaRefreshApp();
+    } else {
+      location.reload();
+    }
+  });
+
   document.getElementById('btn-load').addEventListener('click', () => {
     fileInput.click();
   });
