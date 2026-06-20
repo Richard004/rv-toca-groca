@@ -37,7 +37,7 @@ const released = new Date().toISOString().slice(0, 10);
 write('version.json', `${JSON.stringify({ version, build, released }, null, 2)}\n`);
 
 const modules = [
-  'main.js', 'game.js', 'rooms.js', 'room-art.js', 'world-map.js', 'default-world.js', 'entity-scale.js', 'characters.js',
+  'main.js', 'game.js', 'bitmap-assets.js', 'rooms.js', 'room-art.js', 'world-map.js', 'default-world.js', 'entity-scale.js', 'characters.js',
   'sprites.js', 'food-catalog.js', 'catalog.js', 'furniture-sprites.js',
   'storage.js', 'updates.js', 'fullscreen.js', 'version.js'
 ];

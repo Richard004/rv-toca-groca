@@ -8,7 +8,8 @@
     "sync-version": "node scripts/sync-version.mjs",
     "test:e2e": "node scripts/puppeteer-test.mjs",
     "audit:visual": "node scripts/visual-audit.mjs",
-    "design:loop": "node scripts/design-loop.mjs"
+    "design:loop": "node scripts/design-loop.mjs",
+    "import:bitmaps": "node scripts/import-bitmaps.mjs"
   },
   "keywords": [
     "toca",
@@ -18,7 +19,6 @@
   ],
   "author": "Richard",
   "license": "MIT",
-
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Richard004/rv-toca-groca.git"
@@ -27,5 +27,9 @@
   "bugs": {
     "url": "https://github.com/Richard004/rv-toca-groca/issues"
   },
-  "homepage": "https://github.com/Richard004/rv-toca-groca#readme"
+  "homepage": "https://github.com/Richard004/rv-toca-groca#readme",
+  "devDependencies": {
+    "puppeteer": "^25.1.0",
+    "sharp": "^0.35.2"
+  }
 }

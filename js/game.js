@@ -5,6 +5,14 @@ import {
   createRoomSVG, ROOM_VIEW_W, ROOM_VIEW_H, ROOM_ASPECT
 } from './rooms.js';
 import { createPortraitRoomSVG } from './room-art.js';
+import {
+  loadBitmapManifest,
+  getRoomBitmap,
+  resolveBitmap,
+  createBitmapHTML,
+  createRoomBitmapHTML,
+  bitmapEntitySize
+} from './bitmap-assets.js';
 import { initWorldMap, playTravelAnimation, updateWorldMapActive } from './world-map.js';
 import { createCharacterSprite, createItemSVG, ITEMS, OUTFIT_COLORS, EMOTIONS } from './sprites.js';
 import { FOOD_ITEMS, getFoodItem, createFoodSVG } from './food-catalog.js';
@@ -90,8 +98,11 @@ export function initGame() {
   setupResizeObserver();
   scheduleAutoSave();
   waitForLayout(() => {
-    buildWorldStrip();
-    switchRoom(currentRoom, false);
+    loadBitmapManifest().then(() => {
+      buildWorldStrip();
+      switchRoom(currentRoom, false);
+      renderAllEntities();
+    });
   });
 }
 
@@ -277,6 +288,8 @@ function onLayoutChange() {
 }
 
 function roomSceneSVG(room) {
+  const bmp = getRoomBitmap(room.id);
+  if (bmp) return `<div class="room-scene-bitmap">${createRoomBitmapHTML(bmp)}</div>`;
   const { w, h } = getWorldSize();
   if (w < h * 0.85) return createPortraitRoomSVG(room);
   return createRoomSVG(room, ROOM_VIEW_W, ROOM_VIEW_H);
@@ -695,14 +708,21 @@ function renderAllEntities() {
       const def = resolveEntityDef(entity);
       if (!def) return '';
       const vp = panel.querySelector('.room-pan-viewport');
-      const size = scaleSize(def.size, innerH, innerW, vp?.clientWidth || innerW);
-      const svg = entitySvg(entity, def);
+      const vpW = vp?.clientWidth || innerW;
+      const bmpSrc = resolveBitmap(entity, def);
+      const size = bmpSrc
+        ? (bitmapEntitySize(entity, def, innerH, innerW, vpW) || scaleSize(def.size, innerH, innerW, vpW))
+        : scaleSize(def.size, innerH, innerW, vpW);
+      const visual = bmpSrc
+        ? createBitmapHTML(bmpSrc, def.name)
+        : entitySvg(entity, def);
       const pos = entityToPixels(entity, innerW, innerH);
       const z = Math.round(pos.y + size.h);
-      return `<div class="entity ${entity.uid === selectedEntity ? 'selected' : ''}"
+      const bmpClass = bmpSrc ? ' entity--bitmap' : '';
+      return `<div class="entity${bmpClass} ${entity.uid === selectedEntity ? 'selected' : ''}"
         data-uid="${entity.uid}"
         style="left:${pos.x}px;top:${pos.y}px;width:${size.w}px;height:${size.h}px;z-index:${z}">
-        ${svg}<span class="entity-label">${def.name}</span></div>`;
+        ${visual}<span class="entity-label">${def.name}</span></div>`;
     }).join('');
   });
   updateWorldRect();

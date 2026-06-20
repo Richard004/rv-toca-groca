@@ -4,10 +4,11 @@
     {
       "round": 1,
       "metrics": {
-        "entityCount": 19,
-        "coverage": 0.515625,
-        "maxHeightRatio": 0.3613744075829384,
+        "entityCount": 16,
+        "coverage": 0.46875,
+        "maxHeightRatio": 0.36018957345971564,
         "portraitFit": true,
+        "hasBitmapArt": true,
         "hasPortraitArt": true,
         "innerW": 390,
         "vpW": 390

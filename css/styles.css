@@ -1082,6 +1082,40 @@ body.standalone-mode .toast {
   height: 100%;
 }
 
+.room-scene-bitmap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.room-bg-bitmap {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.entity-bitmap {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+  user-select: none;
+}
+
+.entity--bitmap {
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.18));
+}
+
+.entity--bitmap .entity-label {
+  display: none;
+}
+
 .entity-label {
   position: absolute;
   bottom: -18px;

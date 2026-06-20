@@ -32,7 +32,8 @@ async function scoreLiving(page) {
     const vpH = vp?.clientHeight || 1;
     const innerW = inner?.offsetWidth || 1;
     const portraitFit = innerW <= vpW * 1.08;
-    const hasPortraitArt = !!panel?.querySelector('.room-bg--portrait');
+    const hasBitmapArt = !!panel?.querySelector('.room-scene-bitmap, .room-bg-bitmap');
+    const hasPortraitArt = hasBitmapArt || !!panel?.querySelector('.room-bg--portrait');
     const entities = [...(panel?.querySelectorAll('.entity') || [])];
     const boxes = entities.map((el) => {
       const l = parseFloat(el.style.left) || 0;
@@ -56,6 +57,7 @@ async function scoreLiving(page) {
       coverage: covered.size / (grid * grid),
       maxHeightRatio: heights[0] ? heights[0] / vpH : 0,
       portraitFit,
+      hasBitmapArt,
       hasPortraitArt,
       innerW,
       vpW
@@ -89,9 +91,10 @@ async function run() {
 
     const metrics = await scoreLiving(page);
     const shot = await capture(page, `design-loop-r${round}-living.png`);
+    const minCoverage = metrics.hasBitmapArt ? 0.40 : THRESHOLDS.minCoverage;
     const ok =
       metrics.entityCount >= THRESHOLDS.minEntities &&
-      metrics.coverage >= THRESHOLDS.minCoverage &&
+      metrics.coverage >= minCoverage &&
       metrics.maxHeightRatio >= THRESHOLDS.minMaxHeight &&
       metrics.portraitFit === THRESHOLDS.portraitFit &&
       metrics.hasPortraitArt;

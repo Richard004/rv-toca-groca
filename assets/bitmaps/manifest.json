@@ -1,0 +1,93 @@
+{
+  "version": 2,
+  "rooms": {
+    "living": "rooms/living.png",
+    "garden": "rooms/garden.png",
+    "bedroom": "rooms/bedroom.png",
+    "kitchen": "rooms/kitchen.png"
+  },
+  "characters": {
+    "zuzana": "chars/zuzana.png",
+    "anetka": "chars/anetka.png",
+    "cookie": "chars/cookie.png",
+    "liza": "chars/liza.png",
+    "richard": "chars/richard.png"
+  },
+  "furnitureTypes": {
+    "sofa": "furniture/sofa.png",
+    "rug": "furniture/rug.png",
+    "tv": "furniture/tv.png",
+    "lamp": "furniture/lamp.png",
+    "table": "furniture/table.png",
+    "plant": "furniture/plant.png"
+  },
+  "items": {
+    "teddy": "items/teddy.png"
+  },
+  "meta": {
+    "chars/zuzana.png": {
+      "w": 390,
+      "h": 520
+    },
+    "furniture/sofa.png": {
+      "w": 390,
+      "h": 520
+    },
+    "chars/anetka.png": {
+      "w": 390,
+      "h": 520
+    },
+    "rooms/living.png": {
+      "w": 780,
+      "h": 1040
+    },
+    "chars/cookie.png": {
+      "w": 390,
+      "h": 520
+    },
+    "chars/liza.png": {
+      "w": 390,
+      "h": 520
+    },
+    "furniture/rug.png": {
+      "w": 390,
+      "h": 520
+    },
+    "furniture/tv.png": {
+      "w": 390,
+      "h": 520
+    },
+    "furniture/lamp.png": {
+      "w": 390,
+      "h": 520
+    },
+    "furniture/table.png": {
+      "w": 390,
+      "h": 520
+    },
+    "furniture/plant.png": {
+      "w": 390,
+      "h": 520
+    },
+    "chars/richard.png": {
+      "w": 390,
+      "h": 520
+    },
+    "items/teddy.png": {
+      "w": 390,
+      "h": 520
+    },
+    "rooms/garden.png": {
+      "w": 780,
+      "h": 1040
+    },
+    "rooms/bedroom.png": {
+      "w": 780,
+      "h": 1040
+    },
+    "rooms/kitchen.png": {
+      "w": 780,
+      "h": 1040
+    }
+  }
+}

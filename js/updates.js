@@ -6,8 +6,8 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.9.0';
-export const NEXT_VERSION = '2.0.0';
+export const APP_VERSION = '2.0.0';
+export const NEXT_VERSION = '2.1.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
 /** Shipped — Round 1 (v1.1.0) */
@@ -196,6 +196,20 @@ export const SHIPPED_UPDATES = [
       { feedback: 'Pořád to není wow jako Toca', fix: 'Celá místnost viditelná na telefonu (žádné prázdné panorama)', status: 'done' },
       { feedback: 'Chybí ilustrace a vrstvy', fix: 'Nové portrait pozadí — okno, závěsy, police, tečkovaná zeď, podlaha', status: 'done' },
       { feedback: 'Agent musí vidět co já', fix: 'npm run design:loop → screenshot + DESIGN-APPROVED-living.png', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-10',
+    version: '2.0.0',
+    date: '20. 6. 2026',
+    title: 'Ilustrované bitmapy! 🎨✨',
+    intro: 'Konec procedurálních čtverečků — Táta nakreslil postavy, nábytek i místnosti jako opravdové ilustrace.',
+    from: 'Táta + Imagine',
+    items: [
+      { feedback: 'Chceme krásné kreslené postavy jako Toca', fix: 'AI ilustrace Zuzany, Anetky, Cookie, Lízy, Richarda — PNG s průhledností', status: 'done' },
+      { feedback: 'Místnosti mají být malované, ne SVG', fix: 'Bitmap pozadí obýváku, kuchyně, pokoje i zahrady — vysoké rozlišení', status: 'done' },
+      { feedback: 'Nábytek vypadá jako hračka z krabice', fix: 'Ilustrovaná pohovka, koberec, TV, lampa, stůl, květina + medvídek', status: 'done' },
+      { feedback: 'Vykašlete se na procedurální', fix: 'Hra automaticky použije bitmapu když existuje — SVG jen jako záloha', status: 'done' }
     ]
   }
 ];
