@@ -516,9 +516,10 @@ body.standalone-mode .toast {
   height: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  touch-action: pan-x pinch-zoom;
 }
 
 .world-scroll::-webkit-scrollbar {
@@ -541,7 +542,7 @@ body.standalone-mode .toast {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  touch-action: pan-y;
+  touch-action: pan-x pinch-zoom;
   cursor: grab;
   container-type: size;
   container-name: roomvp;
@@ -555,9 +556,7 @@ body.standalone-mode .toast {
   position: relative;
   height: 100%;
   min-height: 100%;
-  min-width: 100%;
-  /* JS sets width/height from viewport — cqh fallback for modern browsers */
-  width: max(100%, calc(100cqh * var(--room-aspect)));
+  /* JS: height = viewport, width = wider for horizontal pan */
   will-change: transform;
 }
 
@@ -1086,14 +1085,17 @@ body.standalone-mode .toast {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  display: flex;
+  align-items: stretch;
 }
 
 .room-bg-bitmap {
   display: block;
-  width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center center;
+  width: auto;
+  flex-shrink: 0;
+  object-fit: fill;
+  object-position: left center;
   pointer-events: none;
   user-select: none;
 }

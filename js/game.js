@@ -8,6 +8,7 @@ import { createPortraitRoomSVG } from './room-art.js';
 import {
   loadBitmapManifest,
   getRoomBitmap,
+  getRoomBitmapAspect,
   resolveBitmap,
   createBitmapHTML,
   createRoomBitmapHTML,
@@ -137,6 +138,10 @@ function waitForLayout(callback, attempts = 20) {
   requestAnimationFrame(() => tick(attempts));
 }
 
+/** Room scroll area is always wider than viewport; height always equals viewport. */
+const PORTRAIT_SVG_ASPECT = 400 / 700;
+const MIN_ROOM_PAN_RATIO = 1.28;
+
 function getWorldSize() {
   const scroll = document.getElementById('world-scroll');
   const world = document.getElementById('game-world');
@@ -147,8 +152,23 @@ function getWorldSize() {
   return { w: Math.max(w, 320), h: Math.max(h, 240) };
 }
 
-/** Read real layout from DOM (CSS sets height-first crop). */
-/** Explicit dimensions — works on Safari without container-query units (cqh). */
+function getRoomContentAspect(roomId, vpW, vpH) {
+  const bmpAspect = getRoomBitmapAspect(roomId);
+  if (bmpAspect) return bmpAspect;
+  const portraitPhone = vpW < vpH * 0.85;
+  return portraitPhone ? PORTRAIT_SVG_ASPECT : ROOM_ASPECT;
+}
+
+/** Height = viewport; width = art aspect at full height, min wider than viewport for pan. */
+function computeRoomInnerSize(roomId, vpW, vpH) {
+  const innerH = vpH;
+  const aspect = getRoomContentAspect(roomId, vpW, vpH);
+  const artW = Math.round(innerH * aspect);
+  const minW = Math.round(vpW * MIN_ROOM_PAN_RATIO);
+  const innerW = Math.max(artW, minW);
+  return { innerW, innerH, artW, maxPan: Math.max(0, innerW - vpW) };
+}
+
 function applyRoomDimensions() {
   document.querySelectorAll('.room-panel').forEach((panel) => {
     const vp = panel.querySelector('.room-pan-viewport');
@@ -158,14 +178,14 @@ function applyRoomDimensions() {
     const vpW = vp.clientWidth;
     if (vpH < 50) return;
     const roomId = panel.dataset.room;
-    const portraitPhone = vpW < vpH * 0.85;
-    const bitmapRoom = !!getRoomBitmap(roomId);
-    const portraitFit = portraitPhone || bitmapRoom;
-    let innerW = portraitFit ? vpW : Math.round(vpH * ROOM_ASPECT);
-    if (!portraitFit && innerW < vpW) innerW = vpW;
+    const { innerW, innerH, artW } = computeRoomInnerSize(roomId, vpW, vpH);
     inner.style.width = `${innerW}px`;
-    inner.style.height = `${vpH}px`;
-    inner.dataset.portraitFit = portraitFit ? '1' : '0';
+    inner.style.height = `${innerH}px`;
+    inner.dataset.artW = String(artW);
+    inner.dataset.panRoom = innerW > vpW + 2 ? '1' : '0';
+
+    const bmp = inner.querySelector('.room-bg-bitmap');
+    if (bmp) bmp.style.width = `${artW}px`;
   });
 }
 
@@ -181,18 +201,15 @@ function getRoomInnerSize(panelW, panelH, roomId = currentRoom) {
     return { innerW, innerH, maxPan: Math.max(0, innerW - viewport.clientWidth) };
   }
 
-  const innerH = panelH;
-  const portraitPhone = panelW < panelH * 0.85;
-  const bitmapRoom = !!getRoomBitmap(roomId);
-  const portraitFit = portraitPhone || bitmapRoom;
-  let innerW = portraitFit ? panelW : Math.round(innerH * ROOM_ASPECT);
-  if (!portraitFit && innerW < panelW) innerW = panelW;
-  return { innerW, innerH, maxPan: Math.max(0, innerW - panelW) };
+  const vpW = viewport?.clientWidth || panelW;
+  const vpH = viewport?.clientHeight || panelH;
+  const computed = computeRoomInnerSize(roomId, vpW, vpH);
+  return { innerW: computed.innerW, innerH: computed.innerH, maxPan: computed.maxPan };
 }
 
 function getRoomPanMetrics(roomId) {
   const { w: panelW, h: panelH } = getWorldSize();
-  const { innerW, innerH, maxPan } = getRoomInnerSize(panelW, panelH);
+  const { innerW, innerH, maxPan } = getRoomInnerSize(panelW, panelH, roomId);
   const panRel = roomPans[roomId] ?? 0.5;
   return { panelW, panelH, innerW, innerH, h: panelH, maxPan, panOffset: panRel * maxPan };
 }
@@ -295,7 +312,9 @@ function onLayoutChange() {
 
 function roomSceneSVG(room) {
   const bmp = getRoomBitmap(room.id);
-  if (bmp) return `<div class="room-scene-bitmap">${createRoomBitmapHTML(bmp)}</div>`;
+  if (bmp) {
+    return `<div class="room-scene-bitmap" style="background:${room.floor}">${createRoomBitmapHTML(bmp)}</div>`;
+  }
   const { w, h } = getWorldSize();
   if (w < h * 0.85) return createPortraitRoomSVG(room);
   return createRoomSVG(room, ROOM_VIEW_W, ROOM_VIEW_H);
@@ -1105,12 +1124,14 @@ function onPanPointerMove(e) {
 
   if (newOffset < 0 && dx > 0) {
     setRoomPanOffset(panDrag.roomId, 0, false);
-    scroll.scrollLeft -= dx * 0.35;
+    scroll.scrollLeft = Math.max(0, scroll.scrollLeft - dx);
+    e.preventDefault();
     return;
   }
   if (newOffset > panDrag.maxPan && dx < 0) {
     setRoomPanOffset(panDrag.roomId, panDrag.maxPan, false);
-    scroll.scrollLeft -= dx * 0.35;
+    scroll.scrollLeft += -dx;
+    e.preventDefault();
     return;
   }
 

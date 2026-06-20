@@ -6,7 +6,7 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '2.0.1';
+export const APP_VERSION = '2.0.2';
 export const NEXT_VERSION = '2.1.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
@@ -224,6 +224,20 @@ export const SHIPPED_UPDATES = [
       { feedback: 'Postavy mají různou velikost', fix: 'Každá postava podle výšky z katalogu (Anetka menší, Richard větší)', status: 'done' },
       { feedback: 'Knížky za stolem, pokožka za knížkama', fix: 'Z-order vrstvy: nábytek → postavy → drobnosti navrch', status: 'done' },
       { feedback: 'Špatný alpha kanál u holčičky', fix: 'Nový flood-fill výřez pozadí z okrajů + trim', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-10c',
+    version: '2.0.2',
+    date: '20. 6. 2026',
+    title: 'Místnosti jako Toca — výška = obrazovka! 📱',
+    intro: 'Výška místnosti přesně sedí na viewport. Do stran panuješ v místnosti i mezi místnostmi.',
+    from: 'Táta (po vašem feedbacku)',
+    items: [
+      { feedback: 'Výška místnosti má sedět na viewport — žádné ořezávání', fix: 'Místnost = 100 % výšky obrazovky, bitmapa bez vertikálního cropu', status: 'done' },
+      { feedback: 'Místnost má být širší než obrazovka', fix: 'Horizontální pan — táhni doleva/doprava uvnitř pokoje', status: 'done' },
+      { feedback: 'Plynulý scroll mezi místnostmi', fix: 'Místnosti na jedné řadě — na kraji panu přejdeš do sousedního pokoje', status: 'done' },
+      { feedback: 'Žádné scrollování nahoru/dolů', fix: 'overflow-y skrytý — jen horizontální navigace', status: 'done' }
     ]
   }
 ];

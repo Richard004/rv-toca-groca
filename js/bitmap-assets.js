@@ -9,7 +9,7 @@ let manifest = null;
 export async function loadBitmapManifest() {
   if (manifest) return manifest;
   try {
-    const res = await fetch(`${BASE}/manifest.json?v=2.0.1`);
+    const res = await fetch(`${BASE}/manifest.json?v=2.0.2`);
     if (!res.ok) return null;
     manifest = await res.json();
     return manifest;
@@ -34,6 +34,16 @@ export function getRoomBitmap(roomId) {
   if (!manifest?.rooms) return null;
   const rel = manifest.rooms[roomId];
   return rel ? bitmapUrl(rel) : null;
+}
+
+/** Native width/height ratio of illustrated room art (null = use SVG aspect). */
+export function getRoomBitmapAspect(roomId) {
+  if (!manifest?.rooms || !manifest?.meta) return null;
+  const rel = manifest.rooms[roomId];
+  if (!rel) return null;
+  const meta = manifest.meta[rel];
+  if (!meta?.w || !meta?.h) return null;
+  return meta.w / meta.h;
 }
 
 export function getCharacterBitmap(charId) {

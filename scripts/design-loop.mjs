@@ -19,7 +19,7 @@ const THRESHOLDS = {
   minEntities: 16,
   minCoverage: 0.48,
   minMaxHeight: 0.30,
-  portraitFit: true
+  roomLayoutOk: true
 };
 
 async function scoreLiving(page) {
@@ -31,7 +31,9 @@ async function scoreLiving(page) {
     const vpW = vp?.clientWidth || 1;
     const vpH = vp?.clientHeight || 1;
     const innerW = inner?.offsetWidth || 1;
-    const portraitFit = innerW <= vpW * 1.08;
+    const heightFills = Math.abs(vpH - (inner?.offsetHeight || vpH)) < 4;
+    const hasRoomPan = innerW > vpW * 1.05;
+    const roomLayoutOk = heightFills && hasRoomPan;
     const hasBitmapArt = !!panel?.querySelector('.room-scene-bitmap, .room-bg-bitmap');
     const hasPortraitArt = hasBitmapArt || !!panel?.querySelector('.room-bg--portrait');
     const entities = [...(panel?.querySelectorAll('.entity') || [])];
@@ -56,11 +58,14 @@ async function scoreLiving(page) {
       entityCount: entities.length,
       coverage: covered.size / (grid * grid),
       maxHeightRatio: heights[0] ? heights[0] / vpH : 0,
-      portraitFit,
+      roomLayoutOk,
+      heightFills,
+      hasRoomPan,
       hasBitmapArt,
       hasPortraitArt,
       innerW,
-      vpW
+      vpW,
+      vpH
     };
   });
 }
@@ -96,7 +101,7 @@ async function run() {
       metrics.entityCount >= THRESHOLDS.minEntities &&
       metrics.coverage >= minCoverage &&
       metrics.maxHeightRatio >= THRESHOLDS.minMaxHeight &&
-      metrics.portraitFit === THRESHOLDS.portraitFit &&
+      metrics.roomLayoutOk === THRESHOLDS.roomLayoutOk &&
       metrics.hasPortraitArt;
 
     const entry = { round, metrics, shot, ok, thresholds: THRESHOLDS };
