@@ -27,6 +27,10 @@ let worldRect = null;
 let autoSaveTimer = null;
 let resizeObserver = null;
 let scrollSyncTimer = null;
+let interactionsBound = false;
+let layoutChangeBound = false;
+let lastSpawnKey = '';
+let lastSpawnAt = 0;
 
 const FURNITURE_REACTIONS = {
   sofa: ['*si sedne na gauč* 😊', '*odpočívá* 💤', '*skáče na gauči* 🎉'],
@@ -60,6 +64,8 @@ let lastTapTime = 0;
 let lastTapUid = null;
 
 export function initGame() {
+  if (document.getElementById('game')?.dataset.inited) return;
+
   buildBuildingNav();
   buildRoomNav();
   buildCharacterDrawer();
@@ -128,13 +134,18 @@ function setupResizeObserver() {
     updateWorldRect();
   });
   resizeObserver.observe(world);
-  window.addEventListener('toca-layout-change', () => {
-    ensureWorldHeight();
-    buildWorldStrip();
-    scrollToRoom(currentRoom, false);
-    renderAllEntities();
-    updateWorldRect();
-  });
+  if (!layoutChangeBound) {
+    layoutChangeBound = true;
+    window.addEventListener('toca-layout-change', onLayoutChange);
+  }
+}
+
+function onLayoutChange() {
+  ensureWorldHeight();
+  buildWorldStrip();
+  scrollToRoom(currentRoom, false);
+  renderAllEntities();
+  updateWorldRect();
 }
 
 function buildWorldStrip() {
@@ -727,6 +738,12 @@ function removeEntity(uid) {
 }
 
 function spawnEntity(kind, id) {
+  const spawnKey = `${kind}:${id}`;
+  const now = Date.now();
+  if (spawnKey === lastSpawnKey && now - lastSpawnAt < 450) return;
+  lastSpawnKey = spawnKey;
+  lastSpawnAt = now;
+
   const def = kind === 'character'
     ? getCharacterById(id)
     : kind === 'food'
@@ -816,6 +833,9 @@ function onWorldScroll() {
 }
 
 function setupInteractions() {
+  if (interactionsBound) return;
+  interactionsBound = true;
+
   document.getElementById('char-list').addEventListener('click', e => {
     const item = e.target.closest('[data-spawn="character"]');
     if (item) spawnEntity('character', item.dataset.id);
@@ -836,6 +856,8 @@ function setupInteractions() {
       catalogNav = { ...catalogNav, level: 'items', subgroupId: id };
       renderCatalog();
     } else if (action === 'spawn') {
+      e.preventDefault();
+      e.stopPropagation();
       spawnCatalogItem(id);
     }
   });

@@ -43,8 +43,11 @@ function setupSplash() {
 function startGame() {
   document.getElementById('splash').classList.remove('active');
   document.getElementById('game').classList.add('active');
-  initGame();
-  document.getElementById('game').dataset.inited = '1';
+  const game = document.getElementById('game');
+  if (!game.dataset.inited) {
+    initGame();
+    game.dataset.inited = '1';
+  }
   showToast('Vítej v Toca Groca! 🏠❤️');
   onGameStarted();
   maybeShowUpdatesOnLaunch();
