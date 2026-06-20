@@ -1,6 +1,6 @@
 /** Bumped by scripts/sync-version.mjs on each release — do not edit by hand. */
 export const ASSET_VERSION = '1.6.4';
-export const BUILD_ID = 'aa05dd0';
+export const BUILD_ID = '8133429';
 
 export const JS_MODULES = [
   'main.js',
