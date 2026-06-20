@@ -175,15 +175,33 @@ function getRoomInnerElement(roomId = currentRoom) {
   return panel?.querySelector('.room-pan-inner') || panel;
 }
 
-function getEntityDragBounds(roomId = currentRoom) {
+function getRoomLayout(roomId) {
   const panel = document.querySelector(`.room-panel[data-room="${roomId}"]`);
   const inner = panel?.querySelector('.room-pan-inner');
   const viewport = panel?.querySelector('.room-pan-viewport');
   const panOffset = getRoomPanOffset(roomId);
-  const innerW = inner?.offsetWidth || viewport?.clientWidth || panel?.clientWidth || 0;
-  const h = viewport?.clientHeight || panel?.clientHeight || 0;
-  const vpRect = viewport?.getBoundingClientRect() || panel?.getBoundingClientRect();
-  return { innerW, h, panOffset, vpRect };
+
+  if (inner && viewport) {
+    return {
+      innerW: inner.offsetWidth,
+      innerH: viewport.clientHeight,
+      panOffset,
+      vpRect: viewport.getBoundingClientRect()
+    };
+  }
+
+  const { w: panelW, h } = getWorldSize();
+  return {
+    innerW: getRoomInnerWidth(panelW),
+    innerH: h,
+    panOffset,
+    vpRect: panel?.getBoundingClientRect() || { left: 0, top: 0, width: panelW, height: h }
+  };
+}
+
+function getEntityDragBounds(roomId = currentRoom) {
+  const { innerW, innerH, panOffset, vpRect } = getRoomLayout(roomId);
+  return { innerW, h: innerH, panOffset, vpRect };
 }
 
 function setupResizeObserver() {
@@ -269,8 +287,11 @@ function entityToPixels(entity, worldW, worldH) {
 }
 
 function pixelsToRelative(x, y, roomId = currentRoom) {
-  const { innerW, h } = getRoomPanMetrics(roomId);
-  return { xRel: Math.max(0, Math.min(1, x / innerW)), yRel: Math.max(0, Math.min(1, y / h)) };
+  const { innerW, innerH } = getRoomLayout(roomId);
+  return {
+    xRel: Math.max(0, Math.min(1, x / Math.max(innerW, 1))),
+    yRel: Math.max(0, Math.min(1, y / Math.max(innerH, 1)))
+  };
 }
 
 function getEntityOverrides(entity) {
@@ -583,19 +604,18 @@ function applyEmotion(emotionId) {
 }
 
 function renderAllEntities() {
-  const { w: panelW, h: worldH } = getWorldSize();
   document.querySelectorAll('.room-panel').forEach(panel => {
     const roomId = panel.dataset.room;
     const layer = panel.querySelector('.entities-layer');
     const roomEntities = entities.filter(e => e.room === roomId);
-    const innerW = getRoomInnerWidth(panelW);
+    const { innerW, innerH } = getRoomLayout(roomId);
 
     layer.innerHTML = roomEntities.map(entity => {
       const def = resolveEntityDef(entity);
       if (!def) return '';
       const size = def.size;
       const svg = entitySvg(entity, def);
-      const pos = entityToPixels(entity, innerW, worldH);
+      const pos = entityToPixels(entity, innerW, innerH);
       return `<div class="entity ${entity.uid === selectedEntity ? 'selected' : ''}"
         data-uid="${entity.uid}"
         style="left:${pos.x}px;top:${pos.y}px;width:${size.w}px;height:${size.h}px">

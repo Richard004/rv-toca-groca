@@ -3,8 +3,8 @@
  * Fetches version.json (never cached), busts stale HTML/JS/CSS on mismatch.
  */
 (function () {
-  const BOOT_VERSION = '1.6.1';
-  const BOOT_BUILD = '566373c';
+  const BOOT_VERSION = '1.6.2';
+  const BOOT_BUILD = 'd1286af';
   const RELOAD_KEY = 'toca-groca-reload-attempt';
 
   const JS_MODULES = [
@@ -46,7 +46,7 @@
   }
 
   function buildImportMap(version) {
-    const jsBase = `${BASE}js/`;
+    const jsBase = new URL('js/', new URL(BASE, location.origin)).href;
     const scope = {};
     JS_MODULES.forEach((file) => {
       scope[`./${file}`] = `${jsBase}${file}?v=${version}`;
@@ -79,14 +79,6 @@
     if (!('serviceWorker' in navigator)) return;
     try {
       const reg = await navigator.serviceWorker.register(`${BASE}sw.js?v=${version}`, { scope: BASE });
-      reg.addEventListener('updatefound', () => {
-        const worker = reg.installing;
-        worker?.addEventListener('statechange', () => {
-          if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-            location.reload();
-          }
-        });
-      });
       if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
     } catch (err) {
       console.warn('[Toca Groca] Service worker registration failed', err);
@@ -139,8 +131,8 @@
 
     injectImportMap(buildImportMap(meta.version));
     versionStylesheet(meta.version);
-    await registerServiceWorker(meta.version);
     loadMainModule(meta.version);
+    registerServiceWorker(meta.version);
   }
 
   window.__tocaRefreshApp = async function refreshApp() {

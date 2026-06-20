@@ -6,7 +6,7 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.6.1';
+export const APP_VERSION = '1.6.2';
 export const NEXT_VERSION = '1.7.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
@@ -112,6 +112,18 @@ export const SHIPPED_UPDATES = [
     from: 'Táta (programátor)',
     items: [
       { feedback: 'Děti na telefonu nemůžou vynutit hard reload — míchají se staré CSS/JS', fix: 'Fingerprint verze: jeden reload = vždy celá nová verze. V nástrojích i 🔄 Aktualizovat', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-6c',
+    version: '1.6.2',
+    date: '20. 6. 2026',
+    title: 'Oprava Let\'s Play! ▶️',
+    intro: 'Po cache updatu nešlo spustit hru — teď už zase funguje.',
+    from: 'Táta (programátor)',
+    items: [
+      { feedback: 'Let\'s Play nic nedělá', fix: 'Opraveno načítání aplikace po boot loaderu — tlačítko zase funguje', status: 'done' },
+      { feedback: 'Špatná škála místnosti vs. věcí při zoomu', fix: 'Postavy a nábytek se počítají ze stejné velikosti místnosti jako pozadí', status: 'done' }
     ]
   }
 ];

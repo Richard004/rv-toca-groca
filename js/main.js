@@ -18,13 +18,20 @@ import { initFullscreen, onGameStarted } from './fullscreen.js';
 
 window.__tocaGroca = { toggleDrawer, showToast };
 
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   initFullscreen();
   buildUpdatesPanel();
   showUpdatesBadge();
   setupSplash();
   setupGameControls();
-});
+}
+
+// boot.js loads this module after DOMContentLoaded — run immediately if DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 function setupSplash() {
   document.getElementById('btn-play').addEventListener('click', startGame);
