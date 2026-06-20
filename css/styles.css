@@ -604,6 +604,72 @@ html, body {
   margin-right: 0.25rem;
 }
 
+.updates-section-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--green-dark);
+  margin: 0.25rem 0 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px dashed rgba(0, 0, 0, 0.06);
+}
+
+.updates-section-label--pending {
+  color: var(--mint-dark);
+  margin-top: 1.25rem;
+}
+
+.update-round--shipped {
+  opacity: 0.95;
+}
+
+.update-round--pending {
+  background: linear-gradient(135deg, #f8f4ff 0%, #fff8f0 100%);
+  border-radius: 16px;
+  padding: 0.75rem;
+  border: 2px dashed rgba(168, 85, 247, 0.25);
+}
+
+.update-badge--shipped {
+  background: var(--green);
+}
+
+.update-badge--pending {
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+}
+
+.update-item--pending {
+  border-left-color: #a855f7;
+  background: white;
+}
+
+.update-empty {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #888;
+  text-align: center;
+  padding: 1rem 0.5rem;
+  margin-top: 0.5rem;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+}
+
+.update-pending-note {
+  font-size: 0.75rem;
+  color: #777;
+  padding-left: 1.5rem;
+  margin-top: 0.15rem;
+}
+
+.update-pending-hint {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--mint-dark);
+  text-align: center;
+  margin-top: 0.75rem;
+}
+
 /* ===== ENTITIES ===== */
 .entity {
   position: absolute;

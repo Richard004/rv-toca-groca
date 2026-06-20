@@ -1,29 +1,42 @@
 # Kids Feedback Log
 
-Processed from WhatsApp voice notes (2026-06-20). Add new items at the bottom.
+## Structure
 
-> **In-app display:** Kid-facing copy lives in `js/updates.js` (`UPDATE_ROUNDS`).
-> When adding a new round, update that file and bump `APP_VERSION` so the ✨ Novinky panel shows a badge.
+| Folder / file | Purpose |
+|---------------|---------|
+| `inbox/` | **NEW** voice notes only — drop here |
+| `pending/round-N.md` | Transcribed, **not yet shipped** |
+| `processed/round-N/` | Archive of shipped audio + manifest |
+| `js/updates.js` | `SHIPPED_UPDATES` (done) + `PENDING_FEEDBACK` (next) |
 
-## Round 1 — 2026-06-20
+## Shipped
 
-| # | Feedback (Czech) | Status |
-|---|------------------|--------|
-| 1 | Nemůžete přesouvat postavy / věci | ✅ Fixed — drag uses movement threshold; double-tap only when not dragging |
-| 2 | Postavy vypadají hrozně — víc jako Toca Boca | ✅ Fixed — rounder, cuter sprites with bigger eyes |
-| 3 | Chybí Líza (kočka) | ✅ Fixed — in starting scene + family drawer |
-| 4 | Puffy má být zrzavý (Shiba) | ✅ Fixed — ginger/orange fur |
-| 5 | Cookie = velká bílá kočka (ne hnědá) | ✅ Fixed — white, larger, with outline |
-| 6 | Dart = bílý pudl | ✅ Fixed — fluffy white poodle, bigger |
-| 7 | Líza = malá šedá kočka | ✅ Fixed — small gray, clearly different from Cookie |
-| 8 | Klárka dělá roboty | ✅ Fixed — robot item + Klárka robotics badge + desk reaction |
-| 9 | Místnosti posouvat jako v Toca Boca (navazují) | ✅ Fixed — swipe left/right between connected rooms |
-| 10 | Tapety / měnit pozadí a podlahu | ✅ Fixed — 🎨 wallpaper picker per room |
-| 11 | Různé domy — můžeš chodit jinam | ✅ Fixed — 🏠 Náš dům + 🏡 Chalupa |
-| 12 | Měnit lidi / oblečení | ✅ Fixed — tap character → color palette for outfit |
-| 13 | Víc věcí a interiérů | ✅ Fixed — more items, cottage rooms, richer scenes |
-| 14 | Nevypadá jako Toca Boca celkově | 🔄 Ongoing — art will improve as kids' drawings are added |
+### Round 1 — v1.1.0 (2026-06-20) ✅
 
-## Future feedback
+See `processed/round-1/MANIFEST.md` and in-app **✨ Co je nového**.
 
-_Add new voice notes or text here. Each gets a row when processed._
+14 items — all done except "víc jako Toca Boca" (ongoing art).
+
+---
+
+## Next update
+
+### Round 2 — v1.2.0 ⏳
+
+**Status:** Waiting for new feedback in `inbox/`
+
+Track items in `pending/round-2.md` and `js/updates.js` → `PENDING_FEEDBACK`.
+
+**Do not mix** round 2 items into round 1 / `SHIPPED_UPDATES` until implemented and shipped.
+
+---
+
+## Agent checklist (each new round)
+
+1. Read files from `inbox/` only
+2. Transcribe → `pending/round-N.md`
+3. Add to `PENDING_FEEDBACK` in `updates.js` (kid Czech)
+4. Implement
+5. Move `PENDING_FEEDBACK` → new entry in `SHIPPED_UPDATES`
+6. Clear `PENDING_FEEDBACK`, archive audio to `processed/round-N/`
+7. Bump `APP_VERSION`, empty `inbox/`

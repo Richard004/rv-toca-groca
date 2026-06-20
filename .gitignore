@@ -8,5 +8,11 @@ terminals/
 mcps/
 prompt.md
 ExampleDrawingsFromAnetka.zip
-feedback/*.ogg
+# Kids voice notes — local only (see feedback/FEEDBACK.md)
+feedback/inbox/*
+!feedback/inbox/README.md
+feedback/**/*.ogg
+feedback/**/*.txt
+!feedback/pending/**
+!feedback/processed/**/MANIFEST.md
 agent-tools/
