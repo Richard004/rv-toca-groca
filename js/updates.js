@@ -6,7 +6,7 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.6.4';
+export const APP_VERSION = '1.6.5';
 export const NEXT_VERSION = '1.7.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
@@ -146,6 +146,18 @@ export const SHIPPED_UPDATES = [
     from: 'Táta (programátor)',
     items: [
       { feedback: 'Pořád špatně — místnost se zmenšuje na šířku, reload nefunguje', fix: 'CSS výřez z výšky (container queries) + přeměření po Let\'s Play + jednodušší cache podle verze', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-6f',
+    version: '1.6.5',
+    date: '20. 6. 2026',
+    title: 'Spolehlivější načítání + Safari fix 🧪',
+    intro: 'Puppeteer testy, jednodušší cache bez boot.js, oprava pro starší Safari.',
+    from: 'Táta (programátor + automatické testy)',
+    items: [
+      { feedback: 'Fingerprinting nefunguje, těžko reportovat chyby', fix: 'Zjednodušený inline cache bust + přímé načtení main.js + vypnutí starých service workerů', status: 'done' },
+      { feedback: 'Na iPhonu pořád špatná škála místnosti', fix: 'JS nastaví šířku místnosti z výšky (funguje i bez CSS container queries)', status: 'done' }
     ]
   }
 ];

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Sync release fingerprint across index.html, boot.js, sw.js, version.json, version.js.
+ * Sync release fingerprint across index.html, version.json, import map, assets.
  * Run before deploy: node scripts/sync-version.mjs
  */
 import fs from 'node:fs';
@@ -34,7 +34,6 @@ try {
 }
 
 const released = new Date().toISOString().slice(0, 10);
-
 write('version.json', `${JSON.stringify({ version, build, released }, null, 2)}\n`);
 
 const modules = [
@@ -53,34 +52,34 @@ ${scopeEntries}
   }
   </script>`;
 
-write('js/version.js', `/** Bumped by scripts/sync-version.mjs on each release — do not edit by hand. */
+const inlineBootBlock = `  <script id="toca-boot-inline">
+  (function () {
+    var V = '${version}';
+    var KEY = 'toca-groca-asset-version';
+    var RELOAD = 'toca-groca-reload-once';
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) { r.unregister(); });
+      });
+    }
+    if (localStorage.getItem(KEY) !== V) {
+      localStorage.setItem(KEY, V);
+      if (!sessionStorage.getItem(RELOAD)) {
+        sessionStorage.setItem(RELOAD, '1');
+        var u = new URL(location.href);
+        u.searchParams.set('_v', V);
+        location.replace(u.toString());
+      } else {
+        sessionStorage.removeItem(RELOAD);
+      }
+    }
+  })();
+  </script>`;
+
+write('js/version.js', `/** Bumped by scripts/sync-version.mjs — do not edit by hand. */
 export const ASSET_VERSION = '${version}';
 export const BUILD_ID = '${build}';
-
-export const JS_MODULES = [
-  'main.js',
-  'game.js',
-  'rooms.js',
-  'world-map.js',
-  'characters.js',
-  'sprites.js',
-  'food-catalog.js',
-  'catalog.js',
-  'furniture-sprites.js',
-  'storage.js',
-  'updates.js',
-  'fullscreen.js',
-  'version.js'
-];
 `);
-
-let boot = read('js/boot.js');
-boot = boot.replace(/const BOOT_VERSION = '[^']+'/, `const BOOT_VERSION = '${version}'`);
-write('js/boot.js', boot);
-
-let sw = read('sw.js');
-sw = sw.replace(/const CACHE_VERSION = '[^']+'/, `const CACHE_VERSION = '${version}'`);
-write('sw.js', sw);
 
 let index = read('index.html');
 index = index.replace(/<meta name="toca-version" content="[^"]*">/, `<meta name="toca-version" content="${version}">`);
@@ -92,10 +91,26 @@ if (index.includes('id="toca-importmap"')) {
 } else {
   index = index.replace('</head>', `${importMapBlock}\n</head>`);
 }
+if (index.includes('id="toca-boot-inline"')) {
+  index = index.replace(/<script id="toca-boot-inline">[\s\S]*?<\/script>/, inlineBootBlock);
+} else {
+  index = index.replace('</head>', `${inlineBootBlock}\n</head>`);
+}
 index = index.replace(/href="css\/styles\.css[^"]*"/, `href="css/styles.css?v=${version}"`);
 index = index.replace(/href="manifest\.json[^"]*"/, `href="manifest.json?v=${version}"`);
 index = index.replace(/href="icons\/app-icon\.svg[^"]*"/g, `href="icons/app-icon.svg?v=${version}"`);
-index = index.replace(/src="js\/boot\.js[^"]*"/, `src="js/boot.js?v=${version}"`);
+index = index.replace(/<script src="js\/boot\.js[^"]*"><\/script>\s*/g, '');
+if (/<script type="module" src="js\/main\.js[^"]*"><\/script>/.test(index)) {
+  index = index.replace(/<script type="module" src="js\/main\.js[^"]*"><\/script>/, `<script type="module" src="js/main.js?v=${version}"></script>`);
+} else {
+  index = index.replace(
+    /(<script src="https:\/\/cdnjs.cloudflare.com\/ajax\/libs\/jszip\/3\.10\.1\/jszip\.min\.js"><\/script>)/,
+    `$1\n  <script type="module" src="js/main.js?v=${version}"></script>`
+  );
+}
+if (!index.includes('js/main.js?v=')) {
+  throw new Error('sync-version: failed to inject main.js module script into index.html');
+}
 write('index.html', index);
 
 let manifest = read('manifest.json');

@@ -133,6 +133,22 @@ function getWorldSize() {
 }
 
 /** Read real layout from DOM (CSS sets height-first crop). */
+/** Explicit dimensions — works on Safari without container-query units (cqh). */
+function applyRoomDimensions() {
+  document.querySelectorAll('.room-panel').forEach((panel) => {
+    const vp = panel.querySelector('.room-pan-viewport');
+    const inner = panel.querySelector('.room-pan-inner');
+    if (!vp || !inner) return;
+    const vpH = vp.clientHeight;
+    const vpW = vp.clientWidth;
+    if (vpH < 50) return;
+    let innerW = Math.round(vpH * ROOM_ASPECT);
+    if (innerW < vpW) innerW = vpW;
+    inner.style.width = `${innerW}px`;
+    inner.style.height = `${vpH}px`;
+  });
+}
+
 function getRoomInnerSize(panelW, panelH, roomId = currentRoom) {
   const panel = document.querySelector(`.room-panel[data-room="${roomId}"]`)
     || document.querySelector('.room-panel');
@@ -272,6 +288,7 @@ function buildWorldStrip() {
   }).join('');
 
   strip.style.width = `${w * rooms.length}px`;
+  applyRoomDimensions();
   applyAllRoomPans();
   setupPanListeners();
 

@@ -10,35 +10,58 @@
   <meta name="theme-color" content="#FF8FAB">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
-  <meta name="toca-version" content="1.6.4">
+  <meta name="toca-version" content="1.6.5">
   <title>Toca Groca — Our Family World</title>
-  <link rel="manifest" href="manifest.json?v=1.6.4">
-  <link rel="icon" href="icons/app-icon.svg?v=1.6.4" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icons/app-icon.svg?v=1.6.4">
+  <link rel="manifest" href="manifest.json?v=1.6.5">
+  <link rel="icon" href="icons/app-icon.svg?v=1.6.5" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/app-icon.svg?v=1.6.5">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" id="toca-styles" href="css/styles.css?v=1.6.4">
-    <script type="importmap" id="toca-importmap">
+  <link rel="stylesheet" id="toca-styles" href="css/styles.css?v=1.6.5">
+      <script type="importmap" id="toca-importmap">
   {
     "scopes": {
       "js/": {
-      "./main.js": "js/main.js?v=1.6.4",
-      "./game.js": "js/game.js?v=1.6.4",
-      "./rooms.js": "js/rooms.js?v=1.6.4",
-      "./world-map.js": "js/world-map.js?v=1.6.4",
-      "./characters.js": "js/characters.js?v=1.6.4",
-      "./sprites.js": "js/sprites.js?v=1.6.4",
-      "./food-catalog.js": "js/food-catalog.js?v=1.6.4",
-      "./catalog.js": "js/catalog.js?v=1.6.4",
-      "./furniture-sprites.js": "js/furniture-sprites.js?v=1.6.4",
-      "./storage.js": "js/storage.js?v=1.6.4",
-      "./updates.js": "js/updates.js?v=1.6.4",
-      "./fullscreen.js": "js/fullscreen.js?v=1.6.4",
-      "./version.js": "js/version.js?v=1.6.4"
+      "./main.js": "js/main.js?v=1.6.5",
+      "./game.js": "js/game.js?v=1.6.5",
+      "./rooms.js": "js/rooms.js?v=1.6.5",
+      "./world-map.js": "js/world-map.js?v=1.6.5",
+      "./characters.js": "js/characters.js?v=1.6.5",
+      "./sprites.js": "js/sprites.js?v=1.6.5",
+      "./food-catalog.js": "js/food-catalog.js?v=1.6.5",
+      "./catalog.js": "js/catalog.js?v=1.6.5",
+      "./furniture-sprites.js": "js/furniture-sprites.js?v=1.6.5",
+      "./storage.js": "js/storage.js?v=1.6.5",
+      "./updates.js": "js/updates.js?v=1.6.5",
+      "./fullscreen.js": "js/fullscreen.js?v=1.6.5",
+      "./version.js": "js/version.js?v=1.6.5"
       }
     }
   }
+  </script>
+  <script id="toca-boot-inline">
+  (function () {
+    var V = '1.6.5';
+    var KEY = 'toca-groca-asset-version';
+    var RELOAD = 'toca-groca-reload-once';
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) { r.unregister(); });
+      });
+    }
+    if (localStorage.getItem(KEY) !== V) {
+      localStorage.setItem(KEY, V);
+      if (!sessionStorage.getItem(RELOAD)) {
+        sessionStorage.setItem(RELOAD, '1');
+        var u = new URL(location.href);
+        u.searchParams.set('_v', V);
+        location.replace(u.toString());
+      } else {
+        sessionStorage.removeItem(RELOAD);
+      }
+    }
+  })();
   </script>
 </head>
 <body>
@@ -204,6 +227,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="js/boot.js?v=1.6.4"></script>
+  <script type="module" src="js/main.js?v=1.6.5"></script>
 </body>
 </html>

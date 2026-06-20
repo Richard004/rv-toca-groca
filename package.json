@@ -4,9 +4,26 @@
   "description": "A free family play world inspired by Toca Boca — made with love by Tata Richard",
   "scripts": {
     "start": "npx --yes serve . -p 3000",
-    "dev": "npx --yes serve . -p 3000"
+    "dev": "npx --yes serve . -p 3000",
+    "sync-version": "node scripts/sync-version.mjs",
+    "test:e2e": "node scripts/puppeteer-test.mjs"
   },
-  "keywords": ["toca", "family", "kids", "game"],
+  "keywords": [
+    "toca",
+    "family",
+    "kids",
+    "game"
+  ],
   "author": "Richard",
-  "license": "MIT"
+  "license": "MIT",
+
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Richard004/rv-toca-groca.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Richard004/rv-toca-groca/issues"
+  },
+  "homepage": "https://github.com/Richard004/rv-toca-groca#readme"
 }

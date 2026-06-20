@@ -554,9 +554,10 @@ body.standalone-mode .toast {
 .room-pan-inner {
   position: relative;
   height: 100%;
-  /* Full phone height; width from aspect ratio = horizontal crop, not shrink */
-  width: max(100%, calc(100cqh * var(--room-aspect)));
   min-height: 100%;
+  min-width: 100%;
+  /* JS sets width/height from viewport — cqh fallback for modern browsers */
+  width: max(100%, calc(100cqh * var(--room-aspect)));
   will-change: transform;
 }
 
