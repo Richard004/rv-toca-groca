@@ -47,6 +47,21 @@ export const ROOMS = [
     ]
   },
   {
+    id: 'bathroom',
+    name: 'Koupelna',
+    icon: '🛁',
+    bg: '#E3F2FD',
+    floor: '#BBDEFB',
+    wall: '#E1F5FE',
+    furniture: [
+      { id: 'bath-tub', type: 'bathtub', x: 0.06, y: 0.52, w: 0.32, h: 0.22, interactive: true },
+      { id: 'bath-sink', type: 'sink', x: 0.52, y: 0.32, w: 0.18, h: 0.14, interactive: true },
+      { id: 'bath-toilet', type: 'toilet', x: 0.78, y: 0.55, w: 0.12, h: 0.18, interactive: true },
+      { id: 'bath-mirror', type: 'mirror', x: 0.48, y: 0.12, w: 0.12, h: 0.16, interactive: true },
+      { id: 'bath-towel', type: 'towelrack', x: 0.72, y: 0.28, w: 0.14, h: 0.1, interactive: true }
+    ]
+  },
+  {
     id: 'garden',
     name: 'Zahrada',
     icon: '🌳',
@@ -59,7 +74,9 @@ export const ROOMS = [
       { id: 'swing', type: 'swing', x: 0.35, y: 0.15, w: 0.25, h: 0.35, interactive: true },
       { id: 'sandbox', type: 'sandbox', x: 0.1, y: 0.65, w: 0.25, h: 0.15, interactive: true },
       { id: 'doghouse', type: 'doghouse', x: 0.65, y: 0.6, w: 0.2, h: 0.2, interactive: true },
-      { id: 'flowers', type: 'flowers', x: 0.45, y: 0.7, w: 0.3, h: 0.12, interactive: true }
+      { id: 'flowers', type: 'flowers', x: 0.45, y: 0.7, w: 0.3, h: 0.12, interactive: true },
+      { id: 'pool-fixed', type: 'pool', x: 0.55, y: 0.55, w: 0.28, h: 0.18, interactive: true },
+      { id: 'climb-fixed', type: 'climbing', x: 0.2, y: 0.12, w: 0.22, h: 0.28, interactive: true }
     ]
   },
   {
@@ -95,7 +112,7 @@ export const ROOMS = [
 ];
 
 export const BUILDINGS = [
-  { id: 'home', name: 'Náš dům', icon: '🏠', rooms: ['living', 'kitchen', 'bedroom', 'garden'] },
+  { id: 'home', name: 'Náš dům', icon: '🏠', rooms: ['living', 'kitchen', 'bedroom', 'bathroom', 'garden'] },
   { id: 'cottage', name: 'Chalupa', icon: '🏡', rooms: ['cottage-living', 'cottage-garden'] }
 ];
 
@@ -268,6 +285,42 @@ function createFurnitureSVG(f, w, h) {
       <circle cx="${x + fw * 0.5}" cy="${y + fh * 0.15}" r="10" fill="#FFD166"/>
       <line x1="${x + fw * 0.8}" y1="${y + fh}" x2="${x + fw * 0.8}" y2="${y + fh * 0.35}" stroke="#52B788" stroke-width="2"/>
       <circle cx="${x + fw * 0.8}" cy="${y + fh * 0.3}" r="7" fill="#9B5DE5"/>
+    </g>`,
+    bathtub: `<g class="${cls}" data-furniture="bathtub">
+      <rect x="${x}" y="${y + fh * 0.15}" width="${fw}" height="${fh * 0.85}" rx="14" fill="#FFFFFF" stroke="#B0BEC5" stroke-width="2"/>
+      <ellipse cx="${x + fw/2}" cy="${y + fh * 0.28}" rx="${fw * 0.35}" ry="${fh * 0.12}" fill="#E1F5FE"/>
+    </g>`,
+    sink: `<g class="${cls}" data-furniture="sink">
+      <rect x="${x}" y="${y + fh * 0.35}" width="${fw}" height="${fh * 0.65}" rx="5" fill="#FAFAFA" stroke="#CFD8DC"/>
+      <ellipse cx="${x + fw/2}" cy="${y + fh * 0.45}" rx="${fw * 0.3}" ry="${fh * 0.15}" fill="#CFD8DC"/>
+      <circle cx="${x + fw/2}" cy="${y + fh * 0.1}" r="${fw * 0.08}" fill="#78909C"/>
+    </g>`,
+    toilet: `<g class="${cls}" data-furniture="toilet">
+      <rect x="${x + fw * 0.15}" y="${y}" width="${fw * 0.7}" height="${fh * 0.22}" rx="4" fill="#FAFAFA" stroke="#CFD8DC"/>
+      <rect x="${x + fw * 0.08}" y="${y + fh * 0.25}" width="${fw * 0.84}" height="${fh * 0.75}" rx="10" fill="#FAFAFA" stroke="#CFD8DC"/>
+    </g>`,
+    mirror: `<g class="${cls}" data-furniture="mirror">
+      <rect x="${x}" y="${y}" width="${fw}" height="${fh}" rx="8" fill="#ECEFF1" stroke="#8D6E63" stroke-width="4"/>
+      <ellipse cx="${x + fw * 0.35}" cy="${y + fh * 0.4}" rx="${fw * 0.15}" ry="${fh * 0.2}" fill="rgba(255,255,255,0.45)"/>
+    </g>`,
+    towelrack: `<g class="${cls}" data-furniture="towelrack">
+      <rect x="${x}" y="${y + fh * 0.15}" width="${fw}" height="${fh * 0.12}" rx="4" fill="#CFD8DC"/>
+      <rect x="${x + fw * 0.1}" y="${y + fh * 0.3}" width="${fw * 0.35}" height="${fh * 0.65}" rx="4" fill="#90CAF9"/>
+      <rect x="${x + fw * 0.55}" y="${y + fh * 0.3}" width="${fw * 0.35}" height="${fh * 0.65}" rx="4" fill="#F48FB1"/>
+    </g>`,
+    shower: `<g class="${cls}" data-furniture="shower">
+      <rect x="${x + fw * 0.1}" y="${y + fh * 0.08}" width="${fw * 0.8}" height="${fh * 0.9}" rx="4" fill="#E1F5FE" opacity="0.75" stroke="#90CAF9"/>
+      <circle cx="${x + fw/2}" cy="${y + fh * 0.12}" r="${fw * 0.1}" fill="#78909C"/>
+    </g>`,
+    pool: `<g class="${cls}" data-furniture="pool">
+      <ellipse cx="${x + fw/2}" cy="${y + fh/2}" rx="${fw/2}" ry="${fh/2}" fill="#4FC3F7" stroke="#0288D1" stroke-width="3"/>
+      <ellipse cx="${x + fw * 0.35}" cy="${y + fh * 0.4}" rx="${fw * 0.2}" ry="${fh * 0.1}" fill="rgba(255,255,255,0.35)"/>
+    </g>`,
+    climbing: `<g class="${cls}" data-furniture="climbing">
+      <rect x="${x + fw * 0.05}" y="${y + fh * 0.75}" width="${fw * 0.9}" height="${fh * 0.2}" rx="4" fill="#8B4513"/>
+      <rect x="${x + fw * 0.15}" y="${y + fh * 0.2}" width="${fw * 0.15}" height="${fh * 0.6}" rx="4" fill="#FF8FAB"/>
+      <rect x="${x + fw * 0.7}" y="${y + fh * 0.1}" width="${fw * 0.15}" height="${fh * 0.7}" rx="4" fill="#42A5F5"/>
+      <rect x="${x + fw * 0.42}" y="${y + fh * 0.05}" width="${fw * 0.15}" height="${fh * 0.65}" rx="4" fill="#FFD166"/>
     </g>`
   };
 

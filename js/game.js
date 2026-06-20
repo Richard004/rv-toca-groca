@@ -5,7 +5,11 @@ import {
   createRoomSVG, ROOM_VIEW_W, ROOM_VIEW_H
 } from './rooms.js';
 import { createCharacterSprite, createItemSVG, ITEMS, OUTFIT_COLORS } from './sprites.js';
+import { CATALOG_GROUPS, getCatalogGroup, getSubgroupsForGroup, getCatalogItem } from './catalog.js';
+import { createPlaceableSVG } from './furniture-sprites.js';
 import { loadState, saveState } from './storage.js';
+
+let catalogNav = { level: 'groups', groupId: null, subgroupId: null };
 
 let state = loadState();
 let currentBuilding = state.currentBuilding || 'home';
@@ -38,7 +42,16 @@ const FURNITURE_REACTIONS = {
   lamp: ['*zapíná světlo* 💡', '*svítí!* ✨'],
   poster: ['*objímá rodinu* ❤️', '*rodina je nejlepší!* 💕'],
   fruitbowl: ['*bere ovoce* 🍎', '*jablíčko!* 🍏'],
-  fireplace: ['*topí v kamnech* 🔥', '*je tu teplo!* ☺️']
+  fireplace: ['*topí v kamnech* 🔥', '*je tu teplo!* ☺️'],
+  bathtub: ['*koupe se ve vaně* 🛁', '*bublinky!* 🫧'],
+  sink: ['*si myje ruce* 🧼', '*čisté ruce!* ✨'],
+  toilet: ['*zavře dveře* 🚪', '*soukromí!* 😊'],
+  mirror: ['*česá se* 💇', '*pěkně vypadám!* 😊'],
+  shower: ['*sprchuje se* 🚿', '*čumí!* 🫧'],
+  pool: ['*plave v bazénu* 🏊', '*cák cák!* 💦'],
+  climbing: ['*leze na prolézačku* 🧗', '*jsem nahoře!* 🎉'],
+  slide: ['*sjíždí skluzavku* 🛝', '*wheee!* 🎉'],
+  trampoline: ['*skáče na trampolíně* 🤸', '*hop hop!* ⬆️']
 };
 
 let lastTapTime = 0;
@@ -269,13 +282,89 @@ function buildCharacterDrawer() {
   `).join('');
 }
 
+function resetCatalogNav() {
+  catalogNav = { level: 'groups', groupId: null, subgroupId: null };
+}
+
 function buildItemsDrawer() {
-  document.getElementById('items-list').innerHTML = ITEMS.map(item => `
-    <div class="drawer-item" data-spawn="item" data-id="${item.id}">
-      ${createItemSVG(item)}
+  resetCatalogNav();
+  renderCatalog();
+  const back = document.getElementById('catalog-back');
+  if (back && !back.dataset.bound) {
+    back.dataset.bound = '1';
+    back.addEventListener('click', onCatalogBack);
+  }
+}
+
+function onCatalogBack() {
+  if (catalogNav.level === 'items') {
+    catalogNav.level = 'subgroups';
+    catalogNav.subgroupId = null;
+  } else if (catalogNav.level === 'subgroups') {
+    catalogNav.level = 'groups';
+    catalogNav.groupId = null;
+  }
+  renderCatalog();
+}
+
+function renderCatalog() {
+  const list = document.getElementById('items-list');
+  const title = document.getElementById('catalog-title');
+  const back = document.getElementById('catalog-back');
+  const crumb = document.getElementById('catalog-breadcrumb');
+  if (!list) return;
+
+  if (catalogNav.level === 'groups') {
+    title.textContent = 'Přidat věci';
+    back.hidden = true;
+    crumb.textContent = '1/3 — Vyber místnost nebo kategorii';
+    list.innerHTML = CATALOG_GROUPS.map(g => `
+      <div class="drawer-item catalog-card" data-catalog-action="group" data-id="${g.id}">
+        <span class="catalog-icon">${g.icon}</span>
+        <span>${g.name}</span>
+      </div>`).join('');
+    return;
+  }
+
+  back.hidden = false;
+
+  if (catalogNav.level === 'subgroups') {
+    const group = getCatalogGroup(catalogNav.groupId);
+    title.textContent = group?.name || 'Kategorie';
+    crumb.textContent = `2/3 — Vyber druh věci (${group?.name})`;
+    list.innerHTML = getSubgroupsForGroup(catalogNav.groupId).map(sg => `
+      <div class="drawer-item catalog-card" data-catalog-action="subgroup" data-id="${sg.id}">
+        <span class="catalog-icon">${sg.icon}</span>
+        <span>${sg.name}</span>
+        <span class="catalog-count">${sg.items.length}</span>
+      </div>`).join('');
+    return;
+  }
+
+  const group = getCatalogGroup(catalogNav.groupId);
+  const subgroup = getSubgroupsForGroup(catalogNav.groupId).find(s => s.id === catalogNav.subgroupId);
+  title.textContent = subgroup?.name || 'Varianty';
+  crumb.textContent = `3/3 — Vyber konkrétní věc (${group?.name} › ${subgroup?.name})`;
+  list.innerHTML = (subgroup?.items || []).map(item => `
+    <div class="drawer-item catalog-variant" data-catalog-action="spawn" data-id="${item.id}">
+      ${createPlaceableSVG(item)}
       <span>${item.name}</span>
-    </div>
-  `).join('');
+    </div>`).join('');
+}
+
+function resolveEntityDef(entity) {
+  if (entity.kind === 'character') return getCharacterById(entity.id);
+  const catalog = getCatalogItem(entity.id);
+  if (catalog) return catalog;
+  return ITEMS.find(i => i.id === entity.id);
+}
+
+function entitySvg(entity, def) {
+  if (entity.kind === 'character') {
+    return createCharacterSprite(def, getEntityOverrides(entity));
+  }
+  if (getCatalogItem(entity.id)) return createPlaceableSVG(def);
+  return createItemSVG(def);
 }
 
 export function switchBuilding(buildingId) {
@@ -346,13 +435,10 @@ function renderAllEntities() {
     const roomEntities = entities.filter(e => e.room === roomId);
 
     layer.innerHTML = roomEntities.map(entity => {
-      const isChar = entity.kind === 'character';
-      const def = isChar ? getCharacterById(entity.id) : ITEMS.find(i => i.id === entity.id);
+      const def = resolveEntityDef(entity);
       if (!def) return '';
       const size = def.size;
-      const svg = isChar
-        ? createCharacterSprite(def, getEntityOverrides(entity))
-        : createItemSVG(def);
+      const svg = entitySvg(entity, def);
       const pos = entityToPixels(entity, worldW, worldH);
       return `<div class="entity ${entity.uid === selectedEntity ? 'selected' : ''}"
         data-uid="${entity.uid}"
@@ -470,7 +556,7 @@ function onEntityPointerUp(e) {
 function removeEntity(uid) {
   const entity = entities.find(e => e.uid === uid);
   if (!entity) return;
-  const def = entity.kind === 'character' ? getCharacterById(entity.id) : ITEMS.find(i => i.id === entity.id);
+  const def = resolveEntityDef(entity);
   entities = entities.filter(e => e.uid !== uid);
   selectedEntity = null;
   renderAllEntities();
@@ -479,12 +565,11 @@ function removeEntity(uid) {
 }
 
 function spawnEntity(kind, id) {
-  const { w: worldW, h: worldH } = getWorldSize();
-  const def = kind === 'character' ? getCharacterById(id) : ITEMS.find(i => i.id === id);
+  const def = kind === 'character' ? getCharacterById(id) : resolveEntityDef({ kind, id });
   if (!def) return;
 
-  const xRel = 0.38 + Math.random() * 0.15;
-  const yRel = 0.48 + Math.random() * 0.12;
+  const xRel = 0.32 + Math.random() * 0.2;
+  const yRel = 0.42 + Math.random() * 0.18;
 
   const existing = kind === 'character' ? entities.find(e => e.kind === 'character' && e.id === id) : null;
   if (existing) {
@@ -500,14 +585,21 @@ function spawnEntity(kind, id) {
     return;
   }
 
-  const entity = { uid: `${kind}-${id}-${Date.now()}`, kind, id, room: currentRoom, xRel, yRel };
+  const entityKind = kind === 'catalog' ? (def.type === 'toy' ? 'item' : 'furniture') : kind;
+  const entity = { uid: `${entityKind}-${id}-${Date.now()}`, kind: entityKind, id, room: currentRoom, xRel, yRel };
   entities.push(entity);
   selectedEntity = entity.uid;
   renderAllEntities();
   document.querySelector(`[data-uid="${entity.uid}"]`)?.classList.add('spawn');
-  showToast(`${def.name} přišel/a! 🎉`);
+  const placed = entityKind === 'furniture' ? 'je v místnosti' : 'přišel/a';
+  showToast(`${def.name} ${placed}! 🎉`);
   persist();
   closeDrawers();
+  resetCatalogNav();
+}
+
+function spawnCatalogItem(id) {
+  spawnEntity('catalog', id);
 }
 
 function reactToFurniture(uid, furnitureType) {
@@ -555,8 +647,19 @@ function setupInteractions() {
     if (item) spawnEntity('character', item.dataset.id);
   });
   document.getElementById('items-list').addEventListener('click', e => {
-    const item = e.target.closest('[data-spawn="item"]');
-    if (item) spawnEntity('item', item.dataset.id);
+    const card = e.target.closest('[data-catalog-action]');
+    if (!card) return;
+    const action = card.dataset.catalogAction;
+    const id = card.dataset.id;
+    if (action === 'group') {
+      catalogNav = { level: 'subgroups', groupId: id, subgroupId: null };
+      renderCatalog();
+    } else if (action === 'subgroup') {
+      catalogNav = { ...catalogNav, level: 'items', subgroupId: id };
+      renderCatalog();
+    } else if (action === 'spawn') {
+      spawnCatalogItem(id);
+    }
   });
   document.getElementById('world-scroll').addEventListener('scroll', onWorldScroll, { passive: true });
 
@@ -589,7 +692,13 @@ export function toggleDrawer(id) {
   const drawer = document.getElementById(id);
   const isOpen = drawer.classList.contains('open');
   closeDrawers();
-  if (!isOpen) drawer.classList.add('open');
+  if (!isOpen) {
+    drawer.classList.add('open');
+    if (id === 'items-drawer') {
+      resetCatalogNav();
+      renderCatalog();
+    }
+  }
 }
 
 export function closeDrawers() {

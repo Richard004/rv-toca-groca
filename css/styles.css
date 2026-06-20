@@ -811,6 +811,65 @@ body.standalone-mode .toast {
   gap: 0.75rem;
 }
 
+.drawer-catalog {
+  max-height: 62vh;
+}
+
+.drawer-catalog .drawer-header {
+  gap: 0.5rem;
+}
+
+.drawer-catalog .drawer-header h3 {
+  flex: 1;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.catalog-back {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: var(--cream);
+  border-radius: 50%;
+  font-size: 1.4rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: var(--pink-dark);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.catalog-breadcrumb {
+  padding: 0.35rem 1.25rem 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--mint-dark);
+  text-align: center;
+}
+
+.drawer-catalog-grid {
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+}
+
+.catalog-card .catalog-icon {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.catalog-count {
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #999;
+  background: white;
+  padding: 0.1rem 0.4rem;
+  border-radius: 50px;
+}
+
+.catalog-variant svg {
+  width: 64px;
+  height: 52px;
+}
+
 .drawer-item {
   display: flex;
   flex-direction: column;

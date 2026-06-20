@@ -25,15 +25,19 @@ See `processed/round-2/MANIFEST.md` — mobile fullscreen (⛶ button + Add to H
 
 ---
 
+### Round 3 — v1.3.0 (2026-06-20) ✅
+
+See `processed/round-3/MANIFEST.md` — furniture catalog (130+ items), bathroom room, 3-level picker.
+
+---
+
 ## Next update
 
-### Round 3 — v1.3.0 ⏳
+### Round 4 — v1.4.0 ⏳
 
 **Status:** Waiting for new feedback in `inbox/`
 
-Track items in `pending/round-3.md` and `js/updates.js` → `PENDING_FEEDBACK`.
-
-**Do not mix** new items into `SHIPPED_UPDATES` until implemented and shipped.
+Track items in `pending/round-4.md` and `js/updates.js` → `PENDING_FEEDBACK`.
 
 ---
 

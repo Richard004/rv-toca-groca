@@ -6,8 +6,8 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.2.0';
-export const NEXT_VERSION = '1.3.0';
+export const APP_VERSION = '1.3.0';
+export const NEXT_VERSION = '1.4.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
 /** Shipped — Round 1 (v1.1.0) */
@@ -45,6 +45,21 @@ export const SHIPPED_UPDATES = [
     from: 'Táta (testování na mobilu)',
     items: [
       { feedback: 'Na mobilu překáží lišta prohlížeče — chceme celou obrazovku', fix: 'Tlačítko ⛶ nahoře = celá obrazovka. Na iPhonu: Sdílet → Přidat na plochu 📲', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-3',
+    version: '1.3.0',
+    date: '20. 6. 2026',
+    title: 'Obrovský katalog nábytku! 🪑',
+    intro: 'Teď můžete zařídit celý dům — židle, vany, bazén, prolézačky a všechno ostatní!',
+    from: 'Rodina',
+    items: [
+      { feedback: 'Chceme všechny druhy nábytku ve všech místnostech', fix: 'Přes 130 věcí! 🎁 → vyber místnost → druh → konkrétní kus', status: 'done' },
+      { feedback: 'Na zahradě chybí prolézačky, houpačky, bazén…', fix: 'Zahrada má bazén 🏊 prolézačku 🧗 skluzavku 🛝 trampolínu a víc', status: 'done' },
+      { feedback: 'Chybí koupelna — vana, záchod, umyvadlo…', fix: 'Nová místnost 🛁 Koupelna + vše do katalogu', status: 'done' },
+      { feedback: 'Ať si člověk vybere: koupelna → záchod → jaký záchod', fix: '3 kroky v katalogu — místnost, druh, barva/tvar', status: 'done' },
+      { feedback: 'Různé barvy a tvary, ať to jde přesouvat', fix: 'Každá věc má varianty barev — táhni kam chceš!', status: 'done' }
     ]
   }
 ];
