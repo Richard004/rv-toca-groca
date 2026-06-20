@@ -560,6 +560,7 @@ body.standalone-mode .toast {
   display: block;
   width: 100%;
   height: 100%;
+  /* slice in SVG fills height; sides crop — pan to explore */
 }
 
 .room-panel .entities-layer {

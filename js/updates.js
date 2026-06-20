@@ -6,7 +6,7 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.6.2';
+export const APP_VERSION = '1.6.3';
 export const NEXT_VERSION = '1.7.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
@@ -124,6 +124,17 @@ export const SHIPPED_UPDATES = [
     items: [
       { feedback: 'Let\'s Play nic nedělá', fix: 'Opraveno načítání aplikace po boot loaderu — tlačítko zase funguje', status: 'done' },
       { feedback: 'Špatná škála místnosti vs. věcí při zoomu', fix: 'Postavy a nábytek se počítají ze stejné velikosti místnosti jako pozadí', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-6d',
+    version: '1.6.3',
+    date: '20. 6. 2026',
+    title: 'Místnost na celou výšku! 📱',
+    intro: 'Na telefonu na výšku už se místnost nezmenšuje — vyplní celou obrazovku a do stran se posouváš.',
+    from: 'Táta (programátor)',
+    items: [
+      { feedback: 'Na výšku se široká místnost zmenšuje na šířku místo výřezu', fix: 'Výška = celý telefon, šířka = výřez — táhni doleva/doprava a objevíš zbytek', status: 'done' }
     ]
   }
 ];

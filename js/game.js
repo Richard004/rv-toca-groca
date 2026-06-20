@@ -2,8 +2,7 @@ import { FAMILY, getCharacterById } from './characters.js';
 import {
   ROOMS, BUILDINGS, WALLPAPERS,
   getRoomById, getBuildingById, getThemedRoom,
-  createRoomSVG, ROOM_VIEW_W, ROOM_VIEW_H,
-  ROOM_PAN_RATIO, ROOM_PAN_RATIO_LANDSCAPE
+  createRoomSVG, ROOM_VIEW_W, ROOM_VIEW_H, ROOM_ASPECT
 } from './rooms.js';
 import { initWorldMap, playTravelAnimation, updateWorldMapActive } from './world-map.js';
 import { createCharacterSprite, createItemSVG, ITEMS, OUTFIT_COLORS, EMOTIONS } from './sprites.js';
@@ -130,20 +129,19 @@ function getWorldSize() {
   return { w: Math.max(w, 320), h: Math.max(h, 240) };
 }
 
-function getPanRatio() {
-  return window.innerWidth > window.innerHeight ? ROOM_PAN_RATIO_LANDSCAPE : ROOM_PAN_RATIO;
-}
-
-function getRoomInnerWidth(panelW) {
-  return Math.round(panelW * getPanRatio());
+/** Height-first room: full phone height, width = crop/pan (Toca-style výřez). */
+function getRoomInnerSize(panelW, panelH) {
+  const innerH = panelH;
+  let innerW = Math.round(innerH * ROOM_ASPECT);
+  if (innerW < panelW) innerW = panelW;
+  return { innerW, innerH, maxPan: Math.max(0, innerW - panelW) };
 }
 
 function getRoomPanMetrics(roomId) {
-  const { w: panelW, h } = getWorldSize();
-  const innerW = getRoomInnerWidth(panelW);
-  const maxPan = Math.max(0, innerW - panelW);
+  const { w: panelW, h: panelH } = getWorldSize();
+  const { innerW, innerH, maxPan } = getRoomInnerSize(panelW, panelH);
   const panRel = roomPans[roomId] ?? 0.5;
-  return { panelW, innerW, h, maxPan, panOffset: panRel * maxPan };
+  return { panelW, panelH, innerW, innerH, h: panelH, maxPan, panOffset: panRel * maxPan };
 }
 
 function getRoomPanOffset(roomId) {
@@ -190,12 +188,13 @@ function getRoomLayout(roomId) {
     };
   }
 
-  const { w: panelW, h } = getWorldSize();
+  const { w: panelW, h: panelH } = getWorldSize();
+  const { innerW, innerH } = getRoomInnerSize(panelW, panelH);
   return {
-    innerW: getRoomInnerWidth(panelW),
-    innerH: h,
+    innerW,
+    innerH,
     panOffset,
-    vpRect: panel?.getBoundingClientRect() || { left: 0, top: 0, width: panelW, height: h }
+    vpRect: panel?.getBoundingClientRect() || { left: 0, top: 0, width: panelW, height: panelH }
   };
 }
 
@@ -234,12 +233,12 @@ function buildWorldStrip() {
   const { w, h } = getWorldSize();
   const rooms = getBuildingRooms();
 
+  const { innerW } = getRoomInnerSize(w, h);
   strip.innerHTML = rooms.map(roomId => {
     const room = getThemedRoom(getRoomById(roomId), 'default', roomThemes);
-    const innerW = getRoomInnerWidth(w);
     return `<div class="room-panel" data-room="${roomId}" style="width:${w}px">
       <div class="room-pan-viewport">
-        <div class="room-pan-inner" style="width:${innerW}px">
+        <div class="room-pan-inner" style="width:${innerW}px;height:100%">
           <div class="room-scene">${createRoomSVG(room, ROOM_VIEW_W, ROOM_VIEW_H)}</div>
           <div class="entities-layer" data-room="${roomId}"></div>
         </div>

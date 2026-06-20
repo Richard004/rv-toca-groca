@@ -3,8 +3,8 @@
  * Fetches version.json (never cached), busts stale HTML/JS/CSS on mismatch.
  */
 (function () {
-  const BOOT_VERSION = '1.6.2';
-  const BOOT_BUILD = '06c4b78';
+  const BOOT_VERSION = '1.6.3';
+  const BOOT_BUILD = '0e04f14';
   const RELOAD_KEY = 'toca-groca-reload-attempt';
 
   const JS_MODULES = [

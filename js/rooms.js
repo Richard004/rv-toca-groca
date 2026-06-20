@@ -105,8 +105,8 @@ export function getThemedRoom(room, themeId, roomThemes = {}) {
 
 export const ROOM_VIEW_W = 1800;
 export const ROOM_VIEW_H = 625;
-export const ROOM_PAN_RATIO = 1.8;
-export const ROOM_PAN_RATIO_LANDSCAPE = 2.0;
+/** Room aspect — inner width is always derived from viewport height × this ratio. */
+export const ROOM_ASPECT = ROOM_VIEW_W / ROOM_VIEW_H;
 
 /** Generate room background SVG — uses fixed viewBox so it always renders */
 export function createRoomSVG(room, w = ROOM_VIEW_W, h = ROOM_VIEW_H) {
@@ -121,7 +121,7 @@ export function createRoomSVG(room, w = ROOM_VIEW_W, h = ROOM_VIEW_H) {
     <ellipse cx="${w * 0.5}" cy="${h * 0.08}" rx="80" ry="30" fill="white" opacity="0.5"/>
   `;
 
-  return `<svg class="room-bg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+  return `<svg class="room-bg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
     <rect width="${w}" height="${h}" fill="${room.bg}"/>
     <rect x="0" y="0" width="${w}" height="${h * 0.3}" fill="${room.wall}"/>
     <rect x="0" y="${h * 0.7}" width="${w}" height="${h * 0.3}" fill="${room.floor}"/>

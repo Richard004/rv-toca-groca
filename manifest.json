@@ -2,7 +2,7 @@
   "name": "Toca Groca — Our Family World",
   "short_name": "Toca Groca",
   "description": "Play, explore and create stories with our whole family!",
-  "start_url": "./?v=1.6.2",
+  "start_url": "./?v=1.6.3",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
