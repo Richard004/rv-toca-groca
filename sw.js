@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 /** Cache-safe service worker — network-first for app shell assets. */
-const CACHE_VERSION = '1.6.3';
+const CACHE_VERSION = '1.6.4';
 
 self.addEventListener('install', () => {
   self.skipWaiting();

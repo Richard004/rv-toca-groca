@@ -69,6 +69,7 @@ let lastTapUid = null;
 
 export function initGame() {
   if (document.getElementById('game')?.dataset.inited) return;
+  document.documentElement.style.setProperty('--room-aspect', String(ROOM_ASPECT));
 
   buildBuildingNav();
   buildRoomNav();
@@ -123,14 +124,27 @@ function waitForLayout(callback, attempts = 20) {
 
 function getWorldSize() {
   const scroll = document.getElementById('world-scroll');
+  const world = document.getElementById('game-world');
+  const vv = window.visualViewport;
   ensureWorldHeight();
-  const w = scroll?.clientWidth || document.getElementById('game-world').clientWidth || window.innerWidth;
-  const h = document.getElementById('game-world').clientHeight || (window.innerHeight - getChromeHeight());
+  const w = scroll?.clientWidth || world?.clientWidth || vv?.width || window.innerWidth;
+  const h = world?.clientHeight || vv?.height || window.innerHeight;
   return { w: Math.max(w, 320), h: Math.max(h, 240) };
 }
 
-/** Height-first room: full phone height, width = crop/pan (Toca-style výřez). */
-function getRoomInnerSize(panelW, panelH) {
+/** Read real layout from DOM (CSS sets height-first crop). */
+function getRoomInnerSize(panelW, panelH, roomId = currentRoom) {
+  const panel = document.querySelector(`.room-panel[data-room="${roomId}"]`)
+    || document.querySelector('.room-panel');
+  const inner = panel?.querySelector('.room-pan-inner');
+  const viewport = panel?.querySelector('.room-pan-viewport');
+
+  if (inner && viewport) {
+    const innerW = inner.offsetWidth;
+    const innerH = viewport.clientHeight;
+    return { innerW, innerH, maxPan: Math.max(0, innerW - viewport.clientWidth) };
+  }
+
   const innerH = panelH;
   let innerW = Math.round(innerH * ROOM_ASPECT);
   if (innerW < panelW) innerW = panelW;
@@ -217,7 +231,19 @@ function setupResizeObserver() {
   if (!layoutChangeBound) {
     layoutChangeBound = true;
     window.addEventListener('toca-layout-change', onLayoutChange);
+    window.visualViewport?.addEventListener('resize', onLayoutChange);
+    window.visualViewport?.addEventListener('scroll', onLayoutChange);
   }
+}
+
+/** Re-measure after game screen becomes visible (fixes portrait crop). */
+export function refreshWorldLayout() {
+  document.documentElement.style.setProperty('--room-aspect', String(ROOM_ASPECT));
+  ensureWorldHeight();
+  buildWorldStrip();
+  scrollToRoom(currentRoom, false);
+  renderAllEntities();
+  updateWorldRect();
 }
 
 function onLayoutChange() {
@@ -233,12 +259,11 @@ function buildWorldStrip() {
   const { w, h } = getWorldSize();
   const rooms = getBuildingRooms();
 
-  const { innerW } = getRoomInnerSize(w, h);
   strip.innerHTML = rooms.map(roomId => {
     const room = getThemedRoom(getRoomById(roomId), 'default', roomThemes);
     return `<div class="room-panel" data-room="${roomId}" style="width:${w}px">
       <div class="room-pan-viewport">
-        <div class="room-pan-inner" style="width:${innerW}px;height:100%">
+        <div class="room-pan-inner">
           <div class="room-scene">${createRoomSVG(room, ROOM_VIEW_W, ROOM_VIEW_H)}</div>
           <div class="entities-layer" data-room="${roomId}"></div>
         </div>

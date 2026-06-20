@@ -1,10 +1,8 @@
 /**
- * Cache-safe bootstrap — kids only need a normal reload.
- * Fetches version.json (never cached), busts stale HTML/JS/CSS on mismatch.
+ * Cache-safe bootstrap — one reload picks up a new release.
  */
 (function () {
-  const BOOT_VERSION = '1.6.3';
-  const BOOT_BUILD = '7d351d8';
+  const BOOT_VERSION = '1.6.4';
   const RELOAD_KEY = 'toca-groca-reload-attempt';
 
   const JS_MODULES = [
@@ -45,6 +43,12 @@
     await Promise.all(keys.map((key) => caches.delete(key)));
   }
 
+  async function unregisterServiceWorkers() {
+    if (!('serviceWorker' in navigator)) return;
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map((reg) => reg.unregister()));
+  }
+
   function buildImportMap(version) {
     const jsBase = new URL('js/', new URL(BASE, location.origin)).href;
     const scope = {};
@@ -65,24 +69,8 @@
 
   function versionStylesheet(version) {
     const href = `${BASE}css/styles.css?v=${version}`;
-    let link = document.getElementById('toca-styles');
-    if (!link) {
-      link = document.createElement('link');
-      link.id = 'toca-styles';
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
-    }
-    if (link.getAttribute('href') !== href) link.href = href;
-  }
-
-  async function registerServiceWorker(version) {
-    if (!('serviceWorker' in navigator)) return;
-    try {
-      const reg = await navigator.serviceWorker.register(`${BASE}sw.js?v=${version}`, { scope: BASE });
-      if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-    } catch (err) {
-      console.warn('[Toca Groca] Service worker registration failed', err);
-    }
+    const link = document.getElementById('toca-styles');
+    if (link && link.getAttribute('href') !== href) link.href = href;
   }
 
   function loadMainModule(version) {
@@ -91,19 +79,20 @@
     script.type = 'module';
     script.id = 'toca-main';
     script.src = `${BASE}js/main.js?v=${version}`;
+    script.onerror = () => console.error('[Toca Groca] Failed to load main.js');
     document.body.appendChild(script);
   }
 
-  async function hardRefreshTo(version, build) {
+  async function hardRefreshTo(version) {
     await clearAllCaches();
-    const url = new URL(location.href);
+    await unregisterServiceWorkers();
+    const url = new URL(BASE, location.origin);
     url.searchParams.set('_v', version);
-    url.searchParams.set('_b', build);
     location.replace(url.toString());
   }
 
   async function boot() {
-    let meta = { version: BOOT_VERSION, build: BOOT_BUILD };
+    let meta = { version: BOOT_VERSION };
     try {
       meta = await fetchVersionMeta();
     } catch (err) {
@@ -111,17 +100,13 @@
     }
 
     const storedVersion = localStorage.getItem('toca-groca-asset-version');
-    const storedBuild = localStorage.getItem('toca-groca-asset-build');
-    const fingerprint = `${meta.version}:${meta.build}`;
-    const storedFingerprint = `${storedVersion}:${storedBuild}`;
-    const needsRefresh = storedFingerprint !== fingerprint;
+    const needsRefresh = storedVersion !== meta.version;
 
     if (needsRefresh) {
       localStorage.setItem('toca-groca-asset-version', meta.version);
-      localStorage.setItem('toca-groca-asset-build', meta.build);
       if (!sessionStorage.getItem(RELOAD_KEY)) {
         sessionStorage.setItem(RELOAD_KEY, '1');
-        await hardRefreshTo(meta.version, meta.build);
+        await hardRefreshTo(meta.version);
         return;
       }
       sessionStorage.removeItem(RELOAD_KEY);
@@ -129,26 +114,23 @@
       sessionStorage.removeItem(RELOAD_KEY);
     }
 
-    injectImportMap(buildImportMap(meta.version));
+    if (!document.getElementById('toca-importmap')) {
+      injectImportMap(buildImportMap(meta.version));
+    }
     versionStylesheet(meta.version);
     loadMainModule(meta.version);
-    registerServiceWorker(meta.version);
   }
 
   window.__tocaRefreshApp = async function refreshApp() {
     localStorage.removeItem('toca-groca-asset-version');
-    localStorage.removeItem('toca-groca-asset-build');
     sessionStorage.removeItem(RELOAD_KEY);
     await clearAllCaches();
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map((reg) => reg.unregister()));
-    }
+    await unregisterServiceWorkers();
     try {
       const meta = await fetchVersionMeta();
-      await hardRefreshTo(meta.version, meta.build);
+      await hardRefreshTo(meta.version);
     } catch {
-      const url = new URL(location.href);
+      const url = new URL(BASE, location.origin);
       url.searchParams.set('_v', String(Date.now()));
       location.replace(url.toString());
     }

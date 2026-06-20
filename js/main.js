@@ -1,5 +1,6 @@
 import {
   initGame,
+  refreshWorldLayout,
   toggleDrawer,
   closeDrawers,
   showToast,
@@ -55,6 +56,9 @@ function startGame() {
     initGame();
     game.dataset.inited = '1';
   }
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => refreshWorldLayout());
+  });
   showToast('Vítej v Toca Groca! 🏠❤️');
   onGameStarted();
   maybeShowUpdatesOnLaunch();

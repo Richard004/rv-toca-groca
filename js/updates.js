@@ -6,7 +6,7 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.6.3';
+export const APP_VERSION = '1.6.4';
 export const NEXT_VERSION = '1.7.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
@@ -135,6 +135,17 @@ export const SHIPPED_UPDATES = [
     from: 'Táta (programátor)',
     items: [
       { feedback: 'Na výšku se široká místnost zmenšuje na šířku místo výřezu', fix: 'Výška = celý telefon, šířka = výřez — táhni doleva/doprava a objevíš zbytek', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-6e',
+    version: '1.6.4',
+    date: '20. 6. 2026',
+    title: 'Oprava výřezu na mobilu 📱',
+    intro: 'Místnost teď opravdu vyplní výšku telefonu — šířka se neořezává zmenšením.',
+    from: 'Táta (programátor)',
+    items: [
+      { feedback: 'Pořád špatně — místnost se zmenšuje na šířku, reload nefunguje', fix: 'CSS výřez z výšky (container queries) + přeměření po Let\'s Play + jednodušší cache podle verze', status: 'done' }
     ]
   }
 ];

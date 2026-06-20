@@ -6,6 +6,8 @@
 }
 
 :root {
+  /* Room scene aspect (ROOM_VIEW_W / ROOM_VIEW_H) — width from height, Toca-style crop */
+  --room-aspect: 2.88;
   --pink: #FF8FAB;
   --pink-dark: #FB6F92;
   --mint: #8ECAE6;
@@ -504,7 +506,9 @@ body.standalone-mode .toast {
 }
 
 .game-immersive .game-world {
-  height: 100dvh;
+  height: 100%;
+  min-height: 100dvh;
+  min-height: 100svh;
 }
 
 .world-scroll {
@@ -539,6 +543,8 @@ body.standalone-mode .toast {
   overflow: hidden;
   touch-action: pan-y;
   cursor: grab;
+  container-type: size;
+  container-name: roomvp;
 }
 
 .room-pan-viewport:active {
@@ -548,6 +554,9 @@ body.standalone-mode .toast {
 .room-pan-inner {
   position: relative;
   height: 100%;
+  /* Full phone height; width from aspect ratio = horizontal crop, not shrink */
+  width: max(100%, calc(100cqh * var(--room-aspect)));
+  min-height: 100%;
   will-change: transform;
 }
 
