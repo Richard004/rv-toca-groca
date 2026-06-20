@@ -73,6 +73,19 @@ async function run() {
     return collectPage(page, 'fresh');
   }));
 
+  results.push(await scenario(browser, 'furnished-new-world', async (page) => {
+    await page.goto(BASE, { waitUntil: 'networkidle2', timeout: 60000 });
+    await page.click('#btn-new-world');
+    await sleep(400);
+    await page.click('[data-world="furnished"]');
+    await sleep(1500);
+    const collected = await collectPage(page, 'furnished');
+    const entityCount = await page.evaluate(() =>
+      document.querySelectorAll('.entity').length
+    );
+    return { ...collected, entityCount, furnishedOk: entityCount >= 40 };
+  }));
+
   results.push(await scenario(browser, 'stale-localStorage-1.6.0', async (page) => {
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
     await page.evaluate(() => localStorage.setItem('toca-groca-asset-version', '1.6.0'));
@@ -119,7 +132,8 @@ async function run() {
     r.errors?.length > 0 ||
     !r.state?.hasTocaGroca ||
     !r.state?.hasMainModule ||
-    (r.state?.layout && r.state.layout.heightFillRatio < 0.9)
+    (r.state?.layout && r.state.layout.heightFillRatio < 0.9) ||
+    (r.name === 'furnished-new-world' && !r.furnishedOk)
   );
 
   if (failures.length) {

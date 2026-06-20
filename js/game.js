@@ -10,6 +10,7 @@ import { FOOD_ITEMS, getFoodItem, createFoodSVG } from './food-catalog.js';
 import { CATALOG_GROUPS, getCatalogGroup, getSubgroupsForGroup, getCatalogItem } from './catalog.js';
 import { createPlaceableSVG } from './furniture-sprites.js';
 import { loadState, saveState } from './storage.js';
+import { buildFurnishedDefaultWorld, buildEmptyWorld } from './default-world.js';
 
 let catalogNav = { level: 'groups', groupId: null, subgroupId: null };
 
@@ -317,10 +318,37 @@ function scrollToRoom(roomId, smooth = true) {
 }
 
 function seedFirstPlay() {
-  if (entities.length > 0 || state.emptyWorldSeeded) return;
-  state.emptyWorldSeeded = true;
+  if (state.worldMode === 'empty' && entities.length === 0) {
+    setTimeout(() => showToast('Prázdný dům! Přidej rodinu z ＋ a nábytek z 🎁'), 900);
+  } else if (state.worldMode === 'furnished') {
+    setTimeout(() => showToast('Krásně zařízený dům — vše můžeš přesouvat! 🏠✨'), 900);
+  }
+}
+
+export function startNewWorld(mode = 'furnished') {
+  const built = mode === 'empty' ? buildEmptyWorld() : buildFurnishedDefaultWorld();
+
+  entities = [...built.entities];
+  roomThemes = { ...(built.roomThemes || {}) };
+  roomPans = {};
+  fridgeItems = { ...(built.fridgeItems || {}) };
+  currentBuilding = built.currentBuilding || 'home';
+  currentRoom = built.currentRoom || 'living';
+  state.worldMode = built.worldMode;
+  state.emptyWorldSeeded = mode === 'empty';
+  selectedEntity = null;
+
+  buildBuildingNav();
+  buildRoomNav();
+  updateWorldMapActive(currentBuilding);
+  refreshWorldLayout();
+  switchRoom(currentRoom, false);
   persist();
-  setTimeout(() => showToast('Prázdné místnosti! Táhni doleva/doprava — objevíš víc prostoru 🏠'), 900);
+
+  const msg = mode === 'empty'
+    ? 'Nový prázdný dům! Zařiď si ho od nuly 📦'
+    : 'Nový krásný dům je připravený! Užij si ho 🌟';
+  showToast(msg);
 }
 
 function entityToPixels(entity, worldW, worldH) {
@@ -1163,6 +1191,7 @@ export function restoreGameState(newState) {
   roomThemes = { ...(state.roomThemes || {}) };
   roomPans = { ...(state.roomPans || {}) };
   entities = [...(state.entities || [])];
+  if (!state.worldMode && entities.length === 0) state.worldMode = 'empty';
   fridgeItems = { ...(state.fridgeItems || {}) };
   buildBuildingNav();
   buildRoomNav();

@@ -6,8 +6,8 @@
  * Never mix the two before shipping.
  */
 
-export const APP_VERSION = '1.6.5';
-export const NEXT_VERSION = '1.7.0';
+export const APP_VERSION = '1.7.0';
+export const NEXT_VERSION = '1.8.0';
 const SEEN_KEY = 'toca-groca-seen-update';
 
 /** Shipped — Round 1 (v1.1.0) */
@@ -158,6 +158,18 @@ export const SHIPPED_UPDATES = [
     items: [
       { feedback: 'Fingerprinting nefunguje, těžko reportovat chyby', fix: 'Zjednodušený inline cache bust + přímé načtení main.js + vypnutí starých service workerů', status: 'done' },
       { feedback: 'Na iPhonu pořád špatná škála místnosti', fix: 'JS nastaví šířku místnosti z výšky (funguje i bez CSS container queries)', status: 'done' }
+    ]
+  },
+  {
+    id: 'round-7',
+    version: '1.7.0',
+    date: '20. 6. 2026',
+    title: 'Krásný výchozí svět! 🌟',
+    intro: 'Můžeš začít s prázdným domem — nebo s krásně zařízeným světem od Táty.',
+    from: 'Rodina',
+    items: [
+      { feedback: 'Prázdný svět je fajn, ale chceme i hotový krásný výchozí dům', fix: '✨ Nový svět → Krásně zařízený dům — rodina, nábytek, zahrada, chalupa', status: 'done' },
+      { feedback: 'Všechno má jít přesouvat', fix: 'I výchozí svět — každou věc a postavu táhneš, 2× klepnutí = pryč', status: 'done' }
     ]
   }
 ];

@@ -1,6 +1,7 @@
 import {
   initGame,
   refreshWorldLayout,
+  startNewWorld,
   toggleDrawer,
   closeDrawers,
   showToast,
@@ -53,6 +54,12 @@ if (document.readyState === 'loading') {
 
 function setupSplash() {
   document.getElementById('btn-play').addEventListener('click', startGame);
+  document.getElementById('btn-new-world').addEventListener('click', () => {
+    openWorldStartDrawer();
+  });
+  document.querySelectorAll('[data-world]').forEach((btn) => {
+    btn.addEventListener('click', () => beginNewWorld(btn.dataset.world));
+  });
   document.getElementById('btn-updates-splash').addEventListener('click', () => {
     document.getElementById('splash').classList.remove('active');
     document.getElementById('game').classList.add('active');
@@ -63,6 +70,26 @@ function setupSplash() {
     onGameStarted();
     openUpdatesDrawer();
   });
+}
+
+function openWorldStartDrawer() {
+  document.getElementById('world-start-drawer').classList.add('open');
+}
+
+function beginNewWorld(mode) {
+  closeDrawers();
+  document.getElementById('splash').classList.remove('active');
+  document.getElementById('game').classList.add('active');
+  const game = document.getElementById('game');
+  if (!game.dataset.inited) {
+    initGame();
+    game.dataset.inited = '1';
+  }
+  startNewWorld(mode);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => refreshWorldLayout());
+  });
+  onGameStarted();
 }
 
 function startGame() {
@@ -96,6 +123,11 @@ function setupGameControls() {
 
   document.getElementById('btn-tools').addEventListener('click', () => {
     toggleDrawer('tools-drawer');
+  });
+
+  document.getElementById('btn-new-world-tools')?.addEventListener('click', () => {
+    closeDrawers();
+    openWorldStartDrawer();
   });
 
   document.getElementById('btn-room-picker').addEventListener('click', () => {
