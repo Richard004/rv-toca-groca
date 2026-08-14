@@ -21,8 +21,7 @@ import {
 import { type SaveV3, loadSave, writeSave, downloadBackup, importBackup, emptySave } from './save';
 import { roomShellHTML, entityVisual, furnitureSVG, foodSVG, assetUrl } from './art';
 
-const ASPECT = 1.6;
-const MIN_PAN = 1.45;
+const VIEW_SPAN = 1.36;
 const DRAG_PX = 6;
 const DOUBLE_MS = 400;
 const MOUTH_PX = 58;
@@ -100,7 +99,6 @@ export function startWorld(mode: 'furnished' | 'empty') {
   persist();
   buildStrip();
   goRoom('living', false);
-  toast(mode === 'empty' ? 'Prázdný dům. Přidej rodinu z pluska.' : 'Krásný dům od Táty. Všechno můžeš posunout.');
 }
 
 function seedFridge(entities: Entity[]) {
@@ -143,7 +141,7 @@ function viewport() {
 function roomSize() {
   const { w, h } = viewport();
   const innerH = h;
-  const innerW = Math.max(Math.round(innerH * ASPECT), Math.round(w * MIN_PAN));
+  const innerW = Math.round(w * VIEW_SPAN);
   return { innerW, innerH, maxPan: Math.max(0, innerW - w), vpW: w, vpH: h };
 }
 
@@ -185,7 +183,7 @@ function applyPans() {
   rooms().forEach((id) => {
     const inner = document.querySelector<HTMLElement>(`.room-panel[data-room="${id}"] .room-pan-inner`);
     if (!inner) return;
-    const rel = save.roomPans[id] ?? 0.5;
+    const rel = save.roomPans[id] ?? 0;
     inner.style.transform = `translate3d(${-(rel * maxPan)}px,0,0)`;
   });
 }
@@ -200,14 +198,19 @@ function renderEntities() {
       if (!def) return '';
       const hRel = 'heightRel' in def ? def.heightRel : 0.12;
       const h = Math.round(innerH * hRel);
-      const aspect = entity.kind === 'character' || entity.kind === 'sketch' ? 0.62 : 1;
-      const w = Math.round(h * (entity.kind === 'food' ? 1 : aspect < 1 ? 0.72 : 1.05));
+      const aspect = 'aspect' in def && def.aspect
+        ? def.aspect
+        : entity.kind === 'character' || entity.kind === 'sketch'
+          ? 0.64
+          : entity.kind === 'food' ? 1 : 1;
+      const w = Math.round(h * aspect);
       const x = entity.xRel * innerW - w / 2;
       const y = entity.yRel * innerH - h;
       const wall = 'wall' in def && def.wall;
-      const z = wall ? 120 + y : 300 + entity.yRel * innerH;
+      const type = 'type' in def ? def.type : entity.kind;
+      const z = type === 'rug' ? 80 : wall ? 120 + y : 300 + entity.yRel * innerH;
       const eating = !!(entity.eatingUntil && entity.eatingUntil > Date.now());
-      return `<div class="entity${entity.uid === selected ? ' selected' : ''}" data-uid="${entity.uid}"
+      return `<div class="entity${entity.uid === selected ? ' selected' : ''}" data-uid="${entity.uid}" data-type="${type || ''}"
         style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;z-index:${Math.round(z)}">
         ${entityVisual(entity, def as any, eating)}
         <span class="entity-label">${def.name}</span>
@@ -215,7 +218,26 @@ function renderEntities() {
     }).join('');
   });
   bindEntities();
+  fitImageAspects();
   updateInspector();
+}
+
+function fitImageAspects() {
+  const { innerW } = roomSize();
+  document.querySelectorAll<HTMLImageElement>('.entity img').forEach((img) => {
+    const apply = () => {
+      if (!img.naturalWidth || !img.naturalHeight) return;
+      const el = img.closest<HTMLElement>('.entity');
+      if (!el) return;
+      const h = el.offsetHeight;
+      const w = Math.round(h * (img.naturalWidth / img.naturalHeight));
+      el.style.width = `${w}px`;
+      const entity = save.entities.find((e) => e.uid === el.dataset.uid);
+      if (entity) el.style.left = `${entity.xRel * innerW - w / 2}px`;
+    };
+    if (img.complete) apply();
+    else img.addEventListener('load', apply, { once: true });
+  });
 }
 
 function bindEntities() {
@@ -423,7 +445,7 @@ function onPanDown(ev: PointerEvent) {
     room: roomId,
     pointerId: ev.pointerId,
     startX: ev.clientX,
-    startOff: (save.roomPans[roomId] ?? 0.5) * maxPan,
+    startOff: (save.roomPans[roomId] ?? 0) * maxPan,
     max: maxPan,
     moved: false
   };

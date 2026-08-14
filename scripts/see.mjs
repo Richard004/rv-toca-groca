@@ -100,10 +100,10 @@ async function runShot(page, id) {
   await afterPaint(page);
 
   if (id === 'living') return shoot(page, id);
-  if (id === 'kitchen') { await call(page, 'goRoom', 'kitchen'); await afterPaint(page); return shoot(page, id); }
-  if (id === 'bedroom') { await call(page, 'goRoom', 'bedroom'); await afterPaint(page); return shoot(page, id); }
-  if (id === 'bathroom') { await call(page, 'goRoom', 'bathroom'); await afterPaint(page); return shoot(page, id); }
-  if (id === 'garden') { await call(page, 'goRoom', 'garden'); await afterPaint(page); return shoot(page, id); }
+  if (id === 'kitchen') { await call(page, 'goRoom', 'kitchen', false); await afterPaint(page); return shoot(page, id); }
+  if (id === 'bedroom') { await call(page, 'goRoom', 'bedroom', false); await afterPaint(page); return shoot(page, id); }
+  if (id === 'bathroom') { await call(page, 'goRoom', 'bathroom', false); await afterPaint(page); return shoot(page, id); }
+  if (id === 'garden') { await call(page, 'goRoom', 'garden', false); await afterPaint(page); return shoot(page, id); }
   if (id === 'cottage') { await call(page, 'travel', 'cottage'); await sleep(2600); await afterPaint(page); return shoot(page, id); }
   if (id === 'sketch') { await call(page, 'travel', 'anetka'); await sleep(2600); await afterPaint(page); return shoot(page, id); }
   if (id === 'tools') {

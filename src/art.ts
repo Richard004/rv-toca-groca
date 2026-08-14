@@ -12,55 +12,62 @@ export function roomShellHTML(room: RoomDef, themeId: string) {
   const floor = outdoor ? (night ? '#243028' : theme.floor) : theme.floor;
   const sky = night ? '#2c3340' : sketch ? '#e7dcc4' : '#c5d5ce';
 
-  return `<div class="room-shell" style="--wall:${wall};--floor:${floor}">
+  const window = windowArt(room, night);
+  return `<div class="room-shell ${outdoor ? 'is-out' : ''}" style="--wall:${wall};--floor:${floor}">
     <div class="room-sky" style="background:${sky}"></div>
     <div class="room-wall"></div>
+    <div class="room-wainscot"></div>
     <div class="room-floor"></div>
-    <svg class="room-window" viewBox="0 0 1600 1000" preserveAspectRatio="none">${windowArt(room, night)}</svg>
+    ${window}
     <svg class="room-lines" viewBox="0 0 1600 1000" preserveAspectRatio="none">${lineArt(room, night)}</svg>
   </div>`;
 }
 
 function windowArt(room: RoomDef, night: boolean) {
   if (room.id === 'garden' || room.id === 'cottage-garden' || room.id === 'sketch-studio') return '';
-  const glass = night ? '#2a3340' : '#d7e4e0';
-  const sun = night ? '' : `<circle cx="1180" cy="150" r="36" fill="#d4a04a" opacity="0.85"/>`;
-  return `<rect x="980" y="70" width="360" height="280" rx="8" fill="${glass}" stroke="${ink}" stroke-width="8"/>
-    <line x1="1160" y1="70" x2="1160" y2="350" stroke="${ink}" stroke-width="6"/>
-    <line x1="980" y1="210" x2="1340" y2="210" stroke="${ink}" stroke-width="6"/>
+  const glass = night ? '#2a3340' : '#cfe0dc';
+  const sun = night ? '' : `<circle cx="300" cy="88" r="22" fill="#d4a04a" opacity="0.85"/>`;
+  const size = room.id === 'living' ? '' : ' is-small';
+  return `<svg class="room-window${size}" viewBox="0 0 420 280" preserveAspectRatio="none">
+    <rect x="18" y="18" width="384" height="244" rx="12" fill="${glass}" stroke="${ink}" stroke-width="8"/>
+    <line x1="210" y1="18" x2="210" y2="262" stroke="${ink}" stroke-width="6"/>
+    <line x1="18" y1="140" x2="402" y2="140" stroke="${ink}" stroke-width="6"/>
     ${sun}
-    <path d="M970 70 h20 v340 h-20" fill="#3d7a73" opacity="0.55"/>`;
+    <path d="M8 18 q36 120 0 244" fill="#3d7a73" opacity="0.42"/>
+    <path d="M412 18 q-36 120 0 244" fill="#3d7a73" opacity="0.36"/>
+  </svg>`;
 }
 
 function lineArt(room: RoomDef, night: boolean) {
   const stroke = night ? '#1a1e24' : ink;
-  const base = `<line x1="0" y1="620" x2="1600" y2="620" stroke="${stroke}" stroke-width="6"/>`;
+  const rail = `<line x1="0" y1="500" x2="1600" y2="500" stroke="${stroke}" stroke-width="7"/>
+    <rect x="0" y="500" width="1600" height="16" fill="${stroke}" opacity="0.14"/>`;
   if (room.id === 'garden' || room.id === 'cottage-garden') {
-    return `${base}
-      <path d="M0 430 C 180 360, 320 470, 520 400 C 740 320, 900 460, 1120 390 C 1300 340, 1460 420, 1600 380 L 1600 620 L 0 620 Z" fill="#7a9b6a" opacity="0.55"/>
-      <path d="M0 520 C 220 480, 400 560, 640 510 C 880 460, 1100 560, 1600 500 L 1600 620 L 0 620 Z" fill="#5f7d52"/>`;
+    return `
+      <path d="M0 400 C 180 330, 320 450, 520 380 C 740 300, 900 440, 1120 370 C 1300 320, 1460 400, 1600 360 L 1600 1000 L 0 1000 Z" fill="#7a9b6a" opacity="0.55"/>
+      <path d="M0 520 C 220 480, 400 560, 640 510 C 880 460, 1100 560, 1600 500 L 1600 1000 L 0 1000 Z" fill="#5f7d52"/>`;
   }
   if (room.id === 'kitchen') {
-    return `${base}
-      <rect x="0" y="430" width="1600" height="40" fill="#d4a04a" opacity="0.25"/>
-      <path d="M40 250 h220 v180 h-220 z" fill="none" stroke="${stroke}" stroke-width="5"/>`;
+    return `${rail}
+      <rect x="0" y="430" width="1600" height="36" fill="#d4a04a" opacity="0.22"/>
+      ${Array.from({ length: 14 }, (_, i) => `<line x1="${60 + i * 112}" y1="516" x2="${20 + i * 112}" y2="1000" stroke="${stroke}" stroke-width="2" opacity="0.07"/>`).join('')}`;
   }
   if (room.id === 'bathroom') {
-    return `${base}
-      ${Array.from({ length: 10 }, (_, i) => `<line x1="${i * 160}" y1="0" x2="${i * 160}" y2="620" stroke="${stroke}" stroke-width="1" opacity="0.12"/>`).join('')}`;
+    return `${rail}
+      ${Array.from({ length: 10 }, (_, i) => `<line x1="${i * 160}" y1="0" x2="${i * 160}" y2="500" stroke="${stroke}" stroke-width="1" opacity="0.1"/>`).join('')}`;
   }
   if (room.id === 'cottage-living') {
-    return `${base}
-      <rect x="80" y="0" width="28" height="620" fill="#8b6f47" opacity="0.35"/>
-      <rect x="0" y="40" width="1600" height="22" fill="#8b6f47" opacity="0.3"/>`;
+    return `${rail}
+      <rect x="80" y="0" width="28" height="500" fill="#8b6f47" opacity="0.35"/>
+      <rect x="0" y="36" width="1600" height="20" fill="#8b6f47" opacity="0.3"/>`;
   }
   if (room.id === 'sketch-studio') {
-    return `${base}
+    return `${rail}
       <rect x="80" y="90" width="280" height="200" fill="none" stroke="${stroke}" stroke-width="4" stroke-dasharray="10 8"/>
       <rect x="420" y="70" width="220" height="160" fill="none" stroke="${stroke}" stroke-width="4"/>`;
   }
-  return `${base}
-    <line x1="0" y1="560" x2="1600" y2="560" stroke="#fff" stroke-width="2" opacity="0.18"/>`;
+  return `${rail}
+    ${Array.from({ length: 14 }, (_, i) => `<line x1="${70 + i * 112}" y1="516" x2="${28 + i * 112}" y2="1000" stroke="${stroke}" stroke-width="2.2" opacity="0.08"/>`).join('')}`;
 }
 
 export function furnitureSVG(item: FurnitureDef) {
@@ -70,7 +77,14 @@ export function furnitureSVG(item: FurnitureDef) {
   const s = `fill="none" stroke="${ink}" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"`;
   switch (type) {
     case 'sofa':
-      return g(`<rect x="8" y="52" width="104" height="38" rx="10" fill="#c45c3e"/><rect x="16" y="38" width="88" height="22" rx="8" fill="#d9897a"/><rect x="8" y="62" width="16" height="28" rx="4" fill="#9a3f2a"/><rect x="96" y="62" width="16" height="28" rx="4" fill="#9a3f2a"/><rect x="8" y="52" width="104" height="38" rx="10" ${s}/>`);
+      return g(`<ellipse cx="60" cy="102" rx="46" ry="6" fill="rgba(43,36,28,0.12)"/>
+        <rect x="10" y="58" width="100" height="34" rx="12" fill="#c45c3e"/>
+        <rect x="18" y="40" width="84" height="26" rx="11" fill="#d9897a"/>
+        <rect x="22" y="46" width="34" height="16" rx="6" fill="#e7c4b0" opacity="0.55"/>
+        <rect x="64" y="46" width="34" height="16" rx="6" fill="#e7c4b0" opacity="0.55"/>
+        <rect x="10" y="78" width="14" height="18" rx="4" fill="#9a3f2a"/>
+        <rect x="96" y="78" width="14" height="18" rx="4" fill="#9a3f2a"/>
+        <rect x="10" y="58" width="100" height="34" rx="12" ${s}/>`);
     case 'chair':
       return g(`<rect x="30" y="48" width="60" height="36" rx="8" fill="#c4a484"/><rect x="34" y="22" width="52" height="30" rx="6" fill="#e7c4b0"/><rect x="30" y="48" width="60" height="36" rx="8" ${s}/>`);
     case 'table':
@@ -110,7 +124,12 @@ export function furnitureSVG(item: FurnitureDef) {
         ? g(`<rect x="38" y="28" width="44" height="36" rx="4" fill="#3d7a73"/><circle cx="50" cy="44" r="4" fill="#d4a04a"/><circle cx="70" cy="44" r="4" fill="#d4a04a"/><rect x="38" y="28" width="44" height="36" rx="4" ${s}/>`)
         : g(`<ellipse cx="60" cy="64" rx="28" ry="26" fill="#c4a484"/><circle cx="60" cy="40" r="18" fill="#c4a484"/><circle cx="60" cy="40" r="18" ${s}/>`);
     case 'plant':
-      return g(`<rect x="44" y="72" width="32" height="28" rx="4" fill="#c45c3e"/><circle cx="60" cy="48" r="22" fill="#7a9b6a"/><circle cx="60" cy="48" r="22" ${s}/>`);
+      return g(`<ellipse cx="60" cy="108" rx="16" ry="4" fill="rgba(43,36,28,0.12)"/>
+        <path d="M48 78 q12 28 24 0 v18 h-24 z" fill="#c45c3e"/>
+        <ellipse cx="46" cy="48" rx="14" ry="20" fill="#7a9b6a"/>
+        <ellipse cx="74" cy="46" rx="13" ry="18" fill="#5f7d52"/>
+        <ellipse cx="60" cy="34" rx="12" ry="16" fill="#8aaf78"/>
+        <path d="M48 78 q12 28 24 0 v18 h-24 z" ${s}/>`);
     case 'poster':
       return g(`<rect x="26" y="16" width="68" height="84" rx="4" fill="#fbf6ec"/><circle cx="60" cy="52" r="16" fill="#d9897a" opacity="0.7"/><rect x="26" y="16" width="68" height="84" rx="4" ${s}/>`);
     default:

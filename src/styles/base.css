@@ -49,7 +49,8 @@ button {
 .toast {
   position: absolute;
   left: 50%;
-  bottom: max(5.5rem, calc(env(safe-area-inset-bottom) + 4.5rem));
+  top: max(4.2rem, calc(env(safe-area-inset-top) + 3.4rem));
+  bottom: auto;
   transform: translateX(-50%) translateY(12px);
   max-width: min(88vw, 22rem);
   padding: 0.7rem 1rem;

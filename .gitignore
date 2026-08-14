@@ -1,3 +1,5 @@
+public/dolls/
+*.tmp.webp
 node_modules/
 dist/
 .vite/

@@ -77,26 +77,75 @@
 
 .room-sky {
   top: 0;
-  height: 38%;
+  height: 28%;
 }
 
 .room-wall {
   top: 0;
-  height: 62%;
-  background: var(--wall);
+  height: 50%;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 46px,
+      rgba(43, 36, 28, 0.028) 46px 47px
+    ),
+    var(--wall);
+}
+
+.room-wainscot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 20%;
+  height: 30%;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(43, 36, 28, 0.12), transparent 14%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(43, 36, 28, 0.08) 0 2px,
+      transparent 2px 64px
+    ),
+    color-mix(in srgb, var(--wall) 42%, #c4a484);
+  border-top: 4px solid rgba(58, 49, 40, 0.32);
+}
+
+.room-shell.is-out .room-wainscot {
+  display: none;
 }
 
 .room-floor {
-  top: 62%;
+  top: 50%;
   bottom: 0;
-  background: var(--floor);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      var(--floor) 0 40px,
+      color-mix(in srgb, var(--floor) 82%, #5a4e42) 40px 42px
+    );
 }
 
-.room-lines,
-.room-window {
+.room-lines {
   top: 0;
   bottom: 0;
   pointer-events: none;
+}
+
+.room-window {
+  top: 3%;
+  left: 6%;
+  width: 48%;
+  height: 21%;
+  right: auto;
+  bottom: auto;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 8px var(--shadow));
+}
+
+.room-window.is-small {
+  width: 32%;
+  height: 15%;
+  left: 10%;
 }
 
 .entities-layer {
@@ -114,8 +163,14 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  object-position: bottom center;
   pointer-events: none;
   filter: drop-shadow(0 8px 10px var(--shadow));
+}
+
+.entity[data-type="rug"] img,
+.entity[data-type="rug"] svg {
+  filter: none;
 }
 
 .entity.selected::after {
