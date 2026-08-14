@@ -21,7 +21,8 @@ import {
 import { type SaveV3, loadSave, writeSave, downloadBackup, importBackup, emptySave } from './save';
 import { roomShellHTML, entityVisual, furnitureSVG, foodSVG, assetUrl } from './art';
 
-const VIEW_SPAN = 1.36;
+/** Painted plates are 3:4. Room width is always height × this, never the window's aspect. */
+const ROOM_ASPECT = 3 / 4;
 const DRAG_PX = 6;
 const DOUBLE_MS = 400;
 const MOUTH_PX = 58;
@@ -141,8 +142,15 @@ function viewport() {
 function roomSize() {
   const { w, h } = viewport();
   const innerH = h;
-  const innerW = Math.round(w * VIEW_SPAN);
-  return { innerW, innerH, maxPan: Math.max(0, innerW - w), vpW: w, vpH: h };
+  const innerW = Math.round(innerH * ROOM_ASPECT);
+  const maxPan = Math.max(0, innerW - w);
+  const padX = maxPan > 0 ? 0 : Math.round((w - innerW) / 2);
+  return { innerW, innerH, maxPan, padX, vpW: w, vpH: h };
+}
+
+function panRel(roomId: string) {
+  const v = save.roomPans?.[roomId];
+  return typeof v === 'number' ? v : 0.5;
 }
 
 export function buildStrip() {
@@ -179,12 +187,12 @@ function applyDims() {
 
 function applyPans() {
   if (!save.roomPans) save.roomPans = {};
-  const { maxPan } = roomSize();
+  const { maxPan, padX } = roomSize();
   rooms().forEach((id) => {
     const inner = document.querySelector<HTMLElement>(`.room-panel[data-room="${id}"] .room-pan-inner`);
     if (!inner) return;
-    const rel = save.roomPans[id] ?? 0;
-    inner.style.transform = `translate3d(${-(rel * maxPan)}px,0,0)`;
+    const x = maxPan > 0 ? -(panRel(id) * maxPan) : padX;
+    inner.style.transform = `translate3d(${x}px,0,0)`;
   });
 }
 
@@ -445,7 +453,7 @@ function onPanDown(ev: PointerEvent) {
     room: roomId,
     pointerId: ev.pointerId,
     startX: ev.clientX,
-    startOff: (save.roomPans[roomId] ?? 0) * maxPan,
+    startOff: panRel(roomId) * maxPan,
     max: maxPan,
     moved: false
   };
@@ -883,6 +891,8 @@ export function inspectScene() {
     vpW,
     vpH,
     innerW: inner?.offsetWidth || 0,
+    innerH: inner?.offsetHeight || 0,
+    roomAspect: inner && inner.offsetHeight ? inner.offsetWidth / inner.offsetHeight : 0,
     entityCount: entities.length,
     choppedHeads: entities.filter((e) => e.choppedTop).length,
     choppedFeet: entities.filter((e) => e.choppedBottom).length,

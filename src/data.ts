@@ -235,7 +235,7 @@ export function furnishedWorld(): Entity[] {
     e('character', 'zuzana', 'living', 0.40, 0.91, { emotion: 'happy' }),
     e('character', 'anetka', 'living', 0.60, 0.91, { emotion: 'happy' }),
     e('character', 'liza', 'living', 0.70, 0.86),
-    e('character', 'cookie', 'living', 0.18, 0.94),
+    e('character', 'cookie', 'living', 0.24, 0.94),
 
     e('furniture', 'fridge', 'kitchen', 0.14, 0.86),
     e('furniture', 'stove', 'kitchen', 0.40, 0.86),

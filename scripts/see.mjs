@@ -13,11 +13,13 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(root, 'audit', 'see');
 const BASE = process.env.SEE_URL || 'http://127.0.0.1:5173/rv-toca-groca/';
 const PHONE = { width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true };
+const WIDE = { width: 1280, height: 800 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const ALL_SHOTS = [
   { id: 'splash', title: 'First impression' },
   { id: 'living', title: 'Furnished living — hero' },
+  { id: 'living-wide', title: 'Living on a desktop window' },
   { id: 'kitchen', title: 'Kitchen' },
   { id: 'bedroom', title: 'Bedroom' },
   { id: 'bathroom', title: 'Bathroom' },
@@ -100,6 +102,15 @@ async function runShot(page, id) {
   await afterPaint(page);
 
   if (id === 'living') return shoot(page, id);
+  if (id === 'living-wide') {
+    await page.setViewportSize({ width: WIDE.width, height: WIDE.height });
+    await call(page, 'startWorld', 'furnished');
+    await call(page, 'showGame');
+    await afterPaint(page);
+    const row = await shoot(page, id);
+    await page.setViewportSize({ width: PHONE.width, height: PHONE.height });
+    return row;
+  }
   if (id === 'kitchen') { await call(page, 'goRoom', 'kitchen', false); await afterPaint(page); return shoot(page, id); }
   if (id === 'bedroom') { await call(page, 'goRoom', 'bedroom', false); await afterPaint(page); return shoot(page, id); }
   if (id === 'bathroom') { await call(page, 'goRoom', 'bathroom', false); await afterPaint(page); return shoot(page, id); }
