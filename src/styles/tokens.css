@@ -1,0 +1,25 @@
+:root {
+  --paper: #f3ebd9;
+  --paper-deep: #e7dcc4;
+  --ink: #2b241c;
+  --ink-soft: #5a4e42;
+  --line: #3a3128;
+  --milk: #fbf6ec;
+  --ochre: #d4a04a;
+  --terracotta: #c45c3e;
+  --brick-deep: #9a3f2a;
+  --teal: #3d7a73;
+  --sage: #7a9b6a;
+  --sky-wash: #b7c9c4;
+  --ginger: #c86b2a;
+  --blush: #d9897a;
+  --night: #2c3340;
+  --gold-line: #c9a15b;
+  --shadow: rgba(43, 36, 28, 0.16);
+  --glass: rgba(251, 246, 236, 0.86);
+  --wall: #f3ebd9;
+  --floor: #d9c9a8;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-ui: "Figtree", system-ui, sans-serif;
+  --room-aspect: 1.6;
+}

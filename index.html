@@ -1,261 +1,164 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Toca Groca">
-  <meta name="theme-color" content="#FF8FAB">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta name="toca-version" content="2.0.2">
-  <title>Toca Groca — Our Family World</title>
-  <link rel="manifest" href="manifest.json?v=2.0.2">
-  <link rel="icon" href="icons/app-icon.svg?v=2.0.2" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icons/app-icon.svg?v=2.0.2">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" id="toca-styles" href="css/styles.css?v=2.0.2">
-                              <script type="importmap" id="toca-importmap">
-  {
-    "scopes": {
-      "js/": {
-      "./main.js": "js/main.js?v=2.0.2",
-      "./game.js": "js/game.js?v=2.0.2",
-      "./bitmap-assets.js": "js/bitmap-assets.js?v=2.0.2",
-      "./rooms.js": "js/rooms.js?v=2.0.2",
-      "./room-art.js": "js/room-art.js?v=2.0.2",
-      "./world-map.js": "js/world-map.js?v=2.0.2",
-      "./default-world.js": "js/default-world.js?v=2.0.2",
-      "./entity-scale.js": "js/entity-scale.js?v=2.0.2",
-      "./characters.js": "js/characters.js?v=2.0.2",
-      "./sprites.js": "js/sprites.js?v=2.0.2",
-      "./food-catalog.js": "js/food-catalog.js?v=2.0.2",
-      "./catalog.js": "js/catalog.js?v=2.0.2",
-      "./furniture-sprites.js": "js/furniture-sprites.js?v=2.0.2",
-      "./storage.js": "js/storage.js?v=2.0.2",
-      "./updates.js": "js/updates.js?v=2.0.2",
-      "./fullscreen.js": "js/fullscreen.js?v=2.0.2",
-      "./version.js": "js/version.js?v=2.0.2"
-      }
-    }
-  }
-  </script>
-                          <script id="toca-boot-inline">
-  (function () {
-    var V = '2.0.2';
-    var KEY = 'toca-groca-asset-version';
-    var RELOAD = 'toca-groca-reload-once';
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function (regs) {
-        regs.forEach(function (r) { r.unregister(); });
-      });
-    }
-    if (localStorage.getItem(KEY) !== V) {
-      localStorage.setItem(KEY, V);
-      if (!sessionStorage.getItem(RELOAD)) {
-        sessionStorage.setItem(RELOAD, '1');
-        var u = new URL(location.href);
-        u.searchParams.set('_v', V);
-        location.replace(u.toString());
-      } else {
-        sessionStorage.removeItem(RELOAD);
-      }
-    }
-  })();
-  </script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Toca Groca"/>
+  <meta name="theme-color" content="#F3EBD9"/>
+  <title>Toca Groca — Náš rodinný svět</title>
+  <link rel="manifest" href="./manifest.webmanifest"/>
+  <link rel="icon" href="./icons/app-icon.svg" type="image/svg+xml"/>
+  <link rel="apple-touch-icon" href="./icons/app-icon.svg"/>
 </head>
 <body>
   <div id="app">
-    <!-- Splash Screen -->
     <div id="splash" class="screen active">
-      <div class="splash-content">
-        <div class="logo-bounce">
-          <h1 class="logo-title">Toca Groca</h1>
-          <p class="logo-sub">Our Family World</p>
+      <div>
+        <h1 class="logo-title">Toca Groca</h1>
+        <p class="logo-sub">Náš rodinný svět</p>
+        <div class="splash-row" id="splash-chars"></div>
+        <p class="splash-tag">Hraj, zařizuj a vymýšlej příběhy s celou rodinou.</p>
+        <button class="btn-play" id="btn-play" type="button">Pojď hrát</button>
+        <div>
+          <button class="btn-quiet" id="btn-new-world" type="button">Nový svět</button>
+          <button class="btn-quiet" id="btn-updates-splash" type="button">Co je nového</button>
         </div>
-        <div class="splash-characters" id="splash-chars"></div>
-        <p class="splash-tagline">Play, explore &amp; create stories with our whole family!</p>
-        <button class="btn-play" id="btn-play">
-          <span class="btn-play-icon">▶</span>
-          Let's Play!
-        </button>
-        <button class="btn-new-world" id="btn-new-world" type="button">
-          ✨ Nový svět
-        </button>
-        <button class="btn-updates-splash" id="btn-updates-splash" type="button">
-          ✨ Co je nového<span class="updates-badge-dot" hidden></span>
-        </button>
-        <p class="splash-credit">Made with ❤️ by Tata Richard for Klarka, Anetka, Tanicka &amp; Risa</p>
+        <p class="splash-credit">Udělal Táta Richard pro Klárku, Anetku, Taníčku a Ríšu</p>
       </div>
-      <div class="splash-sparkles"></div>
     </div>
 
-    <!-- New world picker -->
-    <aside class="drawer drawer-world-start" id="world-start-drawer">
+    <aside class="drawer" id="world-start-drawer">
       <div class="drawer-header">
-        <h3>✨ Jak chceš začít?</h3>
-        <button class="drawer-close" data-close="world-start-drawer">✕</button>
+        <h3>Jak chceš začít?</h3>
+        <button class="drawer-close" type="button">✕</button>
       </div>
-      <p class="catalog-breadcrumb">Obojí funguje stejně — vše přesouváš a měníš!</p>
       <div class="world-start-grid">
         <button type="button" class="world-start-card world-start-card--featured" data-world="furnished">
-          <span class="world-start-icon">🌟</span>
           <span class="world-start-title">Krásně zařízený dům</span>
-          <span class="world-start-desc">Rodina, nábytek, zahrada i chalupa — hotový svět od Táty</span>
+          <span class="world-start-desc">Rodina, nábytek, zahrada i chalupa — dárek od Táty.</span>
         </button>
         <button type="button" class="world-start-card" data-world="empty">
-          <span class="world-start-icon">📦</span>
           <span class="world-start-title">Prázdný dům</span>
-          <span class="world-start-desc">Jen prázdné místnosti — ty přidáš všechno sám</span>
+          <span class="world-start-desc">Jen prázdné místnosti. Všechno přidáš ty.</span>
         </button>
       </div>
     </aside>
 
-    <!-- Main Game — full-screen scene, controls as overlay -->
-    <div id="game" class="screen game-immersive">
+    <div id="game" class="screen">
       <main class="game-world" id="game-world">
-        <button class="room-arrow room-arrow-left" id="arrow-left" aria-label="Předchozí místnost">‹</button>
         <div class="world-scroll" id="world-scroll">
           <div class="rooms-strip" id="rooms-strip"></div>
         </div>
-        <button class="room-arrow room-arrow-right" id="arrow-right" aria-label="Další místnost">›</button>
       </main>
 
-      <div class="game-overlay" id="game-overlay">
-        <button type="button" class="overlay-pill" id="btn-room-picker" aria-label="Vybrat místnost">
-          <span class="overlay-pill-icon" id="overlay-room-icon">🛋️</span>
-          <span class="overlay-pill-text" id="overlay-room-name">Obývák</span>
-          <span class="overlay-pill-chevron">▾</span>
+      <div class="game-overlay">
+        <button type="button" class="overlay-pill" id="btn-room-picker">
+          <span id="overlay-room-name">Obývák</span>
         </button>
-        <button type="button" class="overlay-globe" id="btn-world-map" title="Mapa světa" aria-label="Mapa světa">🌍</button>
-        <button type="button" class="overlay-home" id="btn-home" title="Úvodní obrazovka" aria-label="Domů">⌂</button>
-        <div class="overlay-dots" id="room-dots" aria-hidden="true"></div>
-        <button type="button" class="overlay-fab" id="btn-tools" title="Nástroje" aria-label="Nástroje">＋</button>
+        <button type="button" class="overlay-round map" id="btn-world-map" aria-label="Mapa">◎</button>
+        <button type="button" class="overlay-round home" id="btn-home" aria-label="Domů">⌂</button>
+        <div class="overlay-dots" id="room-dots"></div>
+        <button type="button" class="overlay-fab" id="btn-tools" aria-label="Nástroje">+</button>
       </div>
 
-      <!-- Character outfit + emotion (when character selected) -->
       <div class="character-bars" id="character-bars" hidden>
-        <div class="outfit-bar" id="outfit-bar">
-          <span class="outfit-label">Oblečení:</span>
-          <div class="outfit-colors" id="outfit-colors"></div>
+        <div class="bar-row">
+          <span class="bar-label">Tričko</span>
+          <div id="outfit-colors"></div>
         </div>
-        <div class="emotion-bar" id="emotion-bar">
-          <span class="outfit-label">Emoce:</span>
-          <div class="emotion-buttons" id="emotion-buttons"></div>
+        <div class="bar-row">
+          <span class="bar-label">Emoce</span>
+          <div id="emotion-buttons"></div>
         </div>
       </div>
 
-      <!-- World map -->
-      <aside class="drawer drawer-world-map" id="world-map-drawer">
+      <aside class="drawer" id="world-map-drawer">
         <div class="drawer-header">
-          <h3>🌍 Kam cestujeme?</h3>
-          <button class="drawer-close" data-close="world-map-drawer">✕</button>
+          <h3>Kam cestujeme?</h3>
+          <button class="drawer-close" type="button">✕</button>
         </div>
-        <p class="catalog-breadcrumb">Vyber destinaci — přiletíme letadlem ✈️</p>
+        <p class="drawer-note">Vyber destinaci — přiletíme letadlem.</p>
         <div class="world-map-grid" id="world-map-list"></div>
       </aside>
 
-      <!-- Travel animation -->
-      <div class="travel-overlay" id="travel-overlay" hidden aria-hidden="true"></div>
+      <div class="travel-overlay" id="travel-overlay" hidden></div>
 
-      <!-- Room picker -->
-      <aside class="drawer drawer-picker" id="room-picker-drawer">
+      <aside class="drawer" id="room-picker-drawer">
         <div class="drawer-header">
           <h3>Kam jít?</h3>
-          <button class="drawer-close" data-close="room-picker-drawer">✕</button>
+          <button class="drawer-close" type="button">✕</button>
         </div>
-        <nav class="building-nav building-nav-picker" id="building-nav"></nav>
-        <nav class="room-nav room-nav-picker" id="room-nav"></nav>
+        <nav class="picker-nav" id="room-nav"></nav>
       </aside>
 
-      <!-- Tools menu -->
-      <aside class="drawer drawer-tools" id="tools-drawer">
+      <aside class="drawer" id="tools-drawer">
         <div class="drawer-header">
           <h3>Nástroje</h3>
-          <button class="drawer-close" data-close="tools-drawer">✕</button>
+          <button class="drawer-close" type="button">✕</button>
         </div>
         <div class="tools-grid">
-          <button type="button" class="tool-btn" id="btn-updates" title="Co je nového">
-            ✨<span>Novinky</span><span class="updates-badge-dot" hidden></span>
-          </button>
-          <button type="button" class="tool-btn" id="btn-characters" title="Rodina">👨‍👩‍👧‍👦<span>Rodina</span></button>
-          <button type="button" class="tool-btn" id="btn-items" title="Nábytek">🎁<span>Nábytek</span></button>
-          <button type="button" class="tool-btn" id="btn-food" title="Jídlo">🍎<span>Jídlo</span></button>
-          <button type="button" class="tool-btn" id="btn-world-map-tools" title="Mapa světa">🌍<span>Mapa</span></button>
-          <button type="button" class="tool-btn" id="btn-wallpaper" title="Tapety">🎨<span>Tapety</span></button>
-          <button type="button" class="tool-btn icon-btn-fullscreen" id="btn-fullscreen" title="Celá obrazovka" hidden>⛶<span>Obrazovka</span></button>
-          <button type="button" class="tool-btn" id="btn-new-world-tools" title="Nový svět">✨<span>Nový svět</span></button>
-          <button type="button" class="tool-btn" id="btn-save" title="Uložit">💾<span>Uložit</span></button>
-          <button type="button" class="tool-btn" id="btn-load" title="Načíst">📂<span>Načíst</span></button>
-          <button type="button" class="tool-btn" id="btn-refresh-app" title="Stáhnout nejnovější verzi">🔄<span>Aktualizovat</span></button>
+          <button type="button" class="tool-btn" id="btn-updates">Novinky</button>
+          <button type="button" class="tool-btn" id="btn-characters">Rodina</button>
+          <button type="button" class="tool-btn" id="btn-items">Nábytek</button>
+          <button type="button" class="tool-btn" id="btn-food">Jídlo</button>
+          <button type="button" class="tool-btn" id="btn-world-map-tools">Mapa</button>
+          <button type="button" class="tool-btn" id="btn-wallpaper">Tapety</button>
+          <button type="button" class="tool-btn" id="btn-new-world-tools">Nový svět</button>
+          <button type="button" class="tool-btn" id="btn-save">Uložit</button>
+          <button type="button" class="tool-btn" id="btn-load">Načíst</button>
         </div>
       </aside>
 
-      <!-- Character Drawer -->
       <aside class="drawer" id="char-drawer">
         <div class="drawer-header">
-          <h3>Our Family &amp; Pets</h3>
-          <button class="drawer-close" data-close="char-drawer">✕</button>
+          <h3>Rodina a zvířata</h3>
+          <button class="drawer-close" type="button">✕</button>
         </div>
-        <div class="drawer-content" id="char-list"></div>
+        <div class="drawer-content grid-cards" id="char-list"></div>
       </aside>
 
-      <!-- Food drawer -->
-      <aside class="drawer drawer-food" id="food-drawer">
+      <aside class="drawer" id="food-drawer">
         <div class="drawer-header">
-          <h3>🍎 Jídlo a pití</h3>
-          <button class="drawer-close" data-close="food-drawer">✕</button>
+          <h3>Jídlo a pití</h3>
+          <button class="drawer-close" type="button">✕</button>
         </div>
-        <p class="catalog-breadcrumb">Přetáhni k puse = nakrmíš • K lednici = uložíš 🧊</p>
-        <div class="drawer-content drawer-catalog-grid" id="food-list"></div>
+        <p class="drawer-note">Přetáhni k puse = nakrmíš. K lednici = uložíš.</p>
+        <div class="drawer-content grid-cards" id="food-list"></div>
       </aside>
 
-      <!-- Items / Furniture catalog drawer -->
-      <aside class="drawer drawer-catalog" id="items-drawer">
+      <aside class="drawer" id="items-drawer">
         <div class="drawer-header">
-          <button class="catalog-back" id="catalog-back" type="button" hidden aria-label="Zpět">‹</button>
+          <button class="catalog-back picker-tab" id="catalog-back" type="button" hidden>Zpět</button>
           <h3 id="catalog-title">Přidat věci</h3>
-          <button class="drawer-close" data-close="items-drawer">✕</button>
+          <button class="drawer-close" type="button">✕</button>
         </div>
-        <p class="catalog-breadcrumb" id="catalog-breadcrumb">Vyber místnost nebo kategorii</p>
-        <div class="drawer-content drawer-catalog-grid" id="items-list"></div>
+        <p class="drawer-note" id="catalog-breadcrumb">Vyber místnost nebo kategorii</p>
+        <div class="drawer-content grid-cards" id="items-list"></div>
       </aside>
 
-      <!-- Updates / Feedback changelog -->
-      <aside class="drawer drawer-updates" id="updates-drawer">
+      <aside class="drawer" id="updates-drawer">
         <div class="drawer-header">
-          <h3>✨ Co je nového</h3>
-          <button class="drawer-close" data-close="updates-drawer">✕</button>
+          <h3>Co je nového</h3>
+          <button class="drawer-close" type="button">✕</button>
         </div>
         <div class="updates-body" id="updates-list"></div>
-        <p class="updates-footer">Máte další nápady? Pošlete Tátovi hlasovou zprávu! 🎤</p>
       </aside>
 
-      <!-- Wallpaper Drawer -->
       <aside class="drawer" id="wallpaper-drawer">
         <div class="drawer-header">
           <h3>Tapety místnosti</h3>
-          <button class="drawer-close" data-close="wallpaper-drawer">✕</button>
+          <button class="drawer-close" type="button">✕</button>
         </div>
-        <div class="drawer-content wallpaper-grid" id="wallpaper-list"></div>
+        <div class="wallpaper-grid" id="wallpaper-list"></div>
       </aside>
 
-      <!-- Hint -->
-      <p class="game-hint">Táhni v místnosti doleva/doprava • 🌍 mapa • ＋ nástroje</p>
-
-      <!-- Toast -->
       <div class="toast" id="toast"></div>
-
-      <!-- Hidden file input for restore -->
-      <input type="file" id="file-input" accept=".json,.zip" hidden>
+      <input type="file" id="file-input" accept=".json,.zip" hidden/>
     </div>
   </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script type="module" src="js/main.js?v=2.0.2"></script>
+  <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

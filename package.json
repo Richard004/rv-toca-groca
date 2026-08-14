@@ -1,35 +1,33 @@
 {
   "name": "toca-groca",
-  "version": "1.0.0",
-  "description": "A free family play world inspired by Toca Boca — made with love by Tata Richard",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Toca Groca — Náš rodinný svět. Handmade family dollhouse by Tata Richard.",
+  "type": "module",
   "scripts": {
-    "start": "npx --yes serve . -p 3000",
-    "dev": "npx --yes serve . -p 3000",
-    "sync-version": "node scripts/sync-version.mjs",
-    "test:e2e": "node scripts/puppeteer-test.mjs",
-    "audit:visual": "node scripts/visual-audit.mjs",
-    "design:loop": "node scripts/design-loop.mjs",
-    "import:bitmaps": "node scripts/import-bitmaps.mjs"
+    "dev": "vite",
+    "start": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "art:import": "node scripts/import-sesit.mjs"
   },
-  "keywords": [
-    "toca",
-    "family",
-    "kids",
-    "game"
-  ],
   "author": "Richard",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Richard004/rv-toca-groca.git"
   },
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/Richard004/rv-toca-groca/issues"
+  "dependencies": {
+    "@fontsource/figtree": "^5.2.6",
+    "@fontsource/fraunces": "^5.2.6",
+    "jszip": "^3.10.1"
   },
-  "homepage": "https://github.com/Richard004/rv-toca-groca#readme",
   "devDependencies": {
-    "puppeteer": "^25.1.0",
-    "sharp": "^0.35.2"
+    "sharp": "^0.35.2",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.2"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
   }
 }

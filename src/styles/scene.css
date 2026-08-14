@@ -1,0 +1,179 @@
+#game {
+  background: var(--paper);
+}
+
+.game-world {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.world-scroll {
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.world-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.rooms-strip {
+  display: flex;
+  height: 100%;
+}
+
+.room-panel {
+  flex: 0 0 100vw;
+  height: 100%;
+  scroll-snap-align: start;
+  overflow: hidden;
+}
+
+.room-pan-viewport {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.room-pan-inner {
+  position: relative;
+  height: 100%;
+  will-change: transform;
+}
+
+.room-scene {
+  position: absolute;
+  inset: 0;
+}
+
+.room-shell {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.room-sky,
+.room-wall,
+.room-floor,
+.room-lines,
+.room-window {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+.room-sky {
+  top: 0;
+  height: 38%;
+}
+
+.room-wall {
+  top: 0;
+  height: 62%;
+  background: var(--wall);
+}
+
+.room-floor {
+  top: 62%;
+  bottom: 0;
+  background: var(--floor);
+}
+
+.room-lines,
+.room-window {
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.entities-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.entity {
+  position: absolute;
+  touch-action: none;
+}
+
+.entity img,
+.entity svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 10px var(--shadow));
+}
+
+.entity.selected::after {
+  content: "";
+  position: absolute;
+  inset: auto 12% -4px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(196, 92, 62, 0.28);
+}
+
+.entity.dragging {
+  z-index: 9000 !important;
+  transform: scale(1.04);
+}
+
+.entity-label {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: -1.15rem;
+  transform: translateX(-50%);
+  padding: 0.08rem 0.4rem;
+  border-radius: 999px;
+  background: var(--glass);
+  border: 1px solid var(--paper-deep);
+  font-family: var(--font-display);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.entity.selected .entity-label {
+  display: block;
+}
+
+.entity-face {
+  position: absolute;
+  left: 50%;
+  top: 14%;
+  width: 42%;
+  height: 22%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.sketch-card {
+  width: 100%;
+  height: 100%;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: 3px 4px 0 rgba(43, 36, 28, 0.08);
+  padding: 6px;
+}
+
+.sketch-card img {
+  filter: none;
+}
+
+.sketch-tape {
+  position: absolute;
+  width: 22px;
+  height: 10px;
+  background: rgba(196, 92, 62, 0.28);
+  transform: rotate(-12deg);
+}
+
+.sketch-tape.a { top: -3px; left: 8px; }
+.sketch-tape.b { top: -3px; right: 8px; transform: rotate(10deg); }
