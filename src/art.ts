@@ -163,6 +163,37 @@ export function foodSVG(food: FoodDef) {
   </svg>`;
 }
 
+export function emotionFace(id: string) {
+  const s = 'fill="none" stroke="#3a3128" stroke-width="2.4" stroke-linecap="round"';
+  const faces: Record<string, string> = {
+    happy: `<circle cx="12" cy="12" r="10" fill="#fbf6ec" stroke="#3a3128" stroke-width="2"/><circle cx="8.5" cy="10" r="1.1" fill="#3a3128"/><circle cx="15.5" cy="10" r="1.1" fill="#3a3128"/><path d="M8 15 q4 3.2 8 0" ${s}/>`,
+    sad: `<circle cx="12" cy="12" r="10" fill="#fbf6ec" stroke="#3a3128" stroke-width="2"/><circle cx="8.5" cy="10" r="1.1" fill="#3a3128"/><circle cx="15.5" cy="10" r="1.1" fill="#3a3128"/><path d="M8 17 q4 -3.2 8 0" ${s}/>`,
+    angry: `<circle cx="12" cy="12" r="10" fill="#f3e0d4" stroke="#3a3128" stroke-width="2"/><path d="M6.5 8.5 L10 10 M17.5 8.5 L14 10" ${s}/><circle cx="8.5" cy="11" r="1.1" fill="#3a3128"/><circle cx="15.5" cy="11" r="1.1" fill="#3a3128"/><path d="M8 16 L16 15" ${s}/>`,
+    surprised: `<circle cx="12" cy="12" r="10" fill="#fbf6ec" stroke="#3a3128" stroke-width="2"/><circle cx="8.5" cy="10" r="1.2" fill="#3a3128"/><circle cx="15.5" cy="10" r="1.2" fill="#3a3128"/><ellipse cx="12" cy="16" rx="2.2" ry="2.6" fill="#3a3128"/>`,
+    sleepy: `<circle cx="12" cy="12" r="10" fill="#e7dcc4" stroke="#3a3128" stroke-width="2"/><path d="M6.5 10 q2 2 4 0 M13.5 10 q2 2 4 0" ${s}/><path d="M9 16 h6" ${s}/>`,
+    love: `<circle cx="12" cy="12" r="10" fill="#f6e4e0" stroke="#3a3128" stroke-width="2"/><path d="M8.2 11.2 c0 -1.6 1.3 -2.4 2.3 -1.5 L12 11.2 l1.5 -1.5 c1 -0.9 2.3 -0.1 2.3 1.5 0 2 -3.8 4.2 -3.8 4.2 S8.2 13.2 8.2 11.2 z" fill="#c45c3e"/>`
+  };
+  return `<svg class="face-icon" viewBox="0 0 24 24" aria-hidden="true">${faces[id] || faces.happy}</svg>`;
+}
+
+export function chromeIcon(name: string) {
+  const s = 'fill="none" stroke="#3a3128" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"';
+  const inner: Record<string, string> = {
+    family: `<circle cx="12" cy="8" r="3.2" ${s}/><path d="M6 19 c1.2 -4 10.8 -4 12 0" ${s}/>`,
+    things: `<rect x="5" y="11" width="14" height="7" rx="2" ${s}/><path d="M7 11 V9 c0 -2 10 -2 10 0 v2" ${s}/>`,
+    food: `<circle cx="12" cy="13" r="5.5" ${s}/><path d="M12 7.5 V5" ${s}/>`,
+    more: `<circle cx="6.5" cy="12" r="1.4" fill="#3a3128"/><circle cx="12" cy="12" r="1.4" fill="#3a3128"/><circle cx="17.5" cy="12" r="1.4" fill="#3a3128"/>`,
+    map: `<path d="M4 7 l5 -2 6 2 5 -2 v14 l-5 2 -6 -2 -5 2 z" ${s}/><path d="M9 5 v14 M15 7 v14" ${s}/>`,
+    paper: `<rect x="6" y="4" width="12" height="16" rx="1.5" ${s}/><path d="M9 9 h6 M9 13 h6 M9 17 h4" ${s}/>`,
+    world: `<circle cx="12" cy="12" r="7.5" ${s}/><path d="M12 4.5 v15 M4.5 12 h15 M7 7 q5 3 10 0 M7 17 q5 -3 10 0" ${s}/>`,
+    save: `<path d="M6 6 h10 l2 2 v10 H6 z" ${s}/><path d="M9 6 v4 h6 V6 M8 16 h8" ${s}/>`,
+    load: `<path d="M12 5 v9 M8 10 l4 4 4 -4" ${s}/><path d="M6 17 h12" ${s}/>`,
+    news: `<rect x="5" y="5" width="14" height="14" rx="2" ${s}/><path d="M8 9 h8 M8 12 h8 M8 15 h5" ${s}/>`,
+    back: `<path d="M14 6 L8 12 l6 6" ${s}/>`
+  };
+  return `<svg class="tray-icon" viewBox="0 0 24 24" aria-hidden="true">${inner[name] || inner.more}</svg>`;
+}
+
 export function faceOverlay(emotion?: string) {
   if (!emotion || emotion === 'happy') return '';
   const mouths: Record<string, string> = {

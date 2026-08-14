@@ -8,6 +8,7 @@ import {
   FOODS,
   WALLPAPERS,
   CATALOG_GROUPS,
+  EMOTIONS,
   REACTIONS,
   furnishedWorld,
   getBuilding,
@@ -19,7 +20,7 @@ import {
   uid
 } from './data';
 import { type SaveV3, loadSave, writeSave, downloadBackup, importBackup, emptySave } from './save';
-import { roomShellHTML, entityVisual, furnitureSVG, foodSVG, assetUrl } from './art';
+import { roomShellHTML, entityVisual, furnitureSVG, foodSVG, assetUrl, chromeIcon, emotionFace } from './art';
 
 /** Painted plates are 3:4. Room width is always height × this, never the window's aspect. */
 const ROOM_ASPECT = 3 / 4;
@@ -444,6 +445,12 @@ function bindPan() {
 function onPanDown(ev: PointerEvent) {
   if ((ev.target as HTMLElement).closest('.entity')) return;
   if (ev.button !== 0 && ev.pointerType === 'mouse') return;
+  if (trayIsOpen()) closeTray();
+  if (selected) {
+    selected = null;
+    document.querySelectorAll('.entity').forEach((n) => n.classList.remove('selected'));
+    updateInspector();
+  }
   const panel = (ev.currentTarget as HTMLElement).closest('.room-panel') as HTMLElement;
   const roomId = panel.dataset.room!;
   save.currentRoom = roomId;
@@ -539,7 +546,6 @@ export function applyWallpaper(id: string) {
   goRoom(save.currentRoom, false);
   toast(`Tapeta: ${WALLPAPERS.find((w) => w.id === id)?.name}`);
   persist();
-  closeDrawers();
 }
 
 export function applyEmotion(id: Emotion) {
@@ -560,12 +566,16 @@ export function applyShirt(color: string) {
 }
 
 function updateInspector() {
-  const bars = document.getElementById('character-bars')!;
+  const dock = document.getElementById('focus-dock');
+  if (!dock) return;
   const e = save.entities.find((x) => x.uid === selected && x.kind === 'character');
-  bars.hidden = !e;
-  if (!e) return;
+  const show = !!(e && !trayIsOpen());
+  dock.hidden = !show;
+  if (!e || !show) return;
+  const name = document.getElementById('focus-name');
+  if (name) name.textContent = getCharacter(e.id)?.name || '';
   document.querySelectorAll<HTMLElement>('.emotion-btn').forEach((b) => {
-    b.classList.toggle('active', b.dataset.emotion === e.emotion);
+    b.classList.toggle('active', b.dataset.emotion === (e.emotion || 'happy'));
   });
 }
 
@@ -624,23 +634,18 @@ export function renderCatalog(level: typeof catalogLevel, group?: string) {
   catalogLevel = level;
   if (group) catalogGroup = group;
   const list = document.getElementById('items-list')!;
-  const title = document.getElementById('catalog-title')!;
-  const back = document.getElementById('catalog-back') as HTMLButtonElement;
   const crumb = document.getElementById('catalog-breadcrumb')!;
-  back.hidden = level === 'groups';
+  setTrayTitle(level === 'groups' ? 'Věci' : (CATALOG_GROUPS.find((g) => g.id === catalogGroup)?.name || 'Věci'), true);
   if (level === 'groups') {
-    title.textContent = 'Přidat věci';
-    crumb.textContent = '1/3 — místnost nebo druh';
-    list.innerHTML = CATALOG_GROUPS.map((g) => `<button class="card" data-cat="group" data-id="${g.id}"><span>${g.name}</span></button>`).join('');
-  } else if (level === 'sub') {
-    const subs = [...new Set(FURNITURE.filter((f) => f.group === catalogGroup).map((f) => f.subgroup))];
-    title.textContent = CATALOG_GROUPS.find((g) => g.id === catalogGroup)?.name || '';
-    crumb.textContent = '2/3 — druh';
-    list.innerHTML = subs.map((s) => `<button class="card" data-cat="sub" data-id="${s}"><span>${s}</span></button>`).join('');
+    crumb.textContent = '';
+    list.innerHTML = CATALOG_GROUPS.map((g) => {
+      const sample = FURNITURE.find((f) => f.group === g.id);
+      const pic = sample ? furnitureSVG(sample) : chromeIcon('things');
+      return `<button class="card" data-cat="group" data-id="${g.id}">${pic}<span>${g.name}</span></button>`;
+    }).join('');
   } else {
-    const items = FURNITURE.filter((f) => f.group === catalogGroup && f.subgroup === group);
-    title.textContent = group || '';
-    crumb.textContent = '3/3 — vyber kus';
+    const items = FURNITURE.filter((f) => f.group === catalogGroup);
+    crumb.textContent = '';
     list.innerHTML = items.map((f) => `<button class="card" data-cat="spawn" data-id="${f.id}">${furnitureSVG(f)}<span>${f.name}</span></button>`).join('');
   }
 }
@@ -682,8 +687,72 @@ export function toast(message: string) {
   window.setTimeout(() => el.classList.remove('show'), 2600);
 }
 
+let trayPage = 'home';
+
+function trayIsOpen() {
+  return document.getElementById('play-tray')?.classList.contains('open') || false;
+}
+
+function setTrayTitle(text: string, back: boolean) {
+  const title = document.getElementById('tray-title');
+  const btn = document.getElementById('tray-back') as HTMLButtonElement | null;
+  if (title) title.textContent = text;
+  if (btn) {
+    btn.hidden = !back;
+    btn.innerHTML = chromeIcon('back');
+  }
+}
+
+function showTrayPage(page: string) {
+  trayPage = page;
+  document.querySelectorAll<HTMLElement>('.tray-page').forEach((el) => {
+    el.classList.toggle('is-on', el.dataset.page === page);
+  });
+  if (page === 'home') setTrayTitle('Přidat', false);
+  if (page === 'family') setTrayTitle('Rodina', true);
+  if (page === 'things') renderCatalog('groups');
+  if (page === 'food') setTrayTitle('Jídlo', true);
+  if (page === 'more') setTrayTitle('Ještě', true);
+  if (page === 'map') setTrayTitle('Kam?', true);
+  if (page === 'wallpaper') setTrayTitle('Tapety', true);
+  if (page === 'updates') setTrayTitle('Novinky', true);
+}
+
+export function openTray() {
+  document.querySelectorAll('.drawer').forEach((d) => d.classList.remove('open'));
+  const tray = document.getElementById('play-tray');
+  const fab = document.getElementById('btn-tools');
+  const scrim = document.getElementById('tray-scrim');
+  tray?.classList.add('open');
+  fab?.classList.add('is-open');
+  fab?.setAttribute('aria-label', 'Zavřít');
+  if (scrim) scrim.hidden = false;
+  document.getElementById('game')?.classList.add('has-tray');
+  showTrayPage('home');
+  updateInspector();
+}
+
+export function closeTray() {
+  const tray = document.getElementById('play-tray');
+  const fab = document.getElementById('btn-tools');
+  const scrim = document.getElementById('tray-scrim');
+  tray?.classList.remove('open');
+  fab?.classList.remove('is-open');
+  fab?.setAttribute('aria-label', 'Přidat');
+  if (scrim) scrim.hidden = true;
+  document.getElementById('game')?.classList.remove('has-tray');
+  showTrayPage('home');
+  updateInspector();
+}
+
 export function toggleDrawer(id: string) {
-  const d = document.getElementById(id)!;
+  if (id === 'tools-drawer') {
+    if (trayIsOpen()) closeTray();
+    else openTray();
+    return;
+  }
+  const d = document.getElementById(id);
+  if (!d) return;
   const open = d.classList.contains('open');
   closeDrawers();
   if (!open) d.classList.add('open');
@@ -691,6 +760,59 @@ export function toggleDrawer(id: string) {
 
 export function closeDrawers() {
   document.querySelectorAll('.drawer').forEach((d) => d.classList.remove('open'));
+  closeTray();
+}
+
+function renderTrayHome() {
+  const home = document.getElementById('tray-home');
+  const more = document.getElementById('tray-more');
+  if (home) {
+    home.innerHTML = [
+      { page: 'family', icon: 'family', label: 'Rodina' },
+      { page: 'things', icon: 'things', label: 'Věci' },
+      { page: 'food', icon: 'food', label: 'Jídlo' },
+      { page: 'more', icon: 'more', label: 'Ještě' }
+    ].map((t) => `<button type="button" class="tray-tile" data-tray="${t.page}">${chromeIcon(t.icon)}<span>${t.label}</span></button>`).join('');
+    home.querySelectorAll<HTMLElement>('[data-tray]').forEach((b) => {
+      b.addEventListener('click', () => showTrayPage(b.dataset.tray!));
+    });
+  }
+  if (more) {
+    more.innerHTML = [
+      { page: 'map', icon: 'map', label: 'Mapa' },
+      { page: 'wallpaper', icon: 'paper', label: 'Tapety' },
+      { act: 'world', icon: 'world', label: 'Nový svět' },
+      { act: 'save', icon: 'save', label: 'Uložit' },
+      { act: 'load', icon: 'load', label: 'Načíst' },
+      { page: 'updates', icon: 'news', label: 'Novinky' }
+    ].map((t) => {
+      const key = 'page' in t ? `data-tray="${t.page}"` : `data-act="${t.act}"`;
+      return `<button type="button" class="tray-tile" ${key}>${chromeIcon(t.icon)}<span>${t.label}</span></button>`;
+    }).join('');
+    more.querySelectorAll<HTMLElement>('[data-tray]').forEach((b) => {
+      b.addEventListener('click', () => showTrayPage(b.dataset.tray!));
+    });
+    more.querySelectorAll<HTMLElement>('[data-act]').forEach((b) => {
+      b.addEventListener('click', () => trayAction(b.dataset.act!));
+    });
+  }
+}
+
+async function trayAction(act: string) {
+  if (act === 'world') {
+    closeTray();
+    document.getElementById('splash')?.classList.add('active');
+    toggleDrawer('world-start-drawer');
+    return;
+  }
+  if (act === 'save') {
+    await downloadBackup(save);
+    toast('Záloha stažena.');
+    return;
+  }
+  if (act === 'load') {
+    (document.getElementById('file-input') as HTMLInputElement | null)?.click();
+  }
 }
 
 function bindChrome() {
@@ -701,7 +823,8 @@ function bindChrome() {
   });
   document.getElementById('btn-updates-splash')!.addEventListener('click', () => {
     showGame();
-    toggleDrawer('updates-drawer');
+    openTray();
+    showTrayPage('updates');
   });
   document.querySelectorAll<HTMLElement>('[data-world]').forEach((b) => {
     b.addEventListener('click', () => {
@@ -715,25 +838,23 @@ function bindChrome() {
     document.getElementById('splash')!.classList.add('active');
     closeDrawers();
   });
-  document.getElementById('btn-tools')!.addEventListener('click', () => toggleDrawer('tools-drawer'));
+  document.getElementById('btn-tools')!.addEventListener('click', () => {
+    if (trayIsOpen()) closeTray();
+    else openTray();
+  });
+  document.getElementById('tray-scrim')?.addEventListener('click', () => closeTray());
+  document.getElementById('tray-back')?.addEventListener('click', () => {
+    if (trayPage === 'things' && catalogLevel !== 'groups') renderCatalog('groups');
+    else if (trayPage === 'map' || trayPage === 'wallpaper' || trayPage === 'updates') showTrayPage('more');
+    else showTrayPage('home');
+  });
   document.getElementById('btn-room-picker')!.addEventListener('click', () => {
     renderRoomPicker();
     toggleDrawer('room-picker-drawer');
   });
-  document.getElementById('btn-world-map')!.addEventListener('click', () => toggleDrawer('world-map-drawer'));
-  document.getElementById('btn-world-map-tools')?.addEventListener('click', () => toggleDrawer('world-map-drawer'));
-  document.getElementById('btn-characters')!.addEventListener('click', () => toggleDrawer('char-drawer'));
-  document.getElementById('btn-items')!.addEventListener('click', () => {
-    renderCatalog('groups');
-    toggleDrawer('items-drawer');
-  });
-  document.getElementById('btn-food')!.addEventListener('click', () => toggleDrawer('food-drawer'));
-  document.getElementById('btn-wallpaper')!.addEventListener('click', () => toggleDrawer('wallpaper-drawer'));
-  document.getElementById('btn-updates')!.addEventListener('click', () => toggleDrawer('updates-drawer'));
-  document.getElementById('btn-new-world-tools')!.addEventListener('click', () => toggleDrawer('world-start-drawer'));
-  document.getElementById('catalog-back')!.addEventListener('click', () => {
-    if (catalogLevel === 'items') renderCatalog('sub', catalogGroup);
-    else renderCatalog('groups');
+  document.getElementById('btn-world-map')!.addEventListener('click', () => {
+    openTray();
+    showTrayPage('map');
   });
   document.getElementById('char-list')!.addEventListener('click', (e) => {
     const t = (e.target as HTMLElement).closest<HTMLElement>('[data-spawn="character"]');
@@ -746,8 +867,7 @@ function bindChrome() {
   document.getElementById('items-list')!.addEventListener('click', (e) => {
     const t = (e.target as HTMLElement).closest<HTMLElement>('[data-cat]');
     if (!t) return;
-    if (t.dataset.cat === 'group') renderCatalog('sub', t.dataset.id);
-    else if (t.dataset.cat === 'sub') renderCatalog('items', t.dataset.id);
+    if (t.dataset.cat === 'group') renderCatalog('items', t.dataset.id);
     else spawn(getFurniture(t.dataset.id!)?.type === 'toy' ? 'item' : 'furniture', t.dataset.id!);
   });
   document.getElementById('wallpaper-list')!.addEventListener('click', (e) => {
@@ -761,26 +881,18 @@ function bindChrome() {
   document.querySelectorAll<HTMLElement>('.drawer-close').forEach((b) => {
     b.addEventListener('click', () => closeDrawers());
   });
-  document.getElementById('emotion-buttons')!.innerHTML = ['happy', 'sad', 'angry', 'surprised', 'sleepy', 'love']
-    .map((id) => `<button class="emotion-btn" data-emotion="${id}">${id === 'love' ? '♥' : id[0]}</button>`)
+  document.getElementById('emotion-buttons')!.innerHTML = EMOTIONS
+    .map((em) => `<button class="emotion-btn" data-emotion="${em.id}" aria-label="${em.label}" title="${em.label}">${emotionFace(em.id)}</button>`)
     .join('');
   document.getElementById('emotion-buttons')!.addEventListener('click', (e) => {
     const t = (e.target as HTMLElement).closest<HTMLElement>('[data-emotion]');
     if (t) applyEmotion(t.dataset.emotion as Emotion);
   });
-  document.getElementById('outfit-colors')!.innerHTML = ['#c45c3e', '#3d7a73', '#d4a04a', '#7a9b6a', '#5a4e42', '#d9897a']
-    .map((c) => `<button class="swatch" data-color="${c}" style="background:${c}"></button>`)
-    .join('');
-  document.getElementById('outfit-colors')!.addEventListener('click', (e) => {
-    const t = (e.target as HTMLElement).closest<HTMLElement>('[data-color]');
-    if (t) applyShirt(t.dataset.color!);
+  document.getElementById('focus-away')?.addEventListener('click', () => {
+    if (selected) removeEntity(selected);
   });
-  document.getElementById('btn-save')!.addEventListener('click', async () => {
-    await downloadBackup(save);
-    toast('Záloha stažena.');
-  });
+  renderTrayHome();
   const file = document.getElementById('file-input') as HTMLInputElement;
-  document.getElementById('btn-load')!.addEventListener('click', () => file.click());
   file.addEventListener('change', async () => {
     const f = file.files?.[0];
     if (!f) return;
@@ -908,6 +1020,13 @@ export function installSeeHook() {
     goRoom,
     travel,
     closeDrawers,
+    openTray,
+    closeTray,
+    selectFirst() {
+      const c = save.entities.find((e) => e.kind === 'character' && e.room === save.currentRoom);
+      selected = c?.uid ?? null;
+      renderEntities();
+    },
     inspectScene
   };
 }

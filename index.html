@@ -61,27 +61,50 @@
         <button type="button" class="overlay-round map" id="btn-world-map" aria-label="Mapa">◎</button>
         <button type="button" class="overlay-round home" id="btn-home" aria-label="Domů">⌂</button>
         <div class="overlay-dots" id="room-dots"></div>
-        <button type="button" class="overlay-fab" id="btn-tools" aria-label="Nástroje">+</button>
       </div>
 
-      <div class="character-bars" id="character-bars" hidden>
-        <div class="bar-row">
-          <span class="bar-label">Tričko</span>
-          <div id="outfit-colors"></div>
+      <button type="button" class="tray-scrim" id="tray-scrim" hidden aria-label="Zavřít"></button>
+
+      <div class="focus-dock" id="focus-dock" hidden>
+        <div class="focus-who">
+          <strong id="focus-name">—</strong>
+          <button type="button" class="focus-away" id="focus-away">Pryč</button>
         </div>
-        <div class="bar-row">
-          <span class="bar-label">Emoce</span>
-          <div id="emotion-buttons"></div>
-        </div>
+        <div class="focus-faces" id="emotion-buttons"></div>
       </div>
 
-      <aside class="drawer" id="world-map-drawer">
-        <div class="drawer-header">
-          <h3>Kam cestujeme?</h3>
-          <button class="drawer-close" type="button">✕</button>
+      <aside class="play-tray" id="play-tray">
+        <div class="tray-bar">
+          <button type="button" class="tray-back" id="tray-back" hidden aria-label="Zpět"></button>
+          <h3 id="tray-title">Přidat</h3>
         </div>
-        <p class="drawer-note">Vyber destinaci — přiletíme letadlem.</p>
-        <div class="world-map-grid" id="world-map-list"></div>
+        <div class="tray-page is-on" data-page="home">
+          <div class="tray-home" id="tray-home"></div>
+        </div>
+        <div class="tray-page" data-page="family">
+          <div class="drawer-content grid-cards" id="char-list"></div>
+        </div>
+        <div class="tray-page" data-page="things">
+          <p class="drawer-note" id="catalog-breadcrumb"></p>
+          <div class="drawer-content grid-cards" id="items-list"></div>
+        </div>
+        <div class="tray-page" data-page="food">
+          <p class="drawer-note">Přetáhni k puse = nakrmíš.</p>
+          <div class="drawer-content grid-cards" id="food-list"></div>
+        </div>
+        <div class="tray-page" data-page="more">
+          <div class="tray-home" id="tray-more"></div>
+        </div>
+        <div class="tray-page" data-page="map">
+          <p class="drawer-note">Vyber destinaci — přiletíme letadlem.</p>
+          <div class="world-map-grid" id="world-map-list"></div>
+        </div>
+        <div class="tray-page" data-page="wallpaper">
+          <div class="wallpaper-grid" id="wallpaper-list"></div>
+        </div>
+        <div class="tray-page" data-page="updates">
+          <div class="updates-body" id="updates-list"></div>
+        </div>
       </aside>
 
       <div class="travel-overlay" id="travel-overlay" hidden></div>
@@ -94,67 +117,7 @@
         <nav class="picker-nav" id="room-nav"></nav>
       </aside>
 
-      <aside class="drawer" id="tools-drawer">
-        <div class="drawer-header">
-          <h3>Nástroje</h3>
-          <button class="drawer-close" type="button">✕</button>
-        </div>
-        <div class="tools-grid">
-          <button type="button" class="tool-btn" id="btn-updates">Novinky</button>
-          <button type="button" class="tool-btn" id="btn-characters">Rodina</button>
-          <button type="button" class="tool-btn" id="btn-items">Nábytek</button>
-          <button type="button" class="tool-btn" id="btn-food">Jídlo</button>
-          <button type="button" class="tool-btn" id="btn-world-map-tools">Mapa</button>
-          <button type="button" class="tool-btn" id="btn-wallpaper">Tapety</button>
-          <button type="button" class="tool-btn" id="btn-new-world-tools">Nový svět</button>
-          <button type="button" class="tool-btn" id="btn-save">Uložit</button>
-          <button type="button" class="tool-btn" id="btn-load">Načíst</button>
-        </div>
-      </aside>
-
-      <aside class="drawer" id="char-drawer">
-        <div class="drawer-header">
-          <h3>Rodina a zvířata</h3>
-          <button class="drawer-close" type="button">✕</button>
-        </div>
-        <div class="drawer-content grid-cards" id="char-list"></div>
-      </aside>
-
-      <aside class="drawer" id="food-drawer">
-        <div class="drawer-header">
-          <h3>Jídlo a pití</h3>
-          <button class="drawer-close" type="button">✕</button>
-        </div>
-        <p class="drawer-note">Přetáhni k puse = nakrmíš. K lednici = uložíš.</p>
-        <div class="drawer-content grid-cards" id="food-list"></div>
-      </aside>
-
-      <aside class="drawer" id="items-drawer">
-        <div class="drawer-header">
-          <button class="catalog-back picker-tab" id="catalog-back" type="button" hidden>Zpět</button>
-          <h3 id="catalog-title">Přidat věci</h3>
-          <button class="drawer-close" type="button">✕</button>
-        </div>
-        <p class="drawer-note" id="catalog-breadcrumb">Vyber místnost nebo kategorii</p>
-        <div class="drawer-content grid-cards" id="items-list"></div>
-      </aside>
-
-      <aside class="drawer" id="updates-drawer">
-        <div class="drawer-header">
-          <h3>Co je nového</h3>
-          <button class="drawer-close" type="button">✕</button>
-        </div>
-        <div class="updates-body" id="updates-list"></div>
-      </aside>
-
-      <aside class="drawer" id="wallpaper-drawer">
-        <div class="drawer-header">
-          <h3>Tapety místnosti</h3>
-          <button class="drawer-close" type="button">✕</button>
-        </div>
-        <div class="wallpaper-grid" id="wallpaper-list"></div>
-      </aside>
-
+      <button type="button" class="overlay-fab" id="btn-tools" aria-label="Přidat">+</button>
       <div class="toast" id="toast"></div>
       <input type="file" id="file-input" accept=".json,.zip" hidden/>
     </div>

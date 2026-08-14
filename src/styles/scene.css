@@ -222,7 +222,7 @@
 }
 
 .entity.selected .entity-label {
-  display: block;
+  display: none;
 }
 
 .entity-face {

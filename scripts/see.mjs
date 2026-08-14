@@ -27,7 +27,8 @@ const ALL_SHOTS = [
   { id: 'cottage', title: 'Cottage' },
   { id: 'sketch', title: 'Anetčin svět' },
   { id: 'empty', title: 'Empty living' },
-  { id: 'tools', title: 'Tools drawer' }
+  { id: 'tools', title: 'Add tray' },
+  { id: 'focus', title: 'Person focus' }
 ];
 
 async function waitForServer(url, ms = 20000) {
@@ -118,8 +119,13 @@ async function runShot(page, id) {
   if (id === 'cottage') { await call(page, 'travel', 'cottage'); await sleep(2600); await afterPaint(page); return shoot(page, id); }
   if (id === 'sketch') { await call(page, 'travel', 'anetka'); await sleep(2600); await afterPaint(page); return shoot(page, id); }
   if (id === 'tools') {
-    await page.evaluate(() => document.getElementById('tools-drawer')?.classList.add('open'));
-    await sleep(280);
+    await call(page, 'openTray');
+    await afterPaint(page);
+    return shoot(page, id);
+  }
+  if (id === 'focus') {
+    await call(page, 'selectFirst');
+    await afterPaint(page);
     return shoot(page, id);
   }
   throw new Error(`unknown shot ${id}`);
