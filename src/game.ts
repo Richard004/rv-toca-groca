@@ -85,8 +85,6 @@ export function bootGame() {
   renderWallpapers();
   renderMap();
   renderUpdates();
-  buildStrip();
-  goRoom(save.currentRoom, false);
   setInterval(() => persist(), 10000);
 }
 
@@ -134,8 +132,11 @@ function rooms() {
 }
 
 function viewport() {
-  const world = document.getElementById('game-world')!;
-  return { w: Math.max(world.clientWidth, 320), h: Math.max(world.clientHeight, 240) };
+  const world = document.getElementById('game-world');
+  const vv = window.visualViewport;
+  const w = world?.clientWidth || vv?.width || window.innerWidth || 390;
+  const h = world?.clientHeight || vv?.height || window.innerHeight || 844;
+  return { w: Math.max(Math.round(w), 320), h: Math.max(Math.round(h), 480) };
 }
 
 function roomSize() {
@@ -178,6 +179,7 @@ function applyDims() {
 }
 
 function applyPans() {
+  if (!save.roomPans) save.roomPans = {};
   const { maxPan } = roomSize();
   rooms().forEach((id) => {
     const inner = document.querySelector<HTMLElement>(`.room-panel[data-room="${id}"] .room-pan-inner`);
@@ -791,13 +793,34 @@ function renderRoomPicker() {
   });
 }
 
+function layoutGame() {
+  const building = getBuilding(save.currentBuilding);
+  if (!building.rooms.includes(save.currentRoom)) {
+    save.currentRoom = building.rooms[0];
+  }
+  if (!save.roomPans) save.roomPans = {};
+  buildStrip();
+  goRoom(save.currentRoom, false);
+}
+
 export function showGame() {
-  document.getElementById('splash')!.classList.remove('active');
-  document.getElementById('game')!.classList.add('active');
-  requestAnimationFrame(() => {
-    buildStrip();
-    goRoom(save.currentRoom, false);
-  });
+  const splash = document.getElementById('splash');
+  const game = document.getElementById('game');
+  if (!game) {
+    toast('Hra se nenašla. Obnov stránku.');
+    return;
+  }
+  splash?.classList.remove('active');
+  game.classList.add('active');
+  const paint = () => {
+    try {
+      layoutGame();
+    } catch (err) {
+      console.error(err);
+      toast('Dům se neotevřel. Zkus obnovit stránku.');
+    }
+  };
+  requestAnimationFrame(() => requestAnimationFrame(paint));
 }
 
 
