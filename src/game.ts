@@ -85,6 +85,7 @@ export function bootGame() {
   renderWallpapers();
   renderMap();
   renderUpdates();
+  installSeeHook();
   setInterval(() => persist(), 10000);
 }
 
@@ -486,6 +487,7 @@ export function travel(buildingId: string) {
   }
   const overlay = document.getElementById('travel-overlay')!;
   overlay.hidden = false;
+  overlay.classList.add('is-on');
   overlay.innerHTML = `<div class="travel-plane">✈</div><p>Letíme…</p>`;
   window.setTimeout(() => {
     save.currentBuilding = buildingId;
@@ -493,6 +495,7 @@ export function travel(buildingId: string) {
     buildStrip();
     goRoom(save.currentRoom, false);
     overlay.hidden = true;
+    overlay.classList.remove('is-on');
     overlay.innerHTML = '';
     toast(`Jsme v ${getBuilding(buildingId).name}.`);
     persist();
@@ -821,6 +824,60 @@ export function showGame() {
     }
   };
   requestAnimationFrame(() => requestAnimationFrame(paint));
+}
+
+export function inspectScene() {
+  const game = document.getElementById('game');
+  const world = document.getElementById('game-world');
+  const panel = document.querySelector<HTMLElement>(`.room-panel[data-room="${save.currentRoom}"]`)
+    || document.querySelector<HTMLElement>('.room-panel');
+  const vp = panel?.querySelector<HTMLElement>('.room-pan-viewport');
+  const inner = panel?.querySelector<HTMLElement>('.room-pan-inner');
+  const vpW = vp?.clientWidth || 0;
+  const vpH = vp?.clientHeight || 0;
+  const entities = [...(panel?.querySelectorAll<HTMLElement>('.entity') || [])].map((el) => {
+    const r = el.getBoundingClientRect();
+    const wr = world?.getBoundingClientRect();
+    return {
+      uid: el.dataset.uid,
+      w: el.offsetWidth,
+      h: el.offsetHeight,
+      top: r.top,
+      bottom: r.bottom,
+      left: r.left,
+      choppedTop: r.top < (wr?.top || 0) - 2,
+      choppedBottom: r.bottom > (wr?.bottom || 0) + 2,
+      hRatio: vpH ? el.offsetHeight / vpH : 0
+    };
+  });
+  return {
+    splashOn: document.getElementById('splash')?.classList.contains('active') || false,
+    gameOn: game?.classList.contains('active') || false,
+    building: save.currentBuilding,
+    room: save.currentRoom,
+    worldMode: save.worldMode,
+    gameSize: { w: game?.clientWidth || 0, h: game?.clientHeight || 0 },
+    worldSize: { w: world?.clientWidth || 0, h: world?.clientHeight || 0 },
+    vpW,
+    vpH,
+    innerW: inner?.offsetWidth || 0,
+    entityCount: entities.length,
+    choppedHeads: entities.filter((e) => e.choppedTop).length,
+    choppedFeet: entities.filter((e) => e.choppedBottom).length,
+    entities
+  };
+}
+
+export function installSeeHook() {
+  (window as unknown as { __tocaSee: Record<string, unknown> }).__tocaSee = {
+    ready: true,
+    showGame,
+    startWorld,
+    goRoom,
+    travel,
+    closeDrawers,
+    inspectScene
+  };
 }
 
 

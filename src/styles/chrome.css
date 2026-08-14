@@ -390,10 +390,14 @@
   inset: 0;
   z-index: 90;
   background: var(--paper);
-  display: grid;
+  display: none;
   place-items: center;
   font-family: var(--font-display);
   font-size: 1.4rem;
+}
+
+.travel-overlay.is-on {
+  display: grid;
 }
 
 .travel-plane {
