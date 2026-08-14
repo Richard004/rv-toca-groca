@@ -52,6 +52,7 @@ export interface RoomDef {
   name: string;
   building: string;
   theme: string;
+  plate?: string;
 }
 
 export interface BuildingDef {
@@ -79,10 +80,10 @@ export const FAMILY: CharacterDef[] = [
   { id: 'tanicka', name: 'Taníčka', role: '11 let', kind: 'human', heightRel: 0.32, aspect: 0.42, src: 'characters/tanicka.webp', shirts: SHIRT_COLORS },
   { id: 'risa', name: 'Ríša', role: '6 let', kind: 'human', heightRel: 0.26, aspect: 0.45, src: 'characters/risa.webp', shirts: SHIRT_COLORS },
   { id: 'puffy', name: 'Puffy', role: 'Shiba Inu', kind: 'dog', heightRel: 0.16, aspect: 0.97, src: 'characters/puffy.webp' },
-  { id: 'dart', name: 'Dart', role: 'Pudl', kind: 'dog', heightRel: 0.20, aspect: 1.2, src: 'characters/dart.webp' },
+  { id: 'dart', name: 'Dart', role: 'Pudl', kind: 'dog', heightRel: 0.20, aspect: 0.94, src: 'characters/dart.webp' },
   { id: 'liza', name: 'Líza', role: 'Kočka', kind: 'cat', heightRel: 0.11, aspect: 1.05, src: 'characters/liza.webp' },
   { id: 'cookie', name: 'Cookie', role: 'Kočka', kind: 'cat', heightRel: 0.13, aspect: 1.19, src: 'characters/cookie.webp' },
-  { id: 'berta', name: 'Berta', role: 'Králík', kind: 'rabbit', heightRel: 0.18, aspect: 1.05, src: 'characters/berta.webp' },
+  { id: 'berta', name: 'Berta', role: 'Králík', kind: 'rabbit', heightRel: 0.18, aspect: 0.71, src: 'characters/berta.webp' },
   { id: 'mikie', name: 'Mikie', role: 'Králík', kind: 'rabbit', heightRel: 0.13, aspect: 1.05, src: 'characters/mikie.webp' }
 ];
 
@@ -91,13 +92,13 @@ export const SKETCHES: CharacterDef[] = [
 ];
 
 export const ROOMS: RoomDef[] = [
-  { id: 'living', name: 'Obývák', building: 'home', theme: 'paper' },
-  { id: 'kitchen', name: 'Kuchyně', building: 'home', theme: 'pond' },
-  { id: 'bedroom', name: 'Pokoj', building: 'home', theme: 'plum' },
-  { id: 'bathroom', name: 'Koupelna', building: 'home', theme: 'paper' },
-  { id: 'garden', name: 'Zahrada', building: 'home', theme: 'pond' },
+  { id: 'living', name: 'Obývák', building: 'home', theme: 'paper', plate: 'rooms/living.webp' },
+  { id: 'kitchen', name: 'Kuchyně', building: 'home', theme: 'pond', plate: 'rooms/kitchen.webp' },
+  { id: 'bedroom', name: 'Pokoj', building: 'home', theme: 'plum', plate: 'rooms/bedroom.webp' },
+  { id: 'bathroom', name: 'Koupelna', building: 'home', theme: 'paper', plate: 'rooms/bathroom.webp' },
+  { id: 'garden', name: 'Zahrada', building: 'home', theme: 'pond', plate: 'rooms/garden.webp' },
   { id: 'cottage-living', name: 'Chalupa', building: 'cottage', theme: 'clay' },
-  { id: 'cottage-garden', name: 'Zahrádka', building: 'cottage', theme: 'honey' },
+  { id: 'cottage-garden', name: 'Zahrádka', building: 'cottage', theme: 'honey', plate: 'rooms/garden.webp' },
   { id: 'sketch-studio', name: 'Sešit', building: 'anetka', theme: 'paper' }
 ];
 
@@ -140,12 +141,12 @@ export const FURNITURE: FurnitureDef[] = [
   { id: 'bed-plum', group: 'bedroom', subgroup: 'spaní', name: 'Postel', type: 'bed', heightRel: 0.24, aspect: 1.31, src: 'furniture/bed-plum.webp' },
   { id: 'desk', group: 'bedroom', subgroup: 'práce', name: 'Psací stůl', type: 'desk', heightRel: 0.20, aspect: 1.6 },
   { id: 'toilet', group: 'bathroom', subgroup: 'koupelna', name: 'Záchod', type: 'toilet', heightRel: 0.24, aspect: 0.7 },
-  { id: 'bathtub', group: 'bathroom', subgroup: 'koupelna', name: 'Vana', type: 'bathtub', heightRel: 0.22, aspect: 2.0 },
+  { id: 'bathtub', group: 'bathroom', subgroup: 'koupelna', name: 'Vana', type: 'bathtub', heightRel: 0.20, aspect: 1.46, src: 'furniture/bathtub.webp' },
   { id: 'mirror', group: 'bathroom', subgroup: 'koupelna', name: 'Zrcadlo', type: 'mirror', heightRel: 0.22, aspect: 0.7, wall: true },
-  { id: 'swing', group: 'garden', subgroup: 'hra', name: 'Houpačka', type: 'swing', heightRel: 0.34, aspect: 1.15 },
+  { id: 'swing', group: 'garden', subgroup: 'hra', name: 'Houpačka', type: 'swing', heightRel: 0.28, aspect: 0.97, src: 'furniture/swing.webp' },
   { id: 'slide', group: 'garden', subgroup: 'hra', name: 'Skluzavka', type: 'slide', heightRel: 0.32, aspect: 1.2 },
   { id: 'pool', group: 'garden', subgroup: 'hra', name: 'Bazén', type: 'pool', heightRel: 0.18, aspect: 2.1 },
-  { id: 'tree', group: 'garden', subgroup: 'příroda', name: 'Strom', type: 'tree', heightRel: 0.42, aspect: 0.85 },
+  { id: 'tree', group: 'garden', subgroup: 'příroda', name: 'Strom', type: 'tree', heightRel: 0.40, aspect: 0.61, src: 'furniture/tree.webp' },
   { id: 'teddy', group: 'toys', subgroup: 'hračky', name: 'Medvídek', type: 'toy', heightRel: 0.14, aspect: 0.9 },
   { id: 'robot', group: 'toys', subgroup: 'hračky', name: 'Robot', type: 'toy', heightRel: 0.14, aspect: 0.75 },
   { id: 'plant-sage', group: 'decor', subgroup: 'květiny', name: 'Květina', type: 'plant', heightRel: 0.26, aspect: 0.72, src: 'furniture/plant-sage.webp' },
@@ -228,9 +229,8 @@ export function furnishedWorld(): Entity[] {
     e('furniture', 'sofa-clay', 'living', 0.52, 0.84),
     e('furniture', 'table-coffee', 'living', 0.24, 0.90),
     e('furniture', 'lamp-floor', 'living', 0.11, 0.90),
-    e('furniture', 'plant-sage', 'living', 0.90, 0.88),
-    e('furniture', 'tv', 'living', 0.78, 0.24),
-    e('furniture', 'poster', 'living', 0.58, 0.22),
+    e('furniture', 'plant-sage', 'living', 0.92, 0.88),
+    e('furniture', 'tv', 'living', 0.90, 0.28),
     e('food', 'food-cookie', 'living', 0.26, 0.84),
     e('character', 'zuzana', 'living', 0.40, 0.91, { emotion: 'happy' }),
     e('character', 'anetka', 'living', 0.60, 0.91, { emotion: 'happy' }),
@@ -246,24 +246,16 @@ export function furnishedWorld(): Entity[] {
     e('food', 'food-apple', 'kitchen', 0.82, 0.80),
     e('character', 'richard', 'kitchen', 0.38, 0.91, { emotion: 'happy' }),
 
-    e('furniture', 'bed-plum', 'bedroom', 0.32, 0.86),
-    e('furniture', 'desk', 'bedroom', 0.78, 0.86),
-    e('item', 'robot', 'bedroom', 0.80, 0.76),
-    e('character', 'klarka', 'bedroom', 0.20, 0.91, { emotion: 'happy' }),
-    e('character', 'tanicka', 'bedroom', 0.52, 0.91, { emotion: 'happy' }),
+    e('furniture', 'bed-plum', 'bedroom', 0.38, 0.88),
+    e('character', 'klarka', 'bedroom', 0.22, 0.91, { emotion: 'happy' }),
+    e('character', 'tanicka', 'bedroom', 0.58, 0.91, { emotion: 'happy' }),
 
-    e('furniture', 'bathtub', 'bathroom', 0.22, 0.88),
-    e('furniture', 'toilet', 'bathroom', 0.52, 0.88),
-    e('furniture', 'sink', 'bathroom', 0.76, 0.84),
-    e('furniture', 'mirror', 'bathroom', 0.76, 0.22),
+    e('furniture', 'bathtub', 'bathroom', 0.28, 0.90),
 
-    e('furniture', 'swing', 'garden', 0.18, 0.78),
-    e('furniture', 'slide', 'garden', 0.42, 0.80),
-    e('furniture', 'tree', 'garden', 0.86, 0.62),
-    e('furniture', 'pool', 'garden', 0.68, 0.90),
-    e('character', 'risa', 'garden', 0.50, 0.88, { emotion: 'happy' }),
-    e('character', 'puffy', 'garden', 0.64, 0.90),
-    e('character', 'dart', 'garden', 0.30, 0.88),
+    e('furniture', 'swing', 'garden', 0.22, 0.84),
+    e('character', 'risa', 'garden', 0.48, 0.90, { emotion: 'happy' }),
+    e('character', 'puffy', 'garden', 0.64, 0.92),
+    e('character', 'dart', 'garden', 0.34, 0.90),
 
     e('furniture', 'sofa-clay', 'cottage-living', 0.16, 0.78),
     e('furniture', 'table-coffee', 'cottage-living', 0.46, 0.76),

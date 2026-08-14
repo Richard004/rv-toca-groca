@@ -65,6 +65,25 @@
   overflow: hidden;
 }
 
+.room-plate {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 64%;
+  pointer-events: none;
+}
+
+.room-shell.has-plate .room-sky,
+.room-shell.has-plate .room-wall,
+.room-shell.has-plate .room-wainscot,
+.room-shell.has-plate .room-floor,
+.room-shell.has-plate .room-window,
+.room-shell.has-plate .room-lines {
+  display: none;
+}
+
 .room-sky,
 .room-wall,
 .room-floor,

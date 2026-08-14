@@ -12,8 +12,10 @@ export function roomShellHTML(room: RoomDef, themeId: string) {
   const floor = outdoor ? (night ? '#243028' : theme.floor) : theme.floor;
   const sky = night ? '#2c3340' : sketch ? '#e7dcc4' : '#c5d5ce';
 
-  const window = windowArt(room, night);
-  return `<div class="room-shell ${outdoor ? 'is-out' : ''}" style="--wall:${wall};--floor:${floor}">
+  const plate = room.plate && !night && themeId === room.theme;
+  const window = plate ? '' : windowArt(room, night);
+  return `<div class="room-shell ${outdoor ? 'is-out' : ''}${plate ? ' has-plate' : ''}" style="--wall:${wall};--floor:${floor}">
+    ${plate ? `<img class="room-plate" src="${assetUrl(room.plate!)}" alt=""/>` : ''}
     <div class="room-sky" style="background:${sky}"></div>
     <div class="room-wall"></div>
     <div class="room-wainscot"></div>
